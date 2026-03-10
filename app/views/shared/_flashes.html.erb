@@ -1,0 +1,21 @@
+<div data-controller="flashes">
+
+  <% if alert %>
+    <div role="alert" class="alert alert-error fixed z-50 bottom-10 right-10">
+      <span><%= alert %></span>
+      <button class="btn btn-circle btn-sm" data-action="click->flashes#close">
+        <i class="fa-solid fa-xmark text-error"></i>
+      </button>
+    </div>
+  <% end %>
+
+  <% if notice %>
+    <div role="alert" class="alert alert-success fixed z-50 bottom-10 right-10">
+      <span><%= notice %></span>
+      <button class="btn btn-circle btn-sm" data-action="click->flashes#close">
+        <i class="fa-solid fa-xmark text-success"></i>
+      </button>
+    </div>
+  <% end %>
+
+</div>
