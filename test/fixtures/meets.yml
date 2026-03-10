@@ -1,0 +1,15 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  court: one
+  meetable: one
+  meetable_type: Meetable
+  date: 2026-03-10
+  duration: 1
+
+two:
+  court: two
+  meetable: two
+  meetable_type: Meetable
+  date: 2026-03-10
+  duration: 1

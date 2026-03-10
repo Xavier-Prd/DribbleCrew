@@ -10,19 +10,138 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_10_102920) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_10_144439) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
+  create_table "active_storage_attachments", force: :cascade do |t|
+    t.bigint "blob_id", null: false
+    t.datetime "created_at", null: false
+    t.string "name", null: false
+    t.bigint "record_id", null: false
+    t.string "record_type", null: false
+    t.index ["blob_id"], name: "index_active_storage_attachments_on_blob_id"
+    t.index ["record_type", "record_id", "name", "blob_id"], name: "index_active_storage_attachments_uniqueness", unique: true
+  end
+
+  create_table "active_storage_blobs", force: :cascade do |t|
+    t.bigint "byte_size", null: false
+    t.string "checksum"
+    t.string "content_type"
+    t.datetime "created_at", null: false
+    t.string "filename", null: false
+    t.string "key", null: false
+    t.text "metadata"
+    t.string "service_name", null: false
+    t.index ["key"], name: "index_active_storage_blobs_on_key", unique: true
+  end
+
+  create_table "active_storage_variant_records", force: :cascade do |t|
+    t.bigint "blob_id", null: false
+    t.string "variation_digest", null: false
+    t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
+  end
+
+  create_table "courts", force: :cascade do |t|
+    t.string "address"
+    t.datetime "created_at", null: false
+    t.string "image"
+    t.float "lat"
+    t.float "long"
+    t.string "name"
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "matches", force: :cascade do |t|
+    t.bigint "blue_team_id", null: false
+    t.integer "blue_team_score"
+    t.datetime "created_at", null: false
+    t.bigint "red_team_id", null: false
+    t.integer "red_team_score"
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["blue_team_id"], name: "index_matches_on_blue_team_id"
+    t.index ["red_team_id"], name: "index_matches_on_red_team_id"
+    t.index ["user_id"], name: "index_matches_on_user_id"
+  end
+
+  create_table "meets", force: :cascade do |t|
+    t.bigint "court_id", null: false
+    t.datetime "created_at", null: false
+    t.date "date"
+    t.integer "duration"
+    t.bigint "meetable_id", null: false
+    t.string "meetable_type", null: false
+    t.datetime "updated_at", null: false
+    t.index ["court_id"], name: "index_meets_on_court_id"
+    t.index ["meetable_type", "meetable_id"], name: "index_meets_on_meetable"
+  end
+
+  create_table "programs", force: :cascade do |t|
+    t.boolean "active"
+    t.text "content"
+    t.datetime "created_at", null: false
+    t.text "goal"
+    t.string "level"
+    t.bigint "team_id", null: false
+    t.string "title"
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["team_id"], name: "index_programs_on_team_id"
+    t.index ["user_id"], name: "index_programs_on_user_id"
+  end
+
+  create_table "teams", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "number_player"
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "user_teams", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.bigint "team_id", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["team_id"], name: "index_user_teams_on_team_id"
+    t.index ["user_id"], name: "index_user_teams_on_user_id"
+  end
+
   create_table "users", force: :cascade do |t|
+    t.integer "age"
     t.datetime "created_at", null: false
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
+    t.string "gender"
+    t.integer "height"
     t.datetime "remember_created_at"
     t.datetime "reset_password_sent_at"
     t.string "reset_password_token"
     t.datetime "updated_at", null: false
+    t.string "username"
+    t.integer "weight"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
+
+  create_table "victories", force: :cascade do |t|
+    t.bigint "court_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["court_id"], name: "index_victories_on_court_id"
+    t.index ["user_id"], name: "index_victories_on_user_id"
+  end
+
+  add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "matches", "teams", column: "blue_team_id"
+  add_foreign_key "matches", "teams", column: "red_team_id"
+  add_foreign_key "matches", "users"
+  add_foreign_key "meets", "courts"
+  add_foreign_key "programs", "teams"
+  add_foreign_key "programs", "users"
+  add_foreign_key "user_teams", "teams"
+  add_foreign_key "user_teams", "users"
+  add_foreign_key "victories", "courts"
+  add_foreign_key "victories", "users"
 end
