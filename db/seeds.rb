@@ -14,6 +14,9 @@ require "faker"
 puts "Destroying existing records..."
 Meet.destroy_all
 Match.destroy_all
+Program.destroy_all
+UserTeam.destroy_all
+Victory.destroy_all
 Court.destroy_all
 Team.destroy_all
 User.destroy_all
