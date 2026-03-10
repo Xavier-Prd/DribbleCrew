@@ -1,0 +1,19 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  content: MyText
+  title: MyString
+  level: MyString
+  goal: MyText
+  user: one
+  team: one
+  active: false
+
+two:
+  content: MyText
+  title: MyString
+  level: MyString
+  goal: MyText
+  user: two
+  team: two
+  active: false
