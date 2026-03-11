@@ -1,18 +1,21 @@
 <% if user_signed_in? %>
-  <nav class="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 safe-area-inset-bottom">
+  <nav class="fixed bottom-0 left-0 right-0 z-50 border-t border-white/10" style="background-color: var(--color-base-300);">
     <div class="flex items-center justify-around h-16">
 
-      <%= link_to programs_show_path, class: "flex flex-col items-center gap-1 px-6 py-2 #{request.path.start_with?('/programs') ? 'text-orange-500' : 'text-gray-400'}" do %>
+      <% programs_active = request.path.start_with?('/programs') %>
+      <%= link_to programs_path, class: "flex flex-col items-center gap-1 px-6 py-2", style: programs_active ? "color: var(--color-primary);" : "color: white;" do %>
         <i class="fa-solid fa-clipboard-list text-xl"></i>
         <span class="text-xs font-medium">Programs</span>
       <% end %>
 
-      <%= link_to root_path, class: "flex flex-col items-center gap-1 px-6 py-2 #{request.path == '/' ? 'text-orange-500' : 'text-gray-400'}" do %>
+      <% map_active = request.path == '/' %>
+      <%= link_to root_path, class: "flex flex-col items-center gap-1 px-6 py-2", style: map_active ? "color: var(--color-primary);" : "color: white;" do %>
         <i class="fa-solid fa-location-dot text-xl"></i>
         <span class="text-xs font-medium">Map</span>
       <% end %>
 
-      <%= link_to profile_path(current_user), class: "flex flex-col items-center gap-1 px-6 py-2 #{request.path.start_with?('/profiles') ? 'text-orange-500' : 'text-gray-400'}" do %>
+      <% profile_active = request.path.start_with?('/profiles') %>
+      <%= link_to profile_path(current_user), class: "flex flex-col items-center gap-1 px-6 py-2", style: profile_active ? "color: var(--color-primary);" : "color: white;" do %>
         <i class="fa-solid fa-user text-xl"></i>
         <span class="text-xs font-medium">Profile</span>
       <% end %>
