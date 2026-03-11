@@ -87,6 +87,7 @@ test:
 production:
   primary: &primary_production
     <<: *default
+    url: <%= ENV["DATABASE_URL"] %>
     database: dribble_crew_production
     username: dribble_crew
     password: <%= ENV["DRIBBLE_CREW_DATABASE_PASSWORD"] %>
