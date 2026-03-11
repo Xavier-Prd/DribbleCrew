@@ -6,6 +6,7 @@ class MeetsController < ApplicationController
   end
 
   def new
+    @meet = Meet.new
   end
 
   def create
