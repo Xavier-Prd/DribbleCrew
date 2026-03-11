@@ -78,14 +78,145 @@ puts "#{Match.count} matches created"
 # ---- COURTS ----
 puts "Starting Courts seed"
 
-10.times do
-  Court.create!(
-    name: Faker::Sports::Basketball.team,
-    address: Faker::Address.full_address,
-    lat: Faker::Address.latitude,
-    long: Faker::Address.longitude
-  )
-end
+Court.create!(
+  name: "Basic Fit Gambetta",
+  address: "233-235 Rue Léon Gambetta, Lille",
+  lat: 50.628768021562784,
+  long: 3.0532473518823227
+)
+
+Court.create!(
+  name: "Basic Fit Rue Nationale",
+  address: "85 Rue Nationale, Lille",
+  lat: 50.6372,
+  long: 3.0603
+)
+
+Court.create!(
+  name: "Basic Fit Rue du Molinel",
+  address: "31 Rue du Molinel, Lille",
+  lat: 50.6376,
+  long: 3.0704
+)
+
+Court.create!(
+  name: "Basic Fit Rue de Douai",
+  address: "124 Rue de Douai, Lille",
+  lat: 50.6205,
+  long: 3.0671
+)
+
+Court.create!(
+  name: "Basic Fit Rue des Sarrazins",
+  address: "4 bis Rue des Sarrazins, Lille",
+  lat: 50.6262,
+  long: 3.0468
+)
+
+Court.create!(
+  name: "Basic Fit Faubourg des Postes",
+  address: "Rue du Faubourg des Postes, Lille",
+  lat: 50.6179,
+  long: 3.0529
+)
+
+Court.create!(
+  name: "Fitness Park Lille Centre",
+  address: "Place des Buisses, Lille",
+  lat: 50.6368,
+  long: 3.0692
+)
+
+Court.create!(
+  name: "Domyos Club Lille",
+  address: "1 Rue du Professeur Langevin, Lille",
+  lat: 50.6324,
+  long: 3.0951
+)
+
+Court.create!(
+  name: "Keep Cool Lille République",
+  address: "6 Boulevard de la Liberté, Lille",
+  lat: 50.6348,
+  long: 3.0589
+)
+
+Court.create!(
+  name: "Neoness Lille Flandres",
+  address: "Rue de Tournai, Lille",
+  lat: 50.6362,
+  long: 3.0732
+)
+
+Court.create!(
+  name: "L'Orange Bleue Lille",
+  address: "Rue Solférino, Lille",
+  lat: 50.6309,
+  long: 3.0553
+)
+
+Court.create!(
+  name: "CrossFit Vauban",
+  address: "Quai de l'Ouest, Lille",
+  lat: 50.6371,
+  long: 3.0485
+)
+
+Court.create!(
+  name: "CrossFit Fives",
+  address: "Rue Pierre Legrand, Lille",
+  lat: 50.6329,
+  long: 3.0916
+)
+
+Court.create!(
+  name: "Gymstreet Lille",
+  address: "Rue Nationale, Lille",
+  lat: 50.6375,
+  long: 3.0611
+)
+
+Court.create!(
+  name: "Club Moving Lille",
+  address: "Boulevard de Strasbourg, Lille",
+  lat: 50.6315,
+  long: 3.0709
+)
+
+Court.create!(
+  name: "Basic Fit Lillenium",
+  address: "Centre Commercial Lillenium, Lille",
+  lat: 50.6164,
+  long: 3.0542
+)
+
+Court.create!(
+  name: "Complexe Sportif Auguste Defaucompret",
+  address: "Rue du Long Pot, Lille",
+  lat: 50.6402,
+  long: 3.0986
+)
+
+Court.create!(
+  name: "Palais des Sports Saint Sauveur",
+  address: "78 Avenue Kennedy, Lille",
+  lat: 50.6298,
+  long: 3.0737
+)
+
+Court.create!(
+  name: "Salle Multisports Lille Sud",
+  address: "Rue de Marquillies, Lille",
+  lat: 50.62054,
+  long: 3.037173
+)
+
+Court.create!(
+  name: "Complexe Sportif Marcel Bernard",
+  address: "Rue du Faubourg de Roubaix, Lille",
+  lat: 50.6407,
+  long: 3.0826
+)
 
 puts "#{Court.count} courts created"
 
