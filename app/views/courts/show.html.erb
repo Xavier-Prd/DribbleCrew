@@ -34,5 +34,6 @@
         <p><%= user.username %>: <%= user.victories.where(court: @court).count %></p>
       <% end %>
     </div>
+    <%= link_to "Créer un match", new_match_path(@court) %>
   </div>
 </div>
