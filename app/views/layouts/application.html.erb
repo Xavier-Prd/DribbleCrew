@@ -18,14 +18,19 @@
     <link rel="icon" href="/icon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/icon.png">
 
+    <%# Leaflet CSS and JS for map rendering %>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
     <%# Includes all stylesheet files in app/assets/stylesheets %>
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v7.1.0/css/all.css">
 <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
   </head>
 
-  <body>
+  <body class="pb-16">
     <%= yield %>
-  <%= render "shared/flashes" %>
-</body>
+    <%= render "shared/flashes" %>
+    <%= render "shared/navbar" %>
+  </body>
 </html>
