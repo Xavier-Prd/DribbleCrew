@@ -1,10 +1,4 @@
 Rails.application.routes.draw do
-  get "programs/show"
-  get "programs/new"
-  get "profiles/show"
-  get "meets/show"
-  get "matches/new"
-  get "courts/show"
   devise_for :users
   root to: "maps#index"
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
@@ -27,7 +21,7 @@ Rails.application.routes.draw do
     end
   end
   resources :profiles, only: [ :show, :update ]
-  resources :programs, only: [ :show, :new, :create ] do
+  resources :programs, only: [ :index, :show, :new, :create ] do
     resources :meets, only: [ :new, :create ]
   end
 end
