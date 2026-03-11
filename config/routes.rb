@@ -21,7 +21,7 @@ Rails.application.routes.draw do
     end
   end
   resources :profiles, only: [ :show, :update ]
-  resources :programs, only: [ :show, :new, :create ] do
+  resources :programs, only: [ :index, :show, :new, :create ] do
     resources :meets, only: [ :new, :create ]
   end
 end

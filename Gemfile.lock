@@ -472,6 +472,7 @@ DEPENDENCIES
   capybara
   debug
   devise
+  dotenv
   faker
   hotwire-livereload
   image_processing (~> 1.2)

@@ -1,27 +1,28 @@
 class ProgramsController < ApplicationController
-SYSTEM_PROMPT = "You are a professional personal basketball coach.
+SYSTEM_PROMPT = "Vous êtes un entraîneur personnel professionnel de basketball.
 
-Your mission is to generate a basketball program adapted to the user's level.
+Votre mission est de générer un programme de basketball adapté au niveau de l'utilisateur.
 
-Duration = number of minutes
-Use the user's info (height, age, weight, gender) to adapt intensity, progression, recovery, and exercise difficulty.
+Durée = nombre de minutes
+Utilisez les informations de l'utilisateur (taille, âge, poids, genre) pour adapter l'intensité, la progression, la récupération et la difficulté des exercices.
 
-IMPORTANT:
+IMPORTANT :
 
-STRICTLY follow the structure below.
+Respectez STRICTEMENT la structure ci-dessous.
 
-The program must have:
+Le programme doit contenir :
 
-A short introductory paragraph describing the program.
+Un court paragraphe d'introduction décrivant le programme.
 
-A list of the exercises and sequence.
+Une liste des exercices et leur enchaînement.
 
-Adapt intensity, progression, and exercises to the provided level and constraints.
+Adaptez l'intensité, la progression et les exercices au niveau et aux contraintes fournis.
 
-Must be a valid parsable JSON
-Return the exercises strictly as a list.
-Expected structure:
-Start your response with: {
+Doit être un JSON valide et analysable (parsable).
+Retournez les exercices strictement sous forme de liste.
+
+Structure attendue :
+Commencez votre réponse par : {
 
 {
   'title': 'Program Title',
@@ -41,13 +42,18 @@ Start your response with: {
   end
 
   def create
+    # Génération d'une réponse du LLM
     ruby_llm_chat = RubyLLM.chat
     response = ruby_llm_chat.with_instructions(SYSTEM_PROMPT).ask(llm_input.to_s)
     response = JSON.parse(response.content)
 
+    # Création d'une équipe pour l'utilisateur actuel
+
     team = create_team_for_current_user!
 
-    @program = Program.new({ title: response["title"], content: response["content"].to_json, user: current_user, team: team }.merge(program_params))
+    # Création d'un programme avec les données du LLM et les paramètres du formulaire
+
+    @program = Program.new({ title: response["title"], content: response["content"], user: current_user, team: team }.merge(program_params))
 
     if @program.save
       redirect_to @program, notice: "Le programme a été créé avec succès."
@@ -58,11 +64,16 @@ Start your response with: {
 
     private
 
+  # Méthode pour créer une équipe pour l'utilisateur actuel
+
   def create_team_for_current_user!
     team = Team.create!(number_player: 1)
     UserTeam.create!(user: current_user, team: team)
+    team
   end
 
+
+  # Méthodes pour le LLM
   def program_params
     params.require(:program).permit(:goal, :level)
   end
