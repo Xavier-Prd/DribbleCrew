@@ -1,1 +1,9 @@
-maps
+<div class="w-screen min-h-screen flex justify-center">
+  <div
+    id="map"
+    class="w-full h-[calc(100vh-4rem)]"
+    data-controller="map"
+    data-map-markers-value="<%= (@markers || []).to_json %>"
+    data-map-icon-path-value="<%= asset_path('marker.png') %>"
+  ></div>
+</div>
