@@ -1,4 +1,38 @@
-<div>
-  <h1 class="font-bold text-4xl">Courts#show</h1>
-  <p>Find me in app/views/courts/show.html.erb</p>
+<div class="container">
+  <div class="court-info">
+    <p>#TODO Image du terrain</p>
+    <%= @court.name %>
+    <p><%= @court.address %></p>
+  </div>
+
+  <div data-controller="toggle">
+    <div class="display-leaderboard">
+      <%# Sert a afficher le leaderboard %>
+      <button type="button" data-toggle-target="btnLeaderboard" data-action="toggle#displayLeaderboard">Display Leaderboard</button>
+      <%# Sert a afficher les sessions %>
+      <button type="button" data-toggle-target="btnMeet" data-action="toggle#displaySessions" class="hidden">Display sessions</button>
+    </div>
+
+    <div data-toggle-target="meets">
+      <% @meets.each do |meet| %>
+        <% if meet.meetable_type == 'Match' %>
+          <div class="meet-match-card">
+            Info sessions match
+            <%# Inserer une card de meet pour un meet de match %>
+          </div>
+        <% else %>
+          <div class="meet-program-card">
+            <%# Inserer une card de meet pour un meet de program %>
+            Info session program
+          </div>
+        <% end %>
+      <% end %>
+    </div>
+
+    <div data-toggle-target="leaderboard" class="hidden">
+      <% @users.first(10).each do |user| %>
+        <p><%= user.username %>: <%= user.victories.where(court: @court).count %></p>
+      <% end %>
+    </div>
+  </div>
 </div>
