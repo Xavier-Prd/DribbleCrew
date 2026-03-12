@@ -17,7 +17,7 @@ class MeetsController < ApplicationController
     if @meet.save
       redirect_to @program
     else
-      render :new,status: :unprocessable_entity
+      render :new, status: :unprocessable_entity
     end
   end
 
