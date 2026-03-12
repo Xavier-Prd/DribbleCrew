@@ -1,43 +1,18 @@
+<h1 class="flex items-center justify-center gap-3 text-4xl font-bold mt-12 mx-6">
+  Créer une rencontre
+  <i class="fa-solid fa-basketball text-6xl"></i>
+</h1>
+<p class="text-center text-gray-500 mb-12 mx-6 mt-6">
+  Rejoignez un terrain pour mettre en pratique votre programme d'entraînement avec d'autres joueurs.
+</p>
 <%= simple_form_for [@program, @meet] do |f| %>
-  <%# La date %>
-  <div class="flex flex-col gap-2">
-    <label class="text-gray-300 font-medium">Date</label>
-    <%# Le data picker natif au clique %>
-    <%= f.input :date,
-              as: :string,
-              label: false,
-              wrapper: false,
-              input_html: {
-                type: "datetime-local",
-                class: "input input-bordered w-full bg-white text-gray-800 focus:outline-none h-12 border-none"
-              } %>
-  </div>
-  <%# La durée %>
-  <div class="flex flex-col gap-2">
-    <label class="text-gray-300 font-medium ml-1">Durée du match</label>
-    <%= f.input :duration,
-      collection: [["15 mins", 15], ["30 mins", 30], ["45 mins", 45], ["60 mins", 60], ["90 mins", 90], ["120 mins", 120]],
-      prompt: "Choisir la durée",
+  <div class="container mt-12">
+    <fieldset class="fieldset mx-6">
+      <%= f.label :date, "Date", class:"fieldset-legend" %>
+      <%= f.input :date,
+      as: :string,
       label: false,
-      wrapper: false,
-      input_html: {
-        class: "select select-bordered w-full bg-white text-gray-800 focus:outline-none h-12 min-h-[3rem] border-none px-4 flex items-center"
-      } %>
-  </div>
-  <%# Le terrain %>
-  <div class="flex flex-col gap-2">
-    <label class="text-gray-300 font-medium ml-1">Terrain</label>
-    <%# pour comprendre que chaque "Meet" appartient à un "Court" %>
-    <%= f.association :court,
-      collection: Court.all,
-      label_method: :name,
-      value_method: :id,
-      prompt: "Choisir un terrain",
-      label: false,
-      wrapper: false,
-      input_html: {
-        class: "select select-bordered w-full bg-white text-gray-800 focus:outline-none h-12 min-h-[3rem] border-none px-4 flex items-center"
-      } %>
-  <%= f.submit "Créer une rencontre" %>
+      input_html: { type: "datetime-local", class: "input input-bordered w-full [color-scheme:dark]" } %>
+    </fieldset>
   </div>
 <% end %>

@@ -6,7 +6,7 @@
   Définissez vos objectifs et votre niveau pour recevoir un programme personnalisé par IA.
 </p>
 <%= simple_form_for @program do |f| %>
-  <div class="container my-32">
+  <div class="container mt-12">
     <fieldset class="fieldset mx-6">
       <%= f.label :goal, "Objectif", class:"fieldset-legend" %>
       <%= f.text_area :goal, rows: 3, class: "textarea textarea-bordered w-full",
@@ -15,7 +15,7 @@
       <%= f.select :level, Program::LEVELS, {}, class: "select select-bordered w-full" %>
     </fieldset>
   </div>
-  <div class="absolute bottom-20 w-full px-6">
+  <div class="absolute bottom-22 w-full px-6">
     <%= f.submit "Créer un programme", class: "btn btn-primary btn-xl w-full" %>
   </div>
 <% end %>
