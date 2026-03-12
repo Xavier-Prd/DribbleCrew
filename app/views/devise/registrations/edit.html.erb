@@ -1,41 +1,76 @@
-<div class="container mx-auto min-h-screen flex items-center justify-center">
-  <div class="w-full max-w-md">
+<div class="min-h-screen pb-24 px-6">
 
-    <h2>Edit <%= resource_name.to_s.humanize %></h2>
-
-    <%= simple_form_for(resource, as: resource_name, url: registration_path(resource_name), html: { method: :put }) do |f| %>
-      <%= f.error_notification %>
-
-      <div class="form-inputs">
-        <%= f.input :email, required: true, autofocus: true %>
-
-        <% if devise_mapping.confirmable? && resource.pending_reconfirmation? %>
-          <p>Currently waiting confirmation for: <%= resource.unconfirmed_email %></p>
-        <% end %>
-
-        <%= f.input :password,
-                    hint: "leave it blank if you don't want to change it",
-                    required: false,
-                    input_html: { autocomplete: "new-password" } %>
-        <%= f.input :password_confirmation,
-                    required: false,
-                    input_html: { autocomplete: "new-password" } %>
-        <%= f.input :current_password,
-                    hint: "we need your current password to confirm your changes",
-                    required: true,
-                    input_html: { autocomplete: "current-password" } %>
-      </div>
-
-      <div class="form-actions">
-        <%= f.button :submit, "Update" %>
-      </div>
+  <%# Header %>
+  <div class="flex items-center gap-4 pt-10 mb-8">
+    <%= link_to :back, class: "flex items-center justify-center w-10 h-10 rounded-full border border-white/10" do %>
+      <i class="fa-solid fa-chevron-left text-sm"></i>
     <% end %>
-
-    <h3>Cancel my account</h3>
-
-    <div>Unhappy? <%= button_to "Cancel my account", registration_path(resource_name), data: { confirm: "Are you sure?", turbo_confirm: "Are you sure?" }, method: :delete %></div>
-
-    <%= link_to "Back", :back %>
-
+    <div>
+      <h1 class="text-lg font-bold leading-tight">Mon compte</h1>
+    </div>
   </div>
+
+  <div class="mb-10">
+    <h2 class="text-3xl font-bold">Modifier mes<br>informations</h2>
+  </div>
+
+  <%= simple_form_for(resource, as: resource_name, url: registration_path(resource_name), html: { method: :put, class: "space-y-6" }) do |f| %>
+    <%= f.error_notification class: "text-error text-sm mb-4 block" %>
+
+    <div>
+      <label class="text-xs font-semibold uppercase tracking-widest text-white/40 mb-2 block">Email</label>
+      <%= f.input :email,
+          label: false,
+          wrapper: false,
+          required: true,
+          autofocus: true,
+          input_html: { autocomplete: "email", class: "input input-bordered w-full bg-white/5 border-white/10 text-white focus:border-primary focus:outline-none" } %>
+      <% if devise_mapping.confirmable? && resource.pending_reconfirmation? %>
+        <p class="text-xs text-white/40 mt-1">En attente de confirmation : <%= resource.unconfirmed_email %></p>
+      <% end %>
+    </div>
+
+    <div>
+      <label class="text-xs font-semibold uppercase tracking-widest text-white/40 mb-2 block">Nouveau mot de passe</label>
+      <%= f.input :password,
+          label: false,
+          wrapper: false,
+          hint: "Laisser vide pour ne pas changer",
+          required: false,
+          input_html: { autocomplete: "new-password", class: "input input-bordered w-full bg-white/5 border-white/10 text-white focus:border-primary focus:outline-none" } %>
+    </div>
+
+    <div>
+      <label class="text-xs font-semibold uppercase tracking-widest text-white/40 mb-2 block">Confirmer le nouveau mot de passe</label>
+      <%= f.input :password_confirmation,
+          label: false,
+          wrapper: false,
+          required: false,
+          input_html: { autocomplete: "new-password", class: "input input-bordered w-full bg-white/5 border-white/10 text-white focus:border-primary focus:outline-none" } %>
+    </div>
+
+    <div>
+      <label class="text-xs font-semibold uppercase tracking-widest text-white/40 mb-2 block">Mot de passe actuel</label>
+      <%= f.input :current_password,
+          label: false,
+          wrapper: false,
+          hint: "Requis pour confirmer les modifications",
+          required: true,
+          input_html: { autocomplete: "current-password", class: "input input-bordered w-full bg-white/5 border-white/10 text-white focus:border-primary focus:outline-none" } %>
+    </div>
+
+    <div class="pt-2">
+      <%= f.submit "Enregistrer", class: "btn btn-primary btn-md w-full rounded-box" %>
+    </div>
+
+  <% end %>
+
+  <div class="mt-8 pt-8 border-t border-white/10">
+    <p class="text-xs text-white/40 uppercase tracking-widest mb-4">Zone dangereuse</p>
+    <%= button_to "Supprimer mon compte", registration_path(resource_name),
+        data: { turbo_confirm: "Es-tu sûr ? Cette action est irréversible." },
+        method: :delete,
+        class: "btn btn-outline btn-error btn-sm w-full rounded-box" %>
+  </div>
+
 </div>
