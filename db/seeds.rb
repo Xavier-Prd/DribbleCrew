@@ -1,14 +1,7 @@
-# This file should ensure the existence of records required to run the application in every environment (production,
-# development, test). The code here should be idempotent so that it can be executed at any point in every environment.
-# The data can then be loaded with the bin/rails db:seed command (or created alongside the database with db:setup).
-#
-# Example:
-#
-#   ["Action", "Comedy", "Drama", "Horror"].each do |genre_name|
-#     MovieGenre.find_or_create_by!(name: genre_name)
-#   end
-
 require "faker"
+require 'net/http'
+require 'json'
+require 'uri'
 
 # Destroy all existing records to avoid duplication when running seeds multiple times
 puts "Destroying existing records..."
@@ -63,162 +56,72 @@ puts "Starting Matches seed"
 10.times do
   red = Team.all.sample
   blue = Team.where.not(id: red.id).sample
+  team_count = rand(0..10)
 
   Match.create!(
     user: User.all.sample,
     red_team: red,
     blue_team: blue,
-    red_team_score: rand(0..10),
-    blue_team_score: rand(0..10)
+    red_team_score: team_count,
+    blue_team_score: team_count
   )
 end
 
 puts "#{Match.count} matches created"
 
-# ---- COURTS ----
-puts "Starting Courts seed"
+# ---- COURTS from OpenStreetMap ----
+puts "Starting Courts seed via OpenStreetMap"
 
-Court.create!(
-  name: "Basic Fit Gambetta",
-  address: "233-235 Rue Léon Gambetta, Lille",
-  lat: 50.628768021562784,
-  long: 3.0532473518823227
-)
 
-Court.create!(
-  name: "Basic Fit Rue Nationale",
-  address: "85 Rue Nationale, Lille",
-  lat: 50.6372,
-  long: 3.0603
-)
+overpass_query = <<~QUERY
+  [out:json][timeout:25];
+  area["name"="Lille"]["boundary"="administrative"]->.searchArea;
+  (
+    node["leisure"="pitch"]["sport"="basketball"]
+        ["access"!~"private|members|customers"]
+        ["leisure"!~"sports_centre|school|stadium"]
+        (area.searchArea);
+    way["leisure"="pitch"]["sport"="basketball"]
+        ["access"!~"private|members|customers"]
+        ["leisure"!~"sports_centre|school|stadium"]
+        (area.searchArea);
+  );
+  out center;
+QUERY
+playground_images = Dir[Rails.root.join("app/assets/images/playgrounds/*")]
 
-Court.create!(
-  name: "Basic Fit Rue du Molinel",
-  address: "31 Rue du Molinel, Lille",
-  lat: 50.6376,
-  long: 3.0704
-)
+uri = URI("https://overpass-api.de/api/interpreter")
+response = Net::HTTP.post_form(uri, { "data" => overpass_query })
+data = JSON.parse(response.body)
 
-Court.create!(
-  name: "Basic Fit Rue de Douai",
-  address: "124 Rue de Douai, Lille",
-  lat: 50.6205,
-  long: 3.0671
-)
+data["elements"].first(10).each do |element|
+  lat = element["lat"] || element.dig("center", "lat")
+  lon = element["lon"] || element.dig("center", "lon")
 
-Court.create!(
-  name: "Basic Fit Rue des Sarrazins",
-  address: "4 bis Rue des Sarrazins, Lille",
-  lat: 50.6262,
-  long: 3.0468
-)
+  # Reverse geocoding via Nominatim
+  nominatim_uri = URI("https://nominatim.openstreetmap.org/reverse?lat=#{lat}&lon=#{lon}&format=json")
+  nominatim_request = Net::HTTP::Get.new(nominatim_uri)
+  nominatim_request["User-Agent"] = "DribbleCrew/1.0"
+  nominatim_response = Net::HTTP.start(nominatim_uri.host, nominatim_uri.port, use_ssl: true) { |http| http.request(nominatim_request) }
+  nominatim_data = JSON.parse(nominatim_response.body)
 
-Court.create!(
-  name: "Basic Fit Faubourg des Postes",
-  address: "Rue du Faubourg des Postes, Lille",
-  lat: 50.6179,
-  long: 3.0529
-)
+  street = nominatim_data.dig("address", "road")
+  address = nominatim_data["display_name"] || "Lille"
+  street_name = street&.sub(/\A(Rue|Avenue|Boulevard|Allée|Impasse|Place|Chemin|Route|Passage|Parc|Square|Villa|Voie|Résidence)\s+/i, "")
+  name = street_name.present? ? "Terrain #{street_name}" : "Terrain de basketball"
 
-Court.create!(
-  name: "Fitness Park Lille Centre",
-  address: "Place des Buisses, Lille",
-  lat: 50.6368,
-  long: 3.0692
-)
+  Court.find_or_create_by!(lat: lat, long: lon) do |court|
+    court.name    = name
+    court.address = address
+    image_path = playground_images.sample
+    court.image = { io: File.open(image_path), filename: File.basename(image_path) }
+  end
 
-Court.create!(
-  name: "Domyos Club Lille",
-  address: "1 Rue du Professeur Langevin, Lille",
-  lat: 50.6324,
-  long: 3.0951
-)
-
-Court.create!(
-  name: "Keep Cool Lille République",
-  address: "6 Boulevard de la Liberté, Lille",
-  lat: 50.6348,
-  long: 3.0589
-)
-
-Court.create!(
-  name: "Neoness Lille Flandres",
-  address: "Rue de Tournai, Lille",
-  lat: 50.6362,
-  long: 3.0732
-)
-
-Court.create!(
-  name: "L'Orange Bleue Lille",
-  address: "Rue Solférino, Lille",
-  lat: 50.6309,
-  long: 3.0553
-)
-
-Court.create!(
-  name: "CrossFit Vauban",
-  address: "Quai de l'Ouest, Lille",
-  lat: 50.6371,
-  long: 3.0485
-)
-
-Court.create!(
-  name: "CrossFit Fives",
-  address: "Rue Pierre Legrand, Lille",
-  lat: 50.6329,
-  long: 3.0916
-)
-
-Court.create!(
-  name: "Gymstreet Lille",
-  address: "Rue Nationale, Lille",
-  lat: 50.6375,
-  long: 3.0611
-)
-
-Court.create!(
-  name: "Club Moving Lille",
-  address: "Boulevard de Strasbourg, Lille",
-  lat: 50.6315,
-  long: 3.0709
-)
-
-Court.create!(
-  name: "Basic Fit Lillenium",
-  address: "Centre Commercial Lillenium, Lille",
-  lat: 50.6164,
-  long: 3.0542
-)
-
-Court.create!(
-  name: "Complexe Sportif Auguste Defaucompret",
-  address: "Rue du Long Pot, Lille",
-  lat: 50.6402,
-  long: 3.0986
-)
-
-Court.create!(
-  name: "Palais des Sports Saint Sauveur",
-  address: "78 Avenue Kennedy, Lille",
-  lat: 50.6298,
-  long: 3.0737
-)
-
-Court.create!(
-  name: "Salle Multisports Lille Sud",
-  address: "Rue de Marquillies, Lille",
-  lat: 50.62054,
-  long: 3.037173
-)
-
-Court.create!(
-  name: "Complexe Sportif Marcel Bernard",
-  address: "Rue du Faubourg de Roubaix, Lille",
-  lat: 50.6407,
-  long: 3.0826
-)
+  sleep(1) # Respecter le rate limit Nominatim (1 requête/seconde)
+end
 
 puts "#{Court.count} courts created"
+
 
 # ---- PROGRAMS ----
 puts "Starting Programs seed"
@@ -247,3 +150,23 @@ puts "Starting Meets seed"
   )
 end
 puts "#{Meet.count} meets created"
+
+# ---- VICTORIES ----
+puts "Starting Victories seed"
+50.times do
+  Victory.create!(
+    user: User.all.sample,
+    court: Court.all.sample
+  )
+end
+puts "#{Victory.count} victories created"
+
+# ---- USER-TEAMS ----
+puts "Starting User-Teams seed"
+40.times do
+  UserTeam.create!(
+    user: User.all.sample,
+    team: Team.all.sample
+  )
+end
+puts "#{UserTeam.count} user-teams created"
