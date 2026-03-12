@@ -1,6 +1,6 @@
 <div class="container">
   <div class="court-info">
-    <p>#TODO Image du terrain</p>
+    <%= image_tag @court.image, alt: @court.name if @court.image.attached? %>
     <%= @court.name %>
     <p><%= @court.address %></p>
   </div>
