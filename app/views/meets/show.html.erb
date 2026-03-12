@@ -1,4 +1,47 @@
-<div>
-  <h1 class="font-bold text-4xl">Meets#show</h1>
-  <p>Find me in app/views/meets/show.html.erb</p>
+<div style="background: #12121e; color: white; padding: 20px; font-family: sans-serif;">
+  <h1>Détails du Match (<%= @match.blue_team.number_player %> vs <%= @match.red_team.number_player %>)</h1>
+
+  <div style="display: flex; gap: 40px;">
+
+    <div>
+      <h3 style="color: #3b82f6;">Équipe Bleue (<%= @match.blue_team.users.count %> / <%= @match.blue_team.number_player %>)</h3>
+      <ul>
+        <% @match.blue_team.users.each do |f| %>
+          <li><%= f.username %> <%= "(Organisateur)" if f == @match.user %></li>
+        <% end %>
+      </ul>
+    <%# Bouton équipe bleu : Apparaît si l'user est inscrit dans une équipe MAIS n'est pas le créateur %>
+
+      <% if !@match.blue_team.users.include?(current_user) && !@match.red_team.users.include?(current_user) && @match.blue_team.users.count < @match.blue_team.number_player %>
+        <%= button_to "Rejoindre les Bleus", join_meet_path(@meet, team_id: @match.blue_team_id), method: :post, style: "background: #3b82f6; color: white; border: none; padding: 5px 10px; cursor: pointer;" %>
+      <% end %>
+    </div>
+
+    <div>
+      <h3 style="color: #ef4444;">Équipe Rouge (<%= @match.red_team.users.count %> / <%= @match.red_team.number_player %>)</h3>
+      <ul>
+        <% @match.red_team.users.each do |u| %>
+          <li><%= u.username %></li>
+        <% end %>
+      </ul>
+  <%# Bouton équipe rouge : Apparaît si l'user est inscrit dans une équipe mais n'est pas le créateur %>
+
+      <% if !@match.red_team.users.include?(current_user) && !@match.blue_team.users.include?(current_user) && @match.red_team.users.count < @match.red_team.number_player %>
+        <%= button_to "Rejoindre les Rouges", join_meet_path(@meet, team_id: @match.red_team_id), method: :post, style: "background: #ef4444; color: white; border: none; padding: 5px 10px; cursor: pointer;" %>
+      <% end %>
+    </div>
+
+  </div>
+
+  <hr style="margin: 20px 0; border: 0; border-top: 1px solid #333;">
+
+  <%# Bouton quitter : Apparaît si l'user est inscrit dans une équipe mais n'est pas le créateur %>
+  <% if (@match.blue_team.users.include?(current_user) || @match.red_team.users.include?(current_user)) && @match.user != current_user %>
+    <%= button_to "Quitter le match", leave_meet_path(@meet), method: :post, style: "background: #ff4444; color: white; border: none; padding: 10px 20px; cursor: pointer;" %>
+  <% end %>
+
+  <p style="margin-top: 20px;">
+    <strong>Terrain :</strong> <%= @meet.court.name %><br>
+    <strong>Date :</strong> <%= @meet.date %>
+  </p>
 </div>

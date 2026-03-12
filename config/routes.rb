@@ -15,9 +15,10 @@ Rails.application.routes.draw do
   # root "posts#index"
   resources :courts, only: [ :show ]
   resources :matches, only: [ :new, :create ]
-  resources :meets, only: [ :show, :destroy ] do
+  resources :meets, only: [ :show, :index, :destroy ] do
     member do
       post "join"
+      post "leave"
     end
   end
   resources :profiles, only: [ :show, :update ]

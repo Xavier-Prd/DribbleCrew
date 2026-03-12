@@ -26,6 +26,16 @@ User.create!(
   weight: 75
 )
 
+User.create!(
+  username: "turbo_arnaud",
+  email: "pierre@test.com",
+  password: "password",
+  age: 30,
+  gender: "Homme",
+  height: 180,
+  weight: 75
+)
+
 10.times do
   User.create!(
     username: Faker::Internet.username,
