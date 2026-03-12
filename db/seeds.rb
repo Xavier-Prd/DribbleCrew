@@ -101,7 +101,9 @@ QUERY
 playground_images = Dir[Rails.root.join("app/assets/images/playgrounds/*")]
 
 uri = URI("https://overpass-api.de/api/interpreter")
-response = Net::HTTP.post_form(uri, { "data" => overpass_query })
+response = Net::HTTP.start(uri.host, uri.port, use_ssl: true) do |http|
+  http.post(uri.path, URI.encode_www_form({ "data" => overpass_query }))
+end
 data = JSON.parse(response.body)
 
 data["elements"].first(10).each do |element|
@@ -135,12 +137,16 @@ puts "#{Court.count} courts created"
 
 # ---- PROGRAMS ----
 puts "Starting Programs seed"
+
 10.times do
   Program.create!(
     team: Team.all.sample,
     user: User.all.sample,
     title: Faker::Lorem.sentence(word_count: 3),
-    content: Faker::Lorem.paragraph(sentence_count: 5),
+    content: {
+      description: Faker::Lorem.paragraph(sentence_count: 2),
+      exercises: Array.new(3) { Faker::Lorem.word } # tableau de 3 mots aléatoires
+      }.to_json,
     goal: Faker::Lorem.sentence(word_count: 5),
     level: Program::LEVELS.sample,
     active: true
