@@ -1,9 +1,7 @@
 <div class="min-h-screen bg-[#12121e] flex flex-col items-center py-12 px-4 text-white">
   <div class="w-full max-w-md">
     <h1 class="text-4xl font-bold mb-10 lowercase tracking-tight">Nouveau match</h1>
-
     <%= simple_form_for(@match, html: { class: "space-y-6" }) do |f| %>
-
       <%# Type de match %>
       <div class="flex flex-col gap-2">
         <label class="text-gray-300 font-medium">Type de match</label>
@@ -12,27 +10,24 @@
             prompt: "Sélectionner le type",
             class: "select select-bordered w-full bg-white text-gray-800 focus:outline-none h-12 border-none" %>
       </div>
-
       <%= f.simple_fields_for :meet, @match.meet || @match.build_meet do |m| %>
-
         <%# La date %>
         <div class="flex flex-col gap-2">
           <label class="text-gray-300 font-medium">Date</label>
-          <%#Le data picker natif au clique %>
+          <%# Le data picker natif au clique %>
           <%= m.input :date,
               as: :string,
               label: false,
               wrapper: false,
               input_html: {
-                type: "date",
+                type: "datetime-local",
                 class: "input input-bordered w-full bg-white text-gray-800 focus:outline-none h-12 border-none"
               } %>
         </div>
-
-<%# La durée %>
-<div class="flex flex-col gap-2">
-  <label class="text-gray-300 font-medium ml-1">Durée du match</label>
-  <%= m.input :duration,
+        <%# La durée %>
+        <div class="flex flex-col gap-2">
+          <label class="text-gray-300 font-medium ml-1">Durée du match</label>
+          <%= m.input :duration,
       collection: [["15 mins", 15], ["30 mins", 30], ["45 mins", 45], ["60 mins", 60], ["90 mins", 90], ["120 mins", 120]],
       prompt: "Choisir la durée",
       label: false,
@@ -40,13 +35,12 @@
       input_html: {
         class: "select select-bordered w-full bg-white text-gray-800 focus:outline-none h-12 min-h-[3rem] border-none px-4 flex items-center"
       } %>
-</div>
-
-<%# Le terrain %>
-<div class="flex flex-col gap-2">
-  <label class="text-gray-300 font-medium ml-1">Terrain</label>
-  <%#pour comprendre que chaque "Meet" appartient à un "Court"%>
-  <%= m.association :court,
+        </div>
+        <%# Le terrain %>
+        <div class="flex flex-col gap-2">
+          <label class="text-gray-300 font-medium ml-1">Terrain</label>
+          <%# pour comprendre que chaque "Meet" appartient à un "Court" %>
+          <%= m.association :court,
       collection: Court.all,
       label_method: :name,
       value_method: :id,
@@ -56,11 +50,10 @@
       input_html: {
         class: "select select-bordered w-full bg-white text-gray-800 focus:outline-none h-12 min-h-[3rem] border-none px-4 flex items-center"
       } %>
-</div>
+        </div>
       <% end %>
-
       <div class="pt-6">
-        <%# j'ai forcé la couleur orange car cell-ci ne s'affiché par correctement%>
+        <%# j'ai forcé la couleur orange car cell-ci ne s'affiché par correctement %>
         <%= f.button :submit, "Créer un match",
             class: "btn w-full border-none !bg-[#f18135] hover:!bg-[#d96d2a] !text-white text-lg font-medium h-14 normal-case shadow-lg" %>
       </div>

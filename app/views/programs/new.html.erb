@@ -1,17 +1,21 @@
+<h1 class="flex items-center justify-center gap-3 text-4xl font-bold mt-12 mx-6">
+  Créer un programme d'entraînement
+  <i class="fa-solid fa-basketball text-6xl"></i>
+</h1>
+<p class="text-center text-gray-500 mb-12 mx-6 mt-6">
+  Définissez vos objectifs et votre niveau pour recevoir un programme personnalisé par IA.
+</p>
 <%= simple_form_for @program do |f| %>
-  <div class="form-control md:col-span-2">
-    <%= f.label :goal, "Goal", class: "label" %>
-    <%= f.text_area :goal, rows: 3, class: "textarea textarea-bordered w-full",
-          placeholder: "Exemple: Améliorer mes sauts et ma vitesse." %>
+  <div class="container mt-12">
+    <fieldset class="fieldset mx-6">
+      <%= f.label :goal, "Objectif", class:"fieldset-legend" %>
+      <%= f.text_area :goal, rows: 3, class: "textarea textarea-bordered w-full",
+            placeholder: "Exemple: Améliorer mes sauts et ma vitesse." %>
+      <%= f.label :level, "Niveau", class:"fieldset-legend" %>
+      <%= f.select :level, Program::LEVELS, {}, class: "select select-bordered w-full" %>
+    </fieldset>
   </div>
-  <div class="form-control">
-    <%= f.label :level, "Level", class: "label" %>
-    <div class="join w-full">
-      <span class="join-item btn btn-ghost pointer-events-none">
-        <i class="fa-solid fa-layer-group"></i>
-      </span>
-      <%= f.select :level, Program::LEVELS, {}, class: "join-item select select-bordered w-full" %>
-    </div>
+  <div class="absolute bottom-22 w-full px-6">
+    <%= f.submit "Créer un programme", class: "btn btn-primary btn-xl w-full" %>
   </div>
-  <%= f.submit "Créer un programme" %>
 <% end %>
