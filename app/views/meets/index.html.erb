@@ -4,14 +4,14 @@
   <div class="px-6 pt-10 pb-6 flex items-start justify-between">
     <div>
       <h1 class="text-4xl font-extrabold tracking-tight">Rencontres</h1>
-      <p class="text-white/40 text-sm mt-2 max-w-xs">Retrouvez vos matchs et vos entraînements à venir et passés et créez vos propres entraînements grâce à l'IA</p>
+      <p class="text-white/40 text-sm mt-2 max-w-xs">Retrouvez vos matchs et vos entraînements planifiés.</p>
     </div>
     <%= link_to new_program_path, class: "flex items-center justify-center w-10 h-10 rounded-full flex-shrink-0 mt-1", style: "background-color: var(--color-primary);" do %>
       <i class="fa-solid fa-plus text-white text-sm"></i>
     <% end %>
   </div>
 
-  <%# Rencontres à venir %>
+  <%# 1. Rencontres à venir (partagé) %>
   <section class="mt-4">
     <div class="flex items-center justify-between px-6 mb-4">
       <h2 class="font-bold text-base">Rencontres à venir</h2>
@@ -21,10 +21,19 @@
     <% if @upcoming_meets.any? %>
       <div class="flex gap-4 overflow-x-auto px-6 pb-2 scrollbar-hide snap-x snap-mandatory">
         <% @upcoming_meets.each do |meet| %>
-          <%= link_to meet, class: "flex-shrink-0 w-44 h-32 rounded-2xl bg-white/5 border border-white/10 p-4 flex flex-col justify-between snap-start" do %>
-            <span class="badge badge-sm text-white font-semibold px-3" style="background-color: var(--color-secondary);">Entraînement</span>
+          <%= link_to meet_path(meet), class: "flex-shrink-0 w-44 h-32 rounded-2xl bg-white/5 border border-white/10 p-4 flex flex-col justify-between snap-start" do %>
+
+            <% is_match = meet.meetable_type == "Match" %>
+            <span class="badge badge-sm text-white font-semibold px-3 w-fit"
+                  style="background-color: <%= is_match ? 'var(--color-primary)' : 'var(--color-secondary)' %>;">
+              <%= is_match ? "Match" : "Entraînement" %>
+            </span>
+
             <div>
-              <p class="text-sm font-semibold truncate"><%= meet.meetable.title %></p>
+              <p class="text-sm font-semibold truncate">
+                <%= is_match ? "#{meet.meetable.blue_team.number_player} vs #{meet.meetable.red_team.number_player}" : meet.meetable.title %>
+              </p>
+              <p class="text-[10px] text-white/40">📍 <%= meet.court.name %></p>
               <p class="text-xs text-white/40 mt-1"><%= meet.date.strftime("%d %b · %Hh%M") %></p>
             </div>
           <% end %>
@@ -32,35 +41,39 @@
       </div>
     <% else %>
       <div class="mx-6 h-32 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center">
-        <p class="text-white/30 text-sm">Aucune rencontre à venir</p>
+        <p class="text-white/30 text-sm">Aucune rencontre planifiée</p>
       </div>
     <% end %>
   </section>
 
-  <%# Mes programmes d'entraînement %>
+  <%# 2. Mes programmes perso %>
   <section class="mt-8">
     <div class="flex items-center justify-between px-6 mb-4">
-      <h2 class="font-bold text-base">Mes programmes d'entraînement</h2>
+      <h2 class="font-bold text-base">Mes programmes perso</h2>
       <span class="text-xs text-white/40">Voir plus</span>
     </div>
 
     <% if @programs.any? %>
       <div class="flex gap-4 overflow-x-auto px-6 pb-2 scrollbar-hide snap-x snap-mandatory">
         <% @programs.each do |program| %>
-          <%= link_to program, class: "flex-shrink-0 w-36 h-36 rounded-2xl bg-white/5 border border-white/10 p-4 flex flex-col justify-between snap-start" do %>
+          <%= link_to program_path(program), class: "flex-shrink-0 w-36 h-36 rounded-2xl bg-white/5 border border-white/10 p-4 flex flex-col justify-between snap-start" do %>
             <span class="text-xs text-white/40 uppercase tracking-widest"><%= program.level %></span>
-            <p class="text-sm font-semibold leading-tight"><%= program.title %></p>
+            <p class="text-sm font-semibold leading-tight line-clamp-2"><%= program.title %></p>
+
+            <div class="flex items-center text-[10px] text-white/60 font-medium">
+              <i class="fa-solid fa-dumbbell mr-1"></i> Modèle IA
+            </div>
           <% end %>
         <% end %>
       </div>
     <% else %>
-      <div class="mx-6 h-36 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center">
-        <p class="text-white/30 text-sm">Aucun programme</p>
+      <div class="mx-6 h-36 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-center px-6">
+        <p class="text-white/30 text-sm">Vous n'avez pas encore créé de programme d'entraînement.</p>
       </div>
     <% end %>
   </section>
 
-  <%# Rencontres passées %>
+  <%# 3. Rencontres passées%>
   <section class="mt-8">
     <div class="flex items-center justify-between px-6 mb-4">
       <h2 class="font-bold text-base">Rencontres passées</h2>
@@ -70,18 +83,20 @@
     <% if @past_meets.any? %>
       <div class="flex gap-4 overflow-x-auto px-6 pb-2 scrollbar-hide snap-x snap-mandatory">
         <% @past_meets.each do |meet| %>
-          <%= link_to meet, class: "flex-shrink-0 w-44 h-32 rounded-2xl bg-white/5 border border-white/10 p-4 flex flex-col justify-between snap-start" do %>
-            <span class="badge badge-sm text-white font-semibold px-3" style="background-color: var(--color-secondary);">Entraînement</span>
+          <%= link_to meet_path(meet), class: "flex-shrink-0 w-44 h-32 rounded-2xl bg-white/5 border border-white/10 p-4 flex flex-col justify-between snap-start opacity-50" do %>
+            <span class="badge badge-sm bg-white/20 text-white/60 font-semibold px-3 w-fit">Terminé</span>
             <div>
-              <p class="text-sm font-semibold truncate"><%= meet.meetable.title %></p>
-              <p class="text-xs text-white/40 mt-1"><%= meet.date.strftime("%d %b · %Hh%M") %></p>
+              <p class="text-sm font-semibold truncate">
+                <%= meet.meetable_type == "Match" ? "Match" : meet.meetable.title %>
+              </p>
+              <p class="text-xs text-white/40 mt-1"><%= meet.date.strftime("%d %b %Y") %></p>
             </div>
           <% end %>
         <% end %>
       </div>
     <% else %>
       <div class="mx-6 h-32 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center">
-        <p class="text-white/30 text-sm">Aucune rencontre passée</p>
+        <p class="text-white/30 text-sm">Historique vide</p>
       </div>
     <% end %>
   </section>

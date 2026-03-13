@@ -1,13 +1,25 @@
 class MeetsController < ApplicationController
   def index
-    @meets = Meet.all
-    @programs = current_user.programs
-    @upcoming_meets = current_user.program_meets.where("date >= ?", Time.current).order(:date)
-    @past_meets = current_user.program_meets.where("date < ?", Time.current).order(date: :desc)
+    # 1. Les rencontres planifiées
+  @upcoming_meets = Meet.includes(:court, :meetable)
+                        .where("date >= ?", Time.current)
+                        .order(:date)
+
+  # 2. Tous les programs de l'user
+  @programs = current_user.programs
+
+  # 3. Les rencontres passées 
+  @past_meets = Meet.includes(:court, :meetable)
+                    .where("date < ?", Time.current)
+                    .order(date: :desc)
   end
 
   def show
     @meet = Meet.find(params[:id])
+    # si le meetable (polymorphic) est un programme alors je redirige vers la page du programme
+    if @meet.meetable_type == "Program"
+    return redirect_to program_path(@meet.meetable)
+    end
     # meetable (polymorphic) est un match donc je récupére l'obet match
     @match = @meet.meetable
     # il faut que je calcule le nombre de joeur par équipe (équipe rouge et équipe bleu )
