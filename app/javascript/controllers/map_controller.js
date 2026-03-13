@@ -67,8 +67,25 @@ export default class extends Controller {
       // Ancre = bas-centre du pin = [37, 89] dans le container
       iconSize: [98, 91],
       iconAnchor: [37, 89],
-      popupAnchor: [0, -89],
+      popupAnchor: [0, -70],
     });
+  }
+
+  buildPopup(marker) {
+    const imageHtml = marker.image
+      ? `<div class="map-popup__image" style="background-image: url('${marker.image}')"></div>`
+      : `<div class="map-popup__image map-popup__image--empty"><i class="fa-solid fa-basketball"></i></div>`;
+
+    return `
+      <div class="map-popup">
+        ${imageHtml}
+        <div class="map-popup__body">
+          <p class="map-popup__name">${marker.name}</p>
+          <p class="map-popup__address">${marker.address || ""}</p>
+          <a href="${marker.url}" class="map-popup__link">Voir plus</a>
+        </div>
+      </div>
+    `;
   }
 
   addMarkers() {
@@ -77,7 +94,7 @@ export default class extends Controller {
         icon: this.buildIcon(marker),
       })
         .addTo(this.map)
-        .bindPopup(marker.info || "Terrain");
+        .bindPopup(this.buildPopup(marker));
     });
   }
 }
