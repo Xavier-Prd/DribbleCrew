@@ -1,0 +1,74 @@
+<div class="max-w-sm mx-auto px-6 py-8 flex flex-col gap-6">
+
+  <h1 class="text-xl font-bold text-center">Modifier mon profil</h1>
+
+  <%= simple_form_for @user, url: profile_path(@user), method: :patch, html: { multipart: true, class: "flex flex-col gap-6 pb-24" } do |f| %>
+
+    <!-- PHOTO DE PROFIL -->
+    <div class="flex justify-center" data-controller="avatar-preview">
+      <label class="cursor-pointer relative">
+        <% if @user.profile_picture.attached? %>
+          <%= image_tag @user.profile_picture, class: "w-24 h-24 rounded-full object-cover border-2 border-primary", data: { "avatar-preview-target": "preview" } %>
+        <% else %>
+          <img src="" alt="aperçu" class="w-24 h-24 rounded-full object-cover border-2 border-primary hidden" data-avatar-preview-target="preview">
+          <div class="w-24 h-24 rounded-full bg-base-300 border-2 border-primary flex items-center justify-center text-base-content/40" data-avatar-preview-target="placeholder">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+            </svg>
+          </div>
+        <% end %>
+        <%= f.input :profile_picture, as: :file, label: false,
+              input_html: { accept: "image/*", class: "hidden",
+                            data: { "avatar-preview-target": "input", action: "change->avatar-preview#preview" } } %>
+      </label>
+    </div>
+
+    <!-- GENRE -->
+    <div class="flex justify-center gap-6">
+      <% User::GENDERS.each do |gender| %>
+        <label class="flex items-center gap-2 cursor-pointer">
+          <%= f.radio_button :gender, gender, class: "radio radio-primary radio-sm" %>
+          <span class="text-sm"><%= gender %></span>
+        </label>
+      <% end %>
+    </div>
+
+    <!-- CHAMPS -->
+    <div class="flex flex-col gap-4">
+      <div>
+        <label class="text-sm text-base-content/70 mb-1 block">Username</label>
+        <%= f.input :username, label: false,
+              input_html: { class: "input w-full bg-transparent border border-primary rounded-full px-4 py-2 focus:outline-none" } %>
+      </div>
+
+      <div>
+        <label class="text-sm text-base-content/70 mb-1 block">Email</label>
+        <%= f.input :email, label: false,
+              input_html: { class: "input w-full bg-transparent border border-primary rounded-full px-4 py-2 focus:outline-none" } %>
+      </div>
+
+      <div>
+        <label class="text-sm text-base-content/70 mb-1 block">Âge</label>
+        <%= f.input :age, label: false, as: :integer,
+              input_html: { class: "input w-full bg-transparent border border-primary rounded-full px-4 py-2 focus:outline-none" } %>
+      </div>
+
+      <div>
+        <label class="text-sm text-base-content/70 mb-1 block">Taille (cm)</label>
+        <%= f.input :height, label: false, as: :decimal,
+              input_html: { class: "input w-full bg-transparent border border-primary rounded-full px-4 py-2 focus:outline-none" } %>
+      </div>
+
+      <div>
+        <label class="text-sm text-base-content/70 mb-1 block">Poids (kg)</label>
+        <%= f.input :weight, label: false, as: :decimal,
+              input_html: { class: "input w-full bg-transparent border border-primary rounded-full px-4 py-2 focus:outline-none" } %>
+      </div>
+    </div>
+
+    <!-- BOUTON -->
+    <%= f.submit "Enregistrer",
+          class: "w-full rounded-full bg-primary text-white font-semibold py-3 mt-2 cursor-pointer" %>
+
+  <% end %>
+</div>

@@ -1,93 +1,98 @@
-<div class="container mx-auto">
-  <h1 class="text-2xl font-bold">Mon profil</h1>
+<div class="max-w-sm mx-auto px-4 py-6 pb-24 flex flex-col gap-8" data-controller="toggle">
 
-  <!-- USERNAME -->
-  <div data-controller="toggle">
-    <span data-toggle-target="text"><strong>Username :</strong> <%= @user.username %></span>
+  <!-- HEADER -->
+  <div class="relative flex items-center justify-center">
+    <h1 class="text-xl font-bold">Mon profil</h1>
+    <div class="absolute right-0">
+      <button type="button" data-action="toggle#toggle" class="text-base-content/70 hover:text-primary transition-colors">
+        <i class="fa-solid fa-gear text-2xl transition-transform duration-300" data-toggle-target="gear"></i>
+      </button>
 
-    <div data-toggle-target="form" class="hidden">
-      <%= simple_form_for @user, url: profile_path, method: :patch do |f| %>
-        <%= f.input :username, label: false %>
-        <%= f.button :submit, "OK" %>
-        <button type="button" data-action="toggle#toggle">Annuler</button>
-      <% end %>
+      <!-- MENU ENGRENAGE -->
+      <div data-toggle-target="form" class="hidden absolute right-0 top-10 z-10 min-w-48 rounded-xl bg-base-200 border border-white/10 overflow-hidden">
+        <%= link_to edit_profile_path(@user), class: "flex items-center gap-2 px-4 py-2.5 text-sm font-medium hover:bg-base-300 transition-colors" do %>
+          <i class="fa-solid fa-pen-to-square text-primary"></i> Modifier mon profil
+        <% end %>
+        <div class="border-t border-white/10"></div>
+        <%= button_to destroy_user_session_path, method: :delete, class: "flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-error hover:bg-base-300 transition-colors w-full text-left" do %>
+          <i class="fa-solid fa-right-from-bracket"></i> Se déconnecter
+        <% end %>
+      </div>
     </div>
-
-    <button type="button" data-action="toggle#toggle">Modifier</button>
   </div>
 
-  <!-- EMAIL -->
-  <div data-controller="toggle">
-    <span data-toggle-target="text"><strong>Email :</strong> <%= @user.email %></span>
-
-    <div data-toggle-target="form" class="hidden">
-      <%= simple_form_for @user, url: profile_path, method: :patch do |f| %>
-        <%= f.input :email, label: false %>
-        <%= f.button :submit, "OK" %>
-        <button type="button" data-action="toggle#toggle">Annuler</button>
-      <% end %>
-    </div>
-
-    <button type="button" data-action="toggle#toggle">Modifier</button>
+  <!-- AVATAR + NOM -->
+  <div class="flex flex-col items-center gap-2">
+    <% if @user.profile_picture.attached? %>
+      <%= image_tag @user.profile_picture, class: "w-24 h-24 rounded-full object-cover border-2 border-primary" %>
+    <% else %>
+      <div class="w-24 h-24 rounded-full bg-base-300 border-2 border-primary flex items-center justify-center text-base-content/40">
+        <i class="fa-solid fa-user text-4xl"></i>
+      </div>
+    <% end %>
+    <p class="text-lg font-semibold"><%= @user.username %></p>
   </div>
 
-  <!-- AGE -->
-  <div data-controller="toggle">
-    <span data-toggle-target="text"><strong>Âge :</strong> <%= @user.age %></span>
-
-    <div data-toggle-target="form" class="hidden">
-      <%= simple_form_for @user, url: profile_path, method: :patch do |f| %>
-        <%= f.input :age, label: false, as: :integer %>
-        <%= f.button :submit, "OK" %>
-        <button type="button" data-action="toggle#toggle">Annuler</button>
-      <% end %>
+  <!-- MES CLASSEMENTS -->
+  <div>
+    <div class="flex justify-between items-center mb-3">
+      <h2 class="font-bold text-base">Classement</h2>
+      <span class="text-sm text-base-content/50">Voir plus</span>
     </div>
-
-    <button type="button" data-action="toggle#toggle">Modifier</button>
+    <% if @classements.any? %>
+      <div class="flex gap-3 overflow-x-auto pb-1">
+        <% @classements.each do |classement| %>
+          <%= link_to court_path(classement[:court]), class: "flex-shrink-0 w-44 rounded-2xl bg-base-300 overflow-hidden flex flex-col" do %>
+            <!-- IMAGE -->
+            <div class="relative h-24 w-full">
+              <% if classement[:court].image.attached? %>
+                <%= image_tag classement[:court].image, class: "w-full h-full object-cover" %>
+              <% else %>
+                <div class="w-full h-full bg-base-200 flex items-center justify-center">
+                  <i class="fa-solid fa-basketball text-2xl text-base-content/20"></i>
+                </div>
+              <% end %>
+              <!-- BADGE RANG -->
+              <% badge_color = case classement[:rank]
+                               when 1 then "background-color: #FFD700; color: #000;"
+                               when 2 then "background-color: #C0C0C0; color: #000;"
+                               when 3 then "background-color: #CD7F32; color: #fff;"
+                               else        "background-color: var(--color-primary); color: #fff;"
+                               end %>
+              <% medal = case classement[:rank]
+                         when 1 then "🥇"
+                         when 2 then "🥈"
+                         when 3 then "🥉"
+                         end %>
+              <div class="absolute top-2 left-2 flex items-center gap-1">
+                <div class="text-xs font-bold px-2 py-0.5 rounded-full" style="<%= badge_color %>">#<%= classement[:rank] %></div>
+                <% if medal %><span class="text-base leading-none"><%= medal %></span><% end %>
+              </div>
+            </div>
+            <!-- INFOS -->
+            <div class="px-3 py-2 flex flex-col gap-0.5">
+              <p class="text-xs font-semibold truncate"><%= classement[:court].name %></p>
+              <p class="text-xs text-base-content/50"><%= classement[:victories] %> point<%= classement[:victories] > 1 ? "s" : "" %></p>
+            </div>
+          <% end %>
+        <% end %>
+      </div>
+    <% else %>
+      <p class="text-sm text-base-content/50">Aucune victoire pour l'instant.</p>
+    <% end %>
   </div>
 
-  <!-- GENDER -->
-  <div data-controller="toggle">
-    <span data-toggle-target="text"><strong>Genre :</strong> <%= @user.gender %></span>
-
-    <div data-toggle-target="form" class="hidden">
-      <%= simple_form_for @user, url: profile_path, method: :patch do |f| %>
-        <%= f.input :gender, label: false, collection: User::GENDERS, include_blank: false %>
-        <%= f.button :submit, "OK" %>
-        <button type="button" data-action="toggle#toggle">Annuler</button>
-      <% end %>
+  <!-- RENCONTRES PASSÉES -->
+  <div>
+    <div class="flex justify-between items-center mb-3">
+      <h2 class="font-bold text-base">Rencontres passées</h2>
+      <span class="text-sm text-base-content/50">Voir plus</span>
     </div>
-
-    <button type="button" data-action="toggle#toggle">Modifier</button>
+    <div class="flex gap-3 overflow-x-auto pb-1">
+      <div class="w-40 h-28 rounded-2xl bg-base-300 flex-shrink-0"></div>
+      <div class="w-40 h-28 rounded-2xl bg-base-300 flex-shrink-0"></div>
+    </div>
+      <p>#TODO avec les cards deja existantes</p>
   </div>
 
-  <!-- HEIGHT -->
-  <div data-controller="toggle">
-    <span data-toggle-target="text"><strong>Taille :</strong> <%= @user.height %></span>
-
-    <div data-toggle-target="form" class="hidden">
-      <%= simple_form_for @user, url: profile_path, method: :patch do |f| %>
-        <%= f.input :height, label: false, as: :decimal %>
-        <%= f.button :submit, "OK" %>
-        <button type="button" data-action="toggle#toggle">Annuler</button>
-      <% end %>
-    </div>
-
-    <button type="button" data-action="toggle#toggle">Modifier</button>
-  </div>
-
-  <!-- WEIGHT -->
-  <div data-controller="toggle">
-    <span data-toggle-target="text"><strong>Poids :</strong> <%= @user.weight %></span>
-
-    <div data-toggle-target="form" class="hidden">
-      <%= simple_form_for @user, url: profile_path, method: :patch do |f| %>
-        <%= f.input :weight, label: false, as: :decimal %>
-        <%= f.button :submit, "OK" %>
-        <button type="button" data-action="toggle#toggle">Annuler</button>
-      <% end %>
-    </div>
-
-    <button type="button" data-action="toggle#toggle">Modifier</button>
-  </div>
 </div>
