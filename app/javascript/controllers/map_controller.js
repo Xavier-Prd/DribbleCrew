@@ -31,7 +31,7 @@ export default class extends Controller {
 
   buildIcon(marker) {
     const avatarHtml = marker.top_user_image
-      ? `<img src="${marker.top_user_image}" class="court-pin__avatar" />`
+      ? `<div class="court-pin__avatar" style="background-image: url('${marker.top_user_image}')"></div>`
       : `<div class="court-pin__avatar court-pin__avatar--placeholder"><i class="fa-solid fa-user"></i></div>`;
 
     const shadowHtml = this.shadowPathValue
