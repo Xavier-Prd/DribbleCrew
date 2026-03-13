@@ -4,16 +4,18 @@ export default class extends Controller {
   static values = {
     markers: { type: Array, default: [] },
     iconPath: { type: String, default: "" },
-    shadowPath: { type: String, default: "" },
+    mapboxToken: { type: String, default: "" },
+    shadowPath: { type: String, default: "" }
   };
 
   connect() {
     if (!window.L) return;
     this.map = window.L.map(this.element);
 
-    window.L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      attribution: "&copy; OpenStreetMap contributors",
-    }).addTo(this.map);
+    L.tileLayer(`https://api.mapbox.com/styles/v1/mapbox/dark-v11/tiles/256/{z}/{x}/{y}?access_token=${this.mapboxTokenValue}`, {
+      tileSize: 256,
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(this.map)
 
     this.addMarkers();
 
@@ -25,6 +27,18 @@ export default class extends Controller {
     } else {
       this.map.setView([50.63, 3.06], 13);
     }
+    this.overlay = L.rectangle(
+      this.map.getBounds(),
+      {
+        color: "#070747",
+        weight: 0,
+        fillOpacity: 0.25
+      }
+    ).addTo(this.map);
+
+    this.map.on("moveend", () => {
+      this.overlay.setBounds(this.map.getBounds())
+    })
 
     requestAnimationFrame(() => this.map.invalidateSize());
   }
