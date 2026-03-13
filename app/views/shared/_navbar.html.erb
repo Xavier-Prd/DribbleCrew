@@ -2,8 +2,8 @@
   <nav class="fixed bottom-0 left-0 right-0 z-50 border-t border-white/10" style="background-color: var(--color-base-300);">
     <div class="flex items-center justify-around h-16 relative">
 
-      <% programs_active = request.path.start_with?('/programs') %>
-      <%= link_to programs_path, class: "flex items-center justify-center w-12 h-12", style: programs_active ? "color: var(--color-primary);" : "color: rgba(255,255,255,0.5);" do %>
+      <% meets_active = request.path.start_with?('/meets') %>
+      <%= link_to meets_path, class: "flex items-center justify-center w-12 h-12", style: meets_active ? "color: var(--color-primary);" : "color: rgba(255,255,255,0.5);" do %>
         <i class="fa-solid fa-chart-bar text-xl"></i>
       <% end %>
 

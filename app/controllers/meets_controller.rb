@@ -1,7 +1,9 @@
 class MeetsController < ApplicationController
-
   def index
     @meets = Meet.all
+    @programs = current_user.programs
+    @upcoming_meets = current_user.program_meets.where("date >= ?", Time.current).order(:date)
+    @past_meets = current_user.program_meets.where("date < ?", Time.current).order(date: :desc)
   end
 
   def show
@@ -51,8 +53,6 @@ class MeetsController < ApplicationController
     else
       redirect_to meet_path(@meet), alert: "Tu n'es pas inscrit à ce match !"
     end
-
-
   end
 
   def destroy
@@ -79,5 +79,4 @@ class MeetsController < ApplicationController
   def meet_params
     params.require(:meet).permit(:date, :duration, :court_id)
   end
-
 end
