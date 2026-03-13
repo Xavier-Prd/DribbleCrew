@@ -25,7 +25,7 @@ Rails.application.routes.draw do
       post "leave"
     end
   end
-  resources :profiles, only: [ :show, :update ]
+  resources :profiles, only: [ :show, :edit, :update ]
   resources :programs, only: [ :index, :show, :new, :create ] do
     resources :meets, only: [ :new, :create ]
   end

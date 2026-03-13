@@ -2,11 +2,12 @@ import { Controller } from "@hotwired/stimulus"
 
 // Connects to data-controller="toggle"
 export default class extends Controller {
-  static targets = ["text", "form", "meets", "leaderboard", "btnMeet", "btnLeaderboard"]
+  static targets = ["text", "form", "meets", "leaderboard", "btnMeet", "btnLeaderboard", "gear"]
 
   toggle() {
     if (this.hasTextTarget) this.textTarget.classList.toggle("hidden")
     if (this.hasFormTarget) this.formTarget.classList.toggle("hidden")
+    if (this.hasGearTarget) this.gearTarget.classList.toggle("rotate-90")
   }
 
   displayLeaderboard() {

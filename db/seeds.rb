@@ -169,7 +169,7 @@ puts "#{Meet.count} meets created"
 
 # ---- VICTORIES ----
 puts "Starting Victories seed"
-50.times do
+150.times do
   Victory.create!(
     user: User.all.sample,
     court: Court.all.sample
