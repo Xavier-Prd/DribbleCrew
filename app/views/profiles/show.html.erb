@@ -88,11 +88,49 @@
       <h2 class="font-bold text-base">Rencontres passées</h2>
       <span class="text-sm text-base-content/50">Voir plus</span>
     </div>
-    <div class="flex gap-3 overflow-x-auto pb-1">
-      <div class="w-40 h-28 rounded-2xl bg-base-300 flex-shrink-0"></div>
-      <div class="w-40 h-28 rounded-2xl bg-base-300 flex-shrink-0"></div>
+    <div class="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4">
+      <% @meets.each do |meet| %>
+        <% if meet.meetable_type == "Match" && (meet.meetable.red_team.users.include?(@user) || meet.meetable.blue_team.users.include?(@user)) %>
+          <% blue_s = meet.meetable.blue_team_score.to_i; red_s = meet.meetable.red_team_score.to_i %>
+          <% grad_color = blue_s > red_s ? "rgba(59,130,246,0.18)" : red_s > blue_s ? "rgba(239,68,68,0.18)" : "rgba(255,255,255,0.06)" %>
+          <%= link_to meet_path(meet), class: "flex-shrink-0 w-52 rounded-2xl border border-white/10 p-3 flex flex-col gap-3 relative overflow-hidden", style: "background: linear-gradient(135deg, #{grad_color}, transparent);" do %>
+            <!-- Badge + score -->
+            <div class="flex items-center justify-between">
+              <span class="badge badge-xs font-bold px-2 text-white tracking-wide" style="background-color: var(--color-primary);">MATCH</span>
+              <span class="text-xs font-bold text-base-content/40 tabular-nums">
+                <%= meet.meetable.blue_team_score %> – <%= meet.meetable.red_team_score %>
+              </span>
+            </div>
+            <!-- Gagnant -->
+            <% blue_score = meet.meetable.blue_team_score.to_i
+               red_score  = meet.meetable.red_team_score.to_i %>
+            <% if blue_score == red_score %>
+              <div class="flex items-center gap-1.5">
+                <i class="fa-solid fa-handshake text-base-content/40 text-xs"></i>
+                <span class="text-xs font-semibold text-base-content/50">Égalité</span>
+              </div>
+            <% else %>
+              <% winner = blue_score > red_score ? "Équipe Bleue" : "Équipe Rouge" %>
+              <div class="flex items-center gap-1.5">
+                <i class="fa-solid fa-trophy text-xs" style="color: #FFD700;"></i>
+                <span class="text-xs font-semibold"><%= winner %></span>
+              </div>
+            <% end %>
+            <!-- Meta -->
+            <div class="flex items-center justify-between text-[10px] text-base-content/40">
+              <div class="flex items-center gap-1">
+                <i class="fa-regular fa-calendar"></i>
+                <span><%= meet.date.strftime("%d %b %Y") %></span>
+              </div>
+              <div class="flex items-center gap-1">
+                <i class="fa-regular fa-clock"></i>
+                <span><%= meet.duration %> min</span>
+              </div>
+            </div>
+          <% end %>
+        <% end %>
+      <% end %>
     </div>
-      <p>#TODO avec les cards deja existantes</p>
   </div>
 
 </div>
