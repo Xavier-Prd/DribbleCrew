@@ -64,16 +64,14 @@ puts "#{Team.count} teams created"
 puts "Starting Matches seed"
 
 10.times do
-  red = Team.all.sample
-  blue = Team.where.not(id: red.id).sample
-  team_count = rand(0..10)
+  team = Team.all.sample
 
   Match.create!(
     user: User.all.sample,
-    red_team: red,
-    blue_team: blue,
-    red_team_score: team_count,
-    blue_team_score: team_count
+    red_team: team,
+    blue_team: team,
+    red_team_score: rand(0..10),
+    blue_team_score: rand(0..10)
   )
 end
 

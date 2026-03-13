@@ -1,6 +1,7 @@
 class ProfilesController < ApplicationController
   def show
-    @user = current_user
+    @user = User.find(params[:id])
+    # ----- Classement cards infos -----
     courts_with_stats = Court.joins(:victories)
                              .where(victories: { user: @user })
                              .group("courts.id")
@@ -15,6 +16,8 @@ class ProfilesController < ApplicationController
                  .count.length + 1
       { court: court, victories: victories_count, rank: rank }
     end.sort_by { |classement| classement[:rank] }
+     # ----- Past sessions cards infos -----
+    @meets = Meet.all
   end
 
   def edit
