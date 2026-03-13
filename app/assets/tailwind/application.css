@@ -79,7 +79,8 @@
   width: 42px;
   height: 42px;
   border-radius: 50%;
-  object-fit: cover;
+  background-size: cover;
+  background-position: center;
   top: 24px;
   left: 47%;
   transform: translateX(-50%);
