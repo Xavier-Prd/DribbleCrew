@@ -15,7 +15,9 @@ class MapsController < ApplicationController
       {
         lat: court.lat,
         lng: court.long,
-        info: court.name,
+        name: court.name,
+        address: court.address,
+        url: court_path(court),
         top_user_image: top_user_image
       }
     end

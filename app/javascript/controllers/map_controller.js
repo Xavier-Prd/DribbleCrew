@@ -53,8 +53,18 @@ export default class extends Controller {
       // Ancre = bas-centre du pin = [37, 89] dans le container
       iconSize: [98, 91],
       iconAnchor: [37, 89],
-      popupAnchor: [0, -89],
+      popupAnchor: [0, -70],
     });
+  }
+
+  buildPopup(marker) {
+    return `
+      <div>
+        <h3>${marker.name}</h3>
+        <p>${marker.address || ""}</p>
+        <a href="${marker.url}">Voir plus</a>
+      </div>
+    `;
   }
 
   addMarkers() {
@@ -63,7 +73,7 @@ export default class extends Controller {
         icon: this.buildIcon(marker),
       })
         .addTo(this.map)
-        .bindPopup(marker.info || "Terrain");
+        .bindPopup(this.buildPopup(marker));
     });
   }
 }
