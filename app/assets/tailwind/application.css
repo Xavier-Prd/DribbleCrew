@@ -2,7 +2,7 @@
 @source not "./daisyui{,*}.mjs";
 @plugin "./daisyui.mjs";
 /* Optional for custom themes – Docs: https://daisyui.com/docs/themes/#how-to-add-a-new-custom-theme */
-@plugin "./daisyui-theme.mjs"{
+@plugin "./daisyui-theme.mjs" {
   /* custom theme here */
   name: "dark";
   default: false;
@@ -36,4 +36,61 @@
   --border: 1px;
   --depth: 0;
   --noise: 0;
+}
+
+/* Leaflet custom pin — container 98×91 (pin 75×89 + shadow 65×64) */
+.court-pin {
+  position: relative;
+  width: 98px;
+  height: 91px;
+}
+
+/* Shadow : décalée de [33, 27] pour aligner shadowAnchor[4,62] sur iconAnchor[37,89] */
+.court-pin__shadow {
+  position: absolute;
+  left: 31px;
+  top: 26px;
+  width: 65px;
+  height: 64px;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Marker pin : calé en haut-gauche du container */
+.court-pin__marker {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 75px;
+  height: 89px;
+  z-index: 1;
+}
+
+.court-pin__frame {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.court-pin__avatar {
+  position: absolute;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background-size: cover;
+  background-position: center;
+  top: 24px;
+  left: 47%;
+  transform: translateX(-50%);
+}
+
+.court-pin__avatar--placeholder {
+  background: #11111d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6b7280;
+  font-size: 16px;
 }

@@ -13,7 +13,11 @@ Rails.application.routes.draw do
 
   # Defines the root path route ("/")
   # root "posts#index"
-  resources :courts, only: [ :show ]
+  resources :courts, only: [ :show ] do
+    member do
+      get "leaderboard"
+    end
+  end
   resources :matches, only: [ :new, :create ]
   resources :meets, only: [ :show, :index, :destroy ] do
     member do
@@ -21,7 +25,7 @@ Rails.application.routes.draw do
       post "leave"
     end
   end
-  resources :profiles, only: [ :show, :update ]
+  resources :profiles, only: [ :show, :edit, :update ]
   resources :programs, only: [ :index, :show, :new, :create ] do
     resources :meets, only: [ :new, :create ]
   end
