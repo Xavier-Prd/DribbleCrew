@@ -18,6 +18,7 @@ class MapsController < ApplicationController
         name: court.name,
         address: court.address,
         url: court_path(court),
+        image: court.image.attached? ? url_for(court.image) : nil,
         top_user_image: top_user_image
       }
     end

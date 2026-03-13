@@ -72,11 +72,18 @@ export default class extends Controller {
   }
 
   buildPopup(marker) {
+    const imageHtml = marker.image
+      ? `<div class="map-popup__image" style="background-image: url('${marker.image}')"></div>`
+      : `<div class="map-popup__image map-popup__image--empty"><i class="fa-solid fa-basketball"></i></div>`;
+
     return `
-      <div>
-        <h3>${marker.name}</h3>
-        <p>${marker.address || ""}</p>
-        <a href="${marker.url}">Voir plus</a>
+      <div class="map-popup">
+        ${imageHtml}
+        <div class="map-popup__body">
+          <p class="map-popup__name">${marker.name}</p>
+          <p class="map-popup__address">${marker.address || ""}</p>
+          <a href="${marker.url}" class="map-popup__link">Voir plus</a>
+        </div>
       </div>
     `;
   }
