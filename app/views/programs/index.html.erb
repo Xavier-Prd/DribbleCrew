@@ -1,4 +1,89 @@
-<% current_user.programs.each do |program| %>
-  <h1><%= program.title %></h1>
-  <br>
-<% end %>
+<div class="min-h-screen pb-24">
+
+  <%# Header %>
+  <div class="px-6 pt-10 pb-6 flex items-start justify-between">
+    <div>
+      <h1 class="text-4xl font-extrabold tracking-tight">Rencontres</h1>
+      <p class="text-white/40 text-sm mt-2 max-w-xs">Retrouvez vos matchs et vos entraînements à venir et passés et créez vos propres entraînements grâce à l'IA</p>
+    </div>
+    <%= link_to new_program_path, class: "flex items-center justify-center w-10 h-10 rounded-full flex-shrink-0 mt-1", style: "background-color: var(--color-primary);" do %>
+      <i class="fa-solid fa-plus text-white text-sm"></i>
+    <% end %>
+  </div>
+
+  <%# Rencontres à venir %>
+  <section class="mt-4">
+    <div class="flex items-center justify-between px-6 mb-4">
+      <h2 class="font-bold text-base">Rencontres à venir</h2>
+      <span class="text-xs text-white/40">Voir plus</span>
+    </div>
+
+    <% if @upcoming_meets.any? %>
+      <div class="flex gap-4 overflow-x-auto px-6 pb-2 scrollbar-hide snap-x snap-mandatory">
+        <% @upcoming_meets.each do |meet| %>
+          <%= link_to meet, class: "flex-shrink-0 w-44 h-32 rounded-2xl bg-white/5 border border-white/10 p-4 flex flex-col justify-between snap-start" do %>
+            <span class="badge badge-sm text-white font-semibold px-3" style="background-color: var(--color-secondary);">Entraînement</span>
+            <div>
+              <p class="text-sm font-semibold truncate"><%= meet.meetable.title %></p>
+              <p class="text-xs text-white/40 mt-1"><%= meet.date.strftime("%d %b · %Hh%M") %></p>
+            </div>
+          <% end %>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="mx-6 h-32 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center">
+        <p class="text-white/30 text-sm">Aucune rencontre à venir</p>
+      </div>
+    <% end %>
+  </section>
+
+  <%# Mes programmes d'entraînement %>
+  <section class="mt-8">
+    <div class="flex items-center justify-between px-6 mb-4">
+      <h2 class="font-bold text-base">Mes programmes d'entraînement</h2>
+      <span class="text-xs text-white/40">Voir plus</span>
+    </div>
+
+    <% if @programs.any? %>
+      <div class="flex gap-4 overflow-x-auto px-6 pb-2 scrollbar-hide snap-x snap-mandatory">
+        <% @programs.each do |program| %>
+          <%= link_to program, class: "flex-shrink-0 w-36 h-36 rounded-2xl bg-white/5 border border-white/10 p-4 flex flex-col justify-between snap-start" do %>
+            <span class="text-xs text-white/40 uppercase tracking-widest"><%= program.level %></span>
+            <p class="text-sm font-semibold leading-tight"><%= program.title %></p>
+          <% end %>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="mx-6 h-36 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center">
+        <p class="text-white/30 text-sm">Aucun programme</p>
+      </div>
+    <% end %>
+  </section>
+
+  <%# Rencontres passées %>
+  <section class="mt-8">
+    <div class="flex items-center justify-between px-6 mb-4">
+      <h2 class="font-bold text-base">Rencontres passées</h2>
+      <span class="text-xs text-white/40">Voir plus</span>
+    </div>
+
+    <% if @past_meets.any? %>
+      <div class="flex gap-4 overflow-x-auto px-6 pb-2 scrollbar-hide snap-x snap-mandatory">
+        <% @past_meets.each do |meet| %>
+          <%= link_to meet, class: "flex-shrink-0 w-44 h-32 rounded-2xl bg-white/5 border border-white/10 p-4 flex flex-col justify-between snap-start" do %>
+            <span class="badge badge-sm text-white font-semibold px-3" style="background-color: var(--color-secondary);">Entraînement</span>
+            <div>
+              <p class="text-sm font-semibold truncate"><%= meet.meetable.title %></p>
+              <p class="text-xs text-white/40 mt-1"><%= meet.date.strftime("%d %b · %Hh%M") %></p>
+            </div>
+          <% end %>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="mx-6 h-32 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center">
+        <p class="text-white/30 text-sm">Aucune rencontre passée</p>
+      </div>
+    <% end %>
+  </section>
+
+</div>

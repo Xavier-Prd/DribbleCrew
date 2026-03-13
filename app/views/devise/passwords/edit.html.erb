@@ -1,27 +1,42 @@
-<h2>Change your password</h2>
+<div class="min-h-screen flex flex-col justify-center px-6 pb-12">
 
-<%= simple_form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :put }) do |f| %>
-  <%= f.error_notification %>
-
-  <%= f.input :reset_password_token, as: :hidden %>
-  <%= f.full_error :reset_password_token %>
-
-  <div class="form-inputs">
-    <%= f.input :password,
-                label: "New password",
-                required: true,
-                autofocus: true,
-                hint: ("#{@minimum_password_length} characters minimum" if @minimum_password_length),
-                input_html: { autocomplete: "new-password" } %>
-    <%= f.input :password_confirmation,
-                label: "Confirm your new password",
-                required: true,
-                input_html: { autocomplete: "new-password" } %>
+  <div class="mb-10">
+    <h2 class="text-3xl font-bold">Nouveau<br>mot de passe</h2>
+    <p class="text-white/40 text-sm mt-2">Choisis un nouveau mot de passe sécurisé.</p>
   </div>
 
-  <div class="form-actions">
-    <%= f.button :submit, "Change my password" %>
-  </div>
-<% end %>
+  <%= simple_form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :put, class: "space-y-6" }) do |f| %>
+    <%= f.error_notification class: "text-error text-sm mb-4 block" %>
+    <%= f.input :reset_password_token, as: :hidden %>
 
-<%= render "devise/shared/links" %>
+    <div>
+      <label class="text-xs font-semibold uppercase tracking-widest text-white/40 mb-2 block">Nouveau mot de passe</label>
+      <%= f.input :password,
+          label: false,
+          wrapper: false,
+          required: true,
+          autofocus: true,
+          hint: ("#{ @minimum_password_length } caractères minimum" if @minimum_password_length),
+          input_html: { autocomplete: "new-password", class: "input input-bordered w-full bg-white/5 border-white/10 text-white focus:border-primary focus:outline-none" } %>
+    </div>
+
+    <div>
+      <label class="text-xs font-semibold uppercase tracking-widest text-white/40 mb-2 block">Confirmer le mot de passe</label>
+      <%= f.input :password_confirmation,
+          label: false,
+          wrapper: false,
+          required: true,
+          input_html: { autocomplete: "new-password", class: "input input-bordered w-full bg-white/5 border-white/10 text-white focus:border-primary focus:outline-none" } %>
+    </div>
+
+    <div class="pt-2">
+      <%= f.submit "Changer le mot de passe", class: "btn btn-primary btn-md w-full rounded-box" %>
+    </div>
+
+  <% end %>
+
+  <div class="mt-8 text-center text-sm text-white/40">
+    <p><%= link_to "Retour à la connexion", new_session_path(resource_name), class: "text-primary font-medium hover:underline" %></p>
+  </div>
+
+</div>

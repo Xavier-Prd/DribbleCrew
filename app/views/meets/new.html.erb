@@ -13,7 +13,7 @@
 
   <%# Title %>
   <div class="mb-10">
-    <h2 class="text-3xl font-bold">Planifier une<br>rencontre</h2>
+    <h2 class="text-3xl font-bold">Planifier une rencontre</h2>
     <p class="text-white/40 text-sm mt-2">Choisissez une date, une durée et un terrain.</p>
   </div>
 
@@ -70,9 +70,8 @@
 
     <%# Submit %>
     <div class="pt-4">
-      <%= f.button :submit, "Planifier la rencontre",
-          class: "btn w-full text-white font-semibold py-3 rounded-xl",
-          style: "background-color: var(--color-primary);" %>
+      <%= f.submit "Planifier la rencontre",
+          class: "btn btn-primary btn-md w-full rounded-box" %>
     </div>
 
   <% end %>

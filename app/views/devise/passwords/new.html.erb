@@ -1,18 +1,31 @@
-<h2>Forgot your password?</h2>
+<div class="min-h-screen flex flex-col justify-center px-6 pb-12">
 
-<%= simple_form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :post }) do |f| %>
-  <%= f.error_notification %>
-
-  <div class="form-inputs">
-    <%= f.input :email,
-                required: true,
-                autofocus: true,
-                input_html: { autocomplete: "email" } %>
+  <div class="mb-10">
+    <h2 class="text-3xl font-bold">Mot de passe<br>oublié ?</h2>
+    <p class="text-white/40 text-sm mt-2">On t'envoie un lien de réinitialisation par email.</p>
   </div>
 
-  <div class="form-actions">
-    <%= f.button :submit, "Send me password reset instructions" %>
-  </div>
-<% end %>
+  <%= simple_form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :post, class: "space-y-6" }) do |f| %>
+    <%= f.error_notification class: "text-error text-sm mb-4 block" %>
 
-<%= render "devise/shared/links" %>
+    <div>
+      <label class="text-xs font-semibold uppercase tracking-widest text-white/40 mb-2 block">Email</label>
+      <%= f.input :email,
+          label: false,
+          wrapper: false,
+          required: true,
+          autofocus: true,
+          input_html: { autocomplete: "email", class: "input input-bordered w-full bg-white/5 border-white/10 text-white focus:border-primary focus:outline-none" } %>
+    </div>
+
+    <div class="pt-2">
+      <%= f.submit "Envoyer les instructions", class: "btn btn-primary btn-md w-full rounded-box" %>
+    </div>
+
+  <% end %>
+
+  <div class="mt-8 text-center text-sm text-white/40">
+    <p><%= link_to "Retour à la connexion", new_session_path(resource_name), class: "text-primary font-medium hover:underline" %></p>
+  </div>
+
+</div>
