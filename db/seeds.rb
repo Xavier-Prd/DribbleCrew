@@ -36,8 +36,9 @@ User.create!(
   weight: 75
 )
 
-10.times do
-  User.create!(
+fake_avatar_images = Dir[Rails.root.join("app/assets/images/fake_avatar/*")]
+20.times do
+  user = User.create!(
     username: Faker::Internet.username,
     email: Faker::Internet.unique.email,
     password: "password",
@@ -46,11 +47,13 @@ User.create!(
     height: rand(155..200),
     weight: rand(50..100)
   )
+  image_path = fake_avatar_images.sample
+  user.profile_picture.attach(io: File.open(image_path), filename: File.basename(image_path))
 end
 
 puts "#{User.count} users created"
 
-# ---- TEAMS ----
+# ---- TEAMS ---_
 puts "Starting Teams seed"
 
 10.times do
@@ -81,18 +84,20 @@ puts "#{Match.count} matches created"
 puts "Starting Courts seed via OpenStreetMap"
 
 
+CITIES = [ "Lille", "Lomme", "Lmabersart" ]
+
+city_unions = CITIES.map.with_index do |city, i|
+  <<~AREA
+    area["name"="#{city}"]["boundary"="administrative"]->.city#{i};
+    node["leisure"="pitch"]["sport"="basketball"]["access"!~"private|members|customers"](area.city#{i});
+    way["leisure"="pitch"]["sport"="basketball"]["access"!~"private|members|customers"](area.city#{i});
+  AREA
+end.join("\n")
+
 overpass_query = <<~QUERY
-  [out:json][timeout:25];
-  area["name"="Lille"]["boundary"="administrative"]->.searchArea;
+  [out:json][timeout:60];
   (
-    node["leisure"="pitch"]["sport"="basketball"]
-        ["access"!~"private|members|customers"]
-        ["leisure"!~"sports_centre|school|stadium"]
-        (area.searchArea);
-    way["leisure"="pitch"]["sport"="basketball"]
-        ["access"!~"private|members|customers"]
-        ["leisure"!~"sports_centre|school|stadium"]
-        (area.searchArea);
+  #{city_unions}
   );
   out center;
 QUERY
@@ -104,7 +109,7 @@ response = Net::HTTP.start(uri.host, uri.port, use_ssl: true) do |http|
 end
 data = JSON.parse(response.body)
 
-data["elements"].first(10).each do |element|
+data["elements"].first(50).each do |element|
   lat = element["lat"] || element.dig("center", "lat")
   lon = element["lon"] || element.dig("center", "lon")
 
@@ -167,7 +172,7 @@ puts "#{Meet.count} meets created"
 
 # ---- VICTORIES ----
 puts "Starting Victories seed"
-150.times do
+1500.times do
   Victory.create!(
     user: User.all.sample,
     court: Court.all.sample
