@@ -2,14 +2,14 @@
 
   <div class="mb-10">
     <h2 class="text-3xl font-bold">Créer un compte</h2>
-    <p class="text-white/40 text-sm mt-2">Rejoins la communauté DribbleCrew.</p>
+    <p class="text-white/40 text-base mt-2">Rejoins la communauté DribbleCrew.</p>
   </div>
 
   <%= simple_form_for(resource, as: resource_name, url: registration_path(resource_name), html: { class: "space-y-6" }) do |f| %>
-    <%= f.error_notification class: "text-error text-sm mb-4 block" %>
+    <%= f.error_notification class: "text-error text-base mb-4 block" %>
 
     <div>
-      <label class="text-xs font-semibold uppercase tracking-widest text-white/40 mb-2 block">Email</label>
+      <label class="text-base font-semibold uppercase tracking-widest text-white/40 mb-2 block">Email</label>
       <%= f.input :email,
           label: false,
           wrapper: false,
@@ -19,7 +19,7 @@
     </div>
 
     <div>
-      <label class="text-xs font-semibold uppercase tracking-widest text-white/40 mb-2 block">Mot de passe</label>
+      <label class="text-base font-semibold uppercase tracking-widest text-white/40 mb-2 block">Mot de passe</label>
       <%= f.input :password,
           label: false,
           wrapper: false,
@@ -29,7 +29,7 @@
     </div>
 
     <div>
-      <label class="text-xs font-semibold uppercase tracking-widest text-white/40 mb-2 block">Confirmer le mot de passe</label>
+      <label class="text-base font-semibold uppercase tracking-widest text-white/40 mb-2 block">Confirmer le mot de passe</label>
       <%= f.input :password_confirmation,
           label: false,
           wrapper: false,
@@ -43,7 +43,7 @@
 
   <% end %>
 
-  <div class="mt-8 text-center text-sm text-white/40">
+  <div class="mt-8 text-center text-base text-white/40">
     <p>Déjà un compte ? <%= link_to "Se connecter", new_session_path(resource_name), class: "text-primary font-medium hover:underline" %></p>
   </div>
 

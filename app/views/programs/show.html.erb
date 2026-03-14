@@ -2,12 +2,12 @@
 
   <%# Header avec bouton retour stylé %>
   <div class="px-6 pt-10 pb-6">
-    <%= link_to meets_path, class: "text-white/40 hover:text-white flex items-center gap-2 text-sm transition mb-4" do %>
+    <%= link_to meets_path, class: "text-white/40 hover:text-white flex items-center gap-2 text-base transition mb-4" do %>
       <i class="fa-solid fa-arrow-left"></i>
       Retour aux rencontres
     <% end %>
 
-    <span class="text-xs text-orange-500 uppercase tracking-widest font-bold"><%= @program.level %></span>
+    <span class="text-base text-orange-500 uppercase tracking-widest font-bold"><%= @program.level %></span>
     <h1 class="text-4xl font-extrabold tracking-tight mt-2"><%= @program.title %></h1>
   </div>
 
@@ -17,7 +17,7 @@
 
     <%# Description %>
     <div class="bg-white/5 border border-white/10 rounded-2xl p-6 mb-8">
-      <h2 class="text-white/40 text-xs uppercase tracking-widest mb-2 font-bold">Objectif & Description</h2>
+      <h2 class="text-white/40 text-base uppercase tracking-widest mb-2 font-bold">Objectif & Description</h2>
       <p class="text-lg font-semibold leading-tight"><%= content["description"] %></p>
     </div>
 
@@ -26,10 +26,10 @@
     <div class="space-y-4">
       <% content["exercises"].each_with_index do |exercise, index| %>
         <div class="bg-white/5 border border-white/10 p-5 rounded-2xl flex items-start gap-4">
-          <span class="flex-shrink-0 w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-sm font-bold text-orange-500">
+          <span class="flex-shrink-0 w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-base font-bold text-orange-500">
             <%= index + 1 %>
           </span>
-          <p class="text-sm font-medium leading-relaxed text-white/90">
+          <p class="text-base font-medium leading-relaxed text-white/90">
             <%= exercise %>
           </p>
         </div>

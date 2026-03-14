@@ -2,17 +2,17 @@
 
   <%# Header %>
   <%# Menu engrenage %>
-  <div class="px-6 pt-10 pb-6 flex items-start justify-end">
+  <div class="px-4 pt-4 pb-2 flex items-start justify-end">
     <div class="relative flex-shrink-0 mt-1 ">
       <button type="button" data-action="toggle#toggle" class="flex items-center justify-center w-10 h-10 rounded-full bg-white/5">
         <i class="fa-solid fa-gear text-xl text-white/70 transition-transform duration-300" data-toggle-target="gear"></i>
       </button>
       <div data-toggle-target="form" class="hidden absolute right-0 top-12 z-10 min-w-48 rounded-xl bg-base-200 border border-white/10 overflow-hidden">
-        <%= link_to edit_profile_path(@user), class: "flex items-center gap-2 px-4 py-2.5 text-sm font-medium hover:bg-base-300 transition-colors" do %>
+        <%= link_to edit_profile_path(@user), class: "flex items-center gap-2 px-4 py-2.5 text-base font-medium hover:bg-base-300 transition-colors" do %>
           <i class="fa-solid fa-pen-to-square text-primary"></i> Modifier mon profil
         <% end %>
         <div class="border-t border-white/10"></div>
-        <%= button_to destroy_user_session_path, method: :delete, class: "flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-error hover:bg-base-300 transition-colors w-full text-left" do %>
+        <%= button_to destroy_user_session_path, method: :delete, class: "flex items-center gap-2 px-4 py-2.5 text-base font-medium text-error hover:bg-base-300 transition-colors w-full text-left" do %>
           <i class="fa-solid fa-right-from-bracket"></i> Se déconnecter
         <% end %>
       </div>
@@ -36,17 +36,12 @@
     <div class="flex items-center justify-center gap-6 mt-4">
       <div class="flex flex-col items-center gap-0.5">
         <span class="text-2xl font-black text-primary"><%= @total_points %></span>
-        <span class="text-xs text-white/40">pts total</span>
-      </div>
-      <div class="w-px h-8 bg-white/10"></div>
-      <div class="flex flex-col items-center gap-0.5">
-        <span class="text-2xl font-black text-white"><%= @best_court ? @best_court[:victories] : 0 %></span>
-        <span class="text-xs text-white/40 text-center max-w-[80px] truncate"><%= @best_court ? @best_court[:court].name : "—" %></span>
+        <span class="text-base text-white/40">pts total</span>
       </div>
       <div class="w-px h-8 bg-white/10"></div>
       <div class="flex flex-col items-center gap-0.5">
         <span class="text-2xl font-black text-white"><%= @won_matches %></span>
-        <span class="text-xs text-white/40">matchs gagnés</span>
+        <span class="text-base text-white/40">matchs gagnés</span>
       </div>
     </div>
   </div>
@@ -55,7 +50,7 @@
   <section class="mt-4">
     <div class="flex items-center justify-between px-6 mb-4">
       <h2 class="font-bold text-lg">Classement</h2>
-      <%= link_to "Voir plus", classements_profile_path(@user), class: "text-sm text-white/40" %>
+      <%= link_to "Voir plus", classements_profile_path(@user), class: "text-base text-white/40" %>
     </div>
     <% if @classements.any? %>
       <div class="flex gap-4 overflow-x-auto px-6 pb-2 scrollbar-hide">
@@ -112,7 +107,7 @@
   <section class="mt-8">
     <div class="flex items-center justify-between px-6 mb-4">
       <h2 class="font-bold text-lg">Rencontres passées</h2>
-      <span class="text-sm text-white/40">Voir plus</span>
+      <span class="text-base text-white/40">Voir plus</span>
     </div>
     <% match_meets = @meets.select { |meet| meet.meetable_type == "Match" && (meet.meetable.red_team.users.include?(@user) || meet.meetable.blue_team.users.include?(@user)) } %>
     <% if match_meets.any? %>
@@ -120,21 +115,21 @@
         <% match_meets.each do |meet| %>
           <% blue_s = meet.meetable.blue_team_score.to_i; red_s = meet.meetable.red_team_score.to_i %>
           <% grad_color = blue_s > red_s ? "rgba(59,130,246,0.18)" : red_s > blue_s ? "rgba(239,68,68,0.18)" : "rgba(255,255,255,0.06)" %>
-          <%= link_to meet_path(meet), class: "flex-shrink-0 w-52 rounded-2xl border border-white/10 p-3 flex flex-col gap-3 relative overflow-hidden", style: "background: linear-gradient(135deg, #{grad_color}, transparent);" do %>
+          <%= link_to meet_path(meet), class: "flex-shrink-0 w-64 rounded-2xl border border-white/10 p-3 flex flex-col gap-3 relative overflow-hidden", style: "background: linear-gradient(135deg, #{grad_color}, transparent);" do %>
             <div class="flex items-center justify-between">
               <span class="badge badge-sm font-bold px-2 text-white tracking-wide" style="background-color: var(--color-primary);">MATCH</span>
-              <span class="text-sm font-bold text-white/40 tabular-nums"><%= meet.meetable.blue_team_score %> – <%= meet.meetable.red_team_score %></span>
+              <span class="text-base font-bold text-white/40 tabular-nums"><%= meet.meetable.blue_team_score %> – <%= meet.meetable.red_team_score %></span>
             </div>
             <div class="flex items-center gap-1.5">
               <% if blue_s == red_s %>
-                <i class="fa-solid fa-handshake text-white/40 text-sm"></i>
+                <i class="fa-solid fa-handshake text-white/40 text-base"></i>
                 <span class="text-base font-semibold text-white/50">Égalité</span>
               <% else %>
-                <i class="fa-solid fa-trophy text-sm" style="color: #FFD700;"></i>
+                <i class="fa-solid fa-trophy text-base" style="color: #FFD700;"></i>
                 <span class="text-base font-semibold"><%= blue_s > red_s ? "Équipe Bleue" : "Équipe Rouge" %></span>
               <% end %>
             </div>
-            <div class="flex items-center justify-between text-sm text-white/40">
+            <div class="flex items-center justify-between text-base text-white/40">
               <div class="flex items-center gap-1">
                 <i class="fa-regular fa-calendar"></i>
                 <span><%= meet.date.strftime("%d %b %Y") %></span>

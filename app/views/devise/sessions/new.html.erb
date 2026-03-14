@@ -2,13 +2,13 @@
 
   <div class="mb-10">
     <h2 class="text-3xl font-bold">Connexion</h2>
-    <p class="text-white/40 text-sm mt-2">Bon retour sur DribbleCrew.</p>
+    <p class="text-white/40 text-base mt-2">Bon retour sur DribbleCrew.</p>
   </div>
 
   <%= simple_form_for(resource, as: resource_name, url: session_path(resource_name), html: { class: "space-y-6" }) do |f| %>
 
     <div>
-      <label class="text-xs font-semibold uppercase tracking-widest text-white/40 mb-2 block">Email</label>
+      <label class="text-base font-semibold uppercase tracking-widest text-white/40 mb-2 block">Email</label>
       <%= f.input :email,
           label: false,
           wrapper: false,
@@ -18,7 +18,7 @@
     </div>
 
     <div>
-      <label class="text-xs font-semibold uppercase tracking-widest text-white/40 mb-2 block">Mot de passe</label>
+      <label class="text-base font-semibold uppercase tracking-widest text-white/40 mb-2 block">Mot de passe</label>
       <%= f.input :password,
           label: false,
           wrapper: false,
@@ -36,7 +36,7 @@
 
   <% end %>
 
-  <div class="mt-8 space-y-3 text-center text-sm text-white/40">
+  <div class="mt-8 space-y-3 text-center text-base text-white/40">
     <%- if devise_mapping.registerable? %>
       <p>Pas encore de compte ? <%= link_to "S'inscrire", new_registration_path(resource_name), class: "text-primary font-medium hover:underline" %></p>
     <% end %>

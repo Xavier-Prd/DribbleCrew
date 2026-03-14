@@ -28,7 +28,7 @@
       <% User::GENDERS.each do |gender| %>
         <label class="flex items-center gap-2 cursor-pointer">
           <%= f.radio_button :gender, gender, class: "radio radio-primary radio-sm" %>
-          <span class="text-sm"><%= gender %></span>
+          <span class="text-base"><%= gender %></span>
         </label>
       <% end %>
     </div>
@@ -36,31 +36,31 @@
     <!-- CHAMPS -->
     <div class="flex flex-col gap-4">
       <div>
-        <label class="text-sm text-base-content/70 mb-1 block">Username</label>
+        <label class="text-base text-base-content/70 mb-1 block">Username</label>
         <%= f.input :username, label: false,
               input_html: { class: "input w-full bg-transparent border border-primary rounded-full px-4 py-2 focus:outline-none" } %>
       </div>
 
       <div>
-        <label class="text-sm text-base-content/70 mb-1 block">Email</label>
+        <label class="text-base text-base-content/70 mb-1 block">Email</label>
         <%= f.input :email, label: false,
               input_html: { class: "input w-full bg-transparent border border-primary rounded-full px-4 py-2 focus:outline-none" } %>
       </div>
 
       <div>
-        <label class="text-sm text-base-content/70 mb-1 block">Âge</label>
+        <label class="text-base text-base-content/70 mb-1 block">Âge</label>
         <%= f.input :age, label: false, as: :integer,
               input_html: { class: "input w-full bg-transparent border border-primary rounded-full px-4 py-2 focus:outline-none" } %>
       </div>
 
       <div>
-        <label class="text-sm text-base-content/70 mb-1 block">Taille (cm)</label>
+        <label class="text-base text-base-content/70 mb-1 block">Taille (cm)</label>
         <%= f.input :height, label: false, as: :decimal,
               input_html: { class: "input w-full bg-transparent border border-primary rounded-full px-4 py-2 focus:outline-none" } %>
       </div>
 
       <div>
-        <label class="text-sm text-base-content/70 mb-1 block">Poids (kg)</label>
+        <label class="text-base text-base-content/70 mb-1 block">Poids (kg)</label>
         <%= f.input :weight, label: false, as: :decimal,
               input_html: { class: "input w-full bg-transparent border border-primary rounded-full px-4 py-2 focus:outline-none" } %>
       </div>

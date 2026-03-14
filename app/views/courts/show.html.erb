@@ -11,15 +11,15 @@
     <div class="absolute inset-0 bg-gradient-to-t from-base-300 via-base-300/50 to-transparent"></div>
 
     <%# Bouton retour %>
-    <%= link_to root_path, class: "absolute top-4 left-4 text-white text-sm flex items-center gap-1 z-10" do %>
-      <i class="fa-solid fa-chevron-left text-xs"></i> Retour
+    <%= link_to root_path, class: "absolute top-4 left-4 text-white text-base flex items-center gap-1 z-10" do %>
+      <i class="fa-solid fa-chevron-left text-base"></i> Retour
     <% end %>
 
     <%# Nom + adresse courte %>
     <div class="absolute bottom-4 left-4 right-20">
       <h1 class="text-3xl font-black text-white leading-tight"><%= @court.name %></h1>
-      <p class="text-sm text-gray-300 mt-0.5 flex items-center gap-1">
-        <i class="fa-solid fa-location-dot text-primary text-xs"></i>
+      <p class="text-base text-gray-300 mt-0.5 flex items-center gap-1">
+        <i class="fa-solid fa-location-dot text-primary text-base"></i>
         <%= @court.short_address %>
       </p>
     </div>
@@ -38,7 +38,7 @@
         </div>
         <%= image_tag "avatar_border_default.png", class: "absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[100px] h-[100px] max-w-none pointer-events-none", alt: "" %>
       </div>
-      <span class="badge badge-primary text-xs font-bold px-2">
+      <span class="badge badge-primary text-base font-bold px-2">
         <%= @my_victories %> pts
       </span>
     <% end %>
@@ -48,7 +48,7 @@
   <div class="px-4 mt-5">
     <div class="flex items-center justify-between mb-4">
       <h2 class="text-lg font-bold text-white">Classement</h2>
-      <%= link_to "Voir plus", leaderboard_court_path(@court), class: "text-sm text-gray-400 hover:text-white transition-colors" %>
+      <%= link_to "Voir plus", leaderboard_court_path(@court), class: "text-base text-gray-400 hover:text-white transition-colors" %>
     </div>
     <% top3 = @ranked_users.first(3) %>
     <% if top3.any? %>
@@ -64,7 +64,7 @@
                   <%= image_tag u2.profile_picture, class: "w-full h-full object-cover" %>
                 <% else %>
                   <div class="w-full h-full bg-base-100 flex items-center justify-center">
-                    <i class="fa-solid fa-user text-gray-400 text-sm"></i>
+                    <i class="fa-solid fa-user text-gray-400 text-base"></i>
                   </div>
                 <% end %>
               </div>
@@ -72,7 +72,7 @@
             <% end %>
             <div class="w-full rounded-t-xl flex flex-col items-center justify-end pb-3 h-24"
                  style="background: linear-gradient(to bottom, #f59e0b, #b45309);">
-              <span class="text-white font-bold text-sm"><%= @victory_counts[u2.id] || 0 %> pts</span>
+              <span class="text-white font-bold text-base"><%= @victory_counts[u2.id] || 0 %> pts</span>
             </div>
           <% end %>
         </div>
@@ -110,7 +110,7 @@
                   <%= image_tag u3.profile_picture, class: "w-full h-full object-cover" %>
                 <% else %>
                   <div class="w-full h-full bg-base-100 flex items-center justify-center">
-                    <i class="fa-solid fa-user text-gray-400 text-sm"></i>
+                    <i class="fa-solid fa-user text-gray-400 text-base"></i>
                   </div>
                 <% end %>
               </div>
@@ -118,14 +118,14 @@
             <% end %>
             <div class="w-full rounded-t-xl flex flex-col items-center justify-end pb-3 h-20"
                  style="background: linear-gradient(to bottom, #f97316, #c2410c);">
-              <span class="text-white font-bold text-sm"><%= @victory_counts[u3.id] || 0 %> pts</span>
+              <span class="text-white font-bold text-base"><%= @victory_counts[u3.id] || 0 %> pts</span>
             </div>
           <% end %>
         </div>
 
       </div>
     <% else %>
-      <p class="text-gray-400 text-center py-6 text-sm">Aucun classement disponible</p>
+      <p class="text-gray-400 text-center py-6 text-base">Aucun classement disponible</p>
     <% end %>
   </div>
 
@@ -138,37 +138,37 @@
           <div class="bg-base-200 rounded-2xl p-4 relative">
             <div class="absolute top-3 right-3">
               <% if meet.meetable_type == "Match" %>
-                <span class="badge badge-secondary text-white text-xs font-bold">Match</span>
+                <span class="badge badge-secondary text-white text-base font-bold">Match</span>
               <% else %>
-                <span class="badge badge-success text-white text-xs font-bold">Entrainement</span>
+                <span class="badge badge-success text-white text-base font-bold">Entrainement</span>
               <% end %>
             </div>
             <div class="flex items-center gap-2 mb-2 pr-24">
-              <i class="fa-solid fa-calendar-days text-primary text-sm shrink-0"></i>
-              <span class="text-white text-sm font-semibold">
+              <i class="fa-solid fa-calendar-days text-primary text-base shrink-0"></i>
+              <span class="text-white text-base font-semibold">
                 <%= meet.date.strftime("%d %b %Y à %H:%M") %>
               </span>
             </div>
             <div class="flex items-center gap-2 mb-2">
-              <i class="fa-solid fa-clock text-primary text-sm shrink-0"></i>
-              <span class="text-gray-300 text-sm"><%= meet.duration %> min</span>
+              <i class="fa-solid fa-clock text-primary text-base shrink-0"></i>
+              <span class="text-gray-300 text-base"><%= meet.duration %> min</span>
             </div>
             <div class="flex items-center gap-2">
               <% if meet.meetable_type == "Match" %>
 
-                <i class="fa-solid fa-shield-halved text-secondary text-sm shrink-0"></i>
-                <span class="text-gray-300 text-sm font-medium">
+                <i class="fa-solid fa-shield-halved text-secondary text-base shrink-0"></i>
+                <span class="text-gray-300 text-base font-medium">
                   Equipe Bleu <span class="text-gray-500 mx-1">vs</span> Equipe Rouge
                 </span>
 
               <% else %>
                 <div class="flex items-center gap-2 mb-1">
-                  <i class="fa-solid fa-bullseye text-success text-sm shrink-0"></i>
-                  <span class="text-gray-300 text-sm"><%= meet.meetable.goal %></span>
+                  <i class="fa-solid fa-bullseye text-success text-base shrink-0"></i>
+                  <span class="text-gray-300 text-base"><%= meet.meetable.goal %></span>
                 </div>
 
-                <i class="fa-solid fa-signal text-success text-sm shrink-0"></i>
-                <span class="text-gray-300 text-sm">Niveau : <%= meet.meetable.level %></span>
+                <i class="fa-solid fa-signal text-success text-base shrink-0"></i>
+                <span class="text-gray-300 text-base">Niveau : <%= meet.meetable.level %></span>
 
               <% end %>
             </div>
@@ -176,7 +176,7 @@
         <% end %>
       </div>
     <% else %>
-      <p class="text-gray-400 text-center py-6 text-sm">Aucune rencontre à venir</p>
+      <p class="text-gray-400 text-center py-6 text-base">Aucune rencontre à venir</p>
     <% end %>
   </div>
 </div>
