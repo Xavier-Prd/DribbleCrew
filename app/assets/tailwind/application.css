@@ -1,4 +1,7 @@
 @import "tailwindcss";
+@import "../stylesheets/components/index.css";
+@import "../stylesheets/pages/index.css";
+
 @source not "./daisyui{,*}.mjs";
 @plugin "./daisyui.mjs";
 /* Optional for custom themes – Docs: https://daisyui.com/docs/themes/#how-to-add-a-new-custom-theme */

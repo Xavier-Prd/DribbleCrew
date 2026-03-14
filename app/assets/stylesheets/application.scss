@@ -8,3 +8,6 @@
  *
  * Consider organizing styles into separate files for maintainability.
  */
+// Your CSS partials
+@import "components/index";
+@import "pages/index";
