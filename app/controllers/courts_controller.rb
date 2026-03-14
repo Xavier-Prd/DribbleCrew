@@ -5,6 +5,7 @@ class CourtsController < ApplicationController
     @ranked_users = ranked_users
     @top_user = @ranked_users.first
     @victory_counts = @court.victories.group(:user_id).count
+    @my_victories = @victory_counts[current_user.id] || 0
     @upcoming_meets = @court.meets.includes(:meetable).where("date >= ?", Time.current).order(:date)
   end
 
