@@ -1,14 +1,27 @@
 <div class="min-h-screen pb-24">
 
   <%# Header %>
-  <div class="px-6 pt-10 pb-6 flex items-start justify-between">
-    <div>
-      <h1 class="text-4xl font-extrabold tracking-tight">Rencontres</h1>
-      <p class="text-white/40 text-sm mt-2 max-w-xs">Retrouvez vos matchs et vos entraînements planifiés.</p>
-    </div>
-    <%= link_to new_program_path, class: "flex items-center justify-center w-10 h-10 rounded-full flex-shrink-0 mt-1", style: "background-color: var(--color-primary);" do %>
-      <i class="fa-solid fa-plus text-white text-sm"></i>
-    <% end %>
+  <div class="px-6 pt-10 pb-6">
+    <h1 class="text-4xl font-extrabold tracking-tight">Rencontres</h1>
+    <p class="text-white/40 text-sm mt-2 max-w-xs">Retrouvez vos matchs et vos entraînements planifiés.</p>
+  </div>
+
+  <%# Bouton + flottant en bas à droite avec dropdown %>
+  <div class="fixed bottom-24 right-4 z-50 dropdown dropdown-top dropdown-end" style="padding-bottom: env(safe-area-inset-bottom);">
+    <button tabindex="0" class="flex items-center justify-center w-14 h-14 rounded-full shadow-lg"
+            style="background-color: var(--color-primary); box-shadow: 0 0 20px color-mix(in srgb, var(--color-primary) 50%, transparent);">
+      <i class="fa-solid fa-plus text-white text-xl"></i>
+    </button>
+    <ul tabindex="0" class="dropdown-content menu bg-base-200 rounded-2xl shadow-xl p-2 mb-3 w-52 border border-white/10">
+      <%= link_to new_match_path, class: "flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 transition-colors" do %>
+        <i class="fa-solid fa-shield-halved text-primary w-4 text-center"></i>
+        <span class="text-sm font-medium">Créer un match</span>
+      <% end %>
+      <%= link_to new_program_path, class: "flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 transition-colors" do %>
+        <i class="fa-solid fa-dumbbell text-secondary w-4 text-center"></i>
+        <span class="text-sm font-medium">Créer un programme</span>
+      <% end %>
+    </ul>
   </div>
 
   <%# 1. Rencontres à venir (partagé) %>

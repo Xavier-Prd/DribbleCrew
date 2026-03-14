@@ -1,15 +1,13 @@
-<div class="max-w-sm mx-auto px-4 py-6 pb-24 flex flex-col gap-8" data-controller="toggle">
+<div class="min-h-screen pb-24" data-controller="toggle">
 
-  <!-- HEADER -->
-  <div class="relative flex items-center justify-center">
-    <h1 class="text-xl font-bold">Mon profil</h1>
-    <div class="absolute right-0">
-      <button type="button" data-action="toggle#toggle" class="text-base-content/70 hover:text-primary transition-colors">
-        <i class="fa-solid fa-gear text-2xl transition-transform duration-300" data-toggle-target="gear"></i>
+  <%# Header %>
+  <%# Menu engrenage %>
+  <div class="px-6 pt-10 pb-6 flex items-start justify-end">
+    <div class="relative flex-shrink-0 mt-1 ">
+      <button type="button" data-action="toggle#toggle" class="flex items-center justify-center w-10 h-10 rounded-full bg-white/5">
+        <i class="fa-solid fa-gear text-xl text-white/70 transition-transform duration-300" data-toggle-target="gear"></i>
       </button>
-
-      <!-- MENU ENGRENAGE -->
-      <div data-toggle-target="form" class="hidden absolute right-0 top-10 z-10 min-w-48 rounded-xl bg-base-200 border border-white/10 overflow-hidden">
+      <div data-toggle-target="form" class="hidden absolute right-0 top-12 z-10 min-w-48 rounded-xl bg-base-200 border border-white/10 overflow-hidden">
         <%= link_to edit_profile_path(@user), class: "flex items-center gap-2 px-4 py-2.5 text-sm font-medium hover:bg-base-300 transition-colors" do %>
           <i class="fa-solid fa-pen-to-square text-primary"></i> Modifier mon profil
         <% end %>
@@ -21,103 +19,122 @@
     </div>
   </div>
 
-  <!-- AVATAR + NOM -->
-  <div class="flex flex-col items-center gap-2">
-    <% if @user.profile_picture.attached? %>
-      <%= image_tag @user.profile_picture, class: "w-24 h-24 rounded-full object-cover border-2 border-primary" %>
-    <% else %>
-      <div class="w-24 h-24 rounded-full bg-base-300 border-2 border-primary flex items-center justify-center text-base-content/40">
-        <i class="fa-solid fa-user text-4xl"></i>
+  <%# Avatar %>
+  <div class="flex flex-col items-center gap-3 pb-6">
+    <div class="w-28 h-28 rounded-full overflow-hidden border-2 border-white/10">
+      <% if @user.profile_picture.attached? %>
+        <%= image_tag @user.profile_picture, class: "w-full h-full object-cover" %>
+      <% else %>
+        <div class="w-full h-full bg-base-300 flex items-center justify-center">
+          <i class="fa-solid fa-user text-4xl text-white/30"></i>
+        </div>
+      <% end %>
+    </div>
+    <h1 class="text-4xl font-extrabold tracking-tight"><%= @user.username %></h1>
+
+    <%# Compteurs stats %>
+    <div class="flex items-center justify-center gap-6 mt-4">
+      <div class="flex flex-col items-center gap-0.5">
+        <span class="text-2xl font-black text-primary"><%= @total_points %></span>
+        <span class="text-xs text-white/40">pts total</span>
       </div>
-    <% end %>
-    <p class="text-lg font-semibold"><%= @user.username %></p>
+      <div class="w-px h-8 bg-white/10"></div>
+      <div class="flex flex-col items-center gap-0.5">
+        <span class="text-2xl font-black text-white"><%= @best_court ? @best_court[:victories] : 0 %></span>
+        <span class="text-xs text-white/40 text-center max-w-[80px] truncate"><%= @best_court ? @best_court[:court].name : "—" %></span>
+      </div>
+      <div class="w-px h-8 bg-white/10"></div>
+      <div class="flex flex-col items-center gap-0.5">
+        <span class="text-2xl font-black text-white"><%= @won_matches %></span>
+        <span class="text-xs text-white/40">matchs gagnés</span>
+      </div>
+    </div>
   </div>
 
-  <!-- MES CLASSEMENTS -->
-  <div>
-    <div class="flex justify-between items-center mb-3">
-      <h2 class="font-bold text-base">Classement</h2>
-      <span class="text-sm text-base-content/50">Voir plus</span>
+  <%# Classements %>
+  <section class="mt-4">
+    <div class="flex items-center justify-between px-6 mb-4">
+      <h2 class="font-bold text-lg">Classement</h2>
+      <%= link_to "Voir plus", classements_profile_path(@user), class: "text-sm text-white/40" %>
     </div>
     <% if @classements.any? %>
-      <div class="flex gap-3 overflow-x-auto pb-1">
+      <div class="flex gap-4 overflow-x-auto px-6 pb-2 scrollbar-hide">
         <% @classements.each do |classement| %>
-          <%= link_to court_path(classement[:court]), class: "flex-shrink-0 w-44 rounded-2xl bg-base-300 overflow-hidden flex flex-col" do %>
-            <!-- IMAGE -->
-            <div class="relative h-24 w-full">
+          <% card_border_image = case classement[:rank]
+                                  when 1 then "avatar_border_king.png"
+                                  when 2 then "avatar_border_second.png"
+                                  when 3 then "avatar_border_third.png"
+                                  else        "avatar_border_default.png"
+                                  end %>
+          <%= link_to court_path(classement[:court]), class: "flex-shrink-0 w-80 rounded-2xl overflow-hidden flex flex-col border border-white/10 bg-white/5" do %>
+            <%# Image terrain %>
+            <div class="relative h-30 w-full">
               <% if classement[:court].image.attached? %>
                 <%= image_tag classement[:court].image, class: "w-full h-full object-cover" %>
               <% else %>
                 <div class="w-full h-full bg-base-200 flex items-center justify-center">
-                  <i class="fa-solid fa-basketball text-2xl text-base-content/20"></i>
+                  <i class="fa-solid fa-basketball text-3xl text-white/20"></i>
                 </div>
               <% end %>
-              <!-- BADGE RANG -->
-              <% badge_color = case classement[:rank]
-                               when 1 then "background-color: #FFD700; color: #000;"
-                               when 2 then "background-color: #C0C0C0; color: #000;"
-                               when 3 then "background-color: #CD7F32; color: #fff;"
-                               else        "background-color: var(--color-primary); color: #fff;"
-                               end %>
-              <% medal = case classement[:rank]
-                         when 1 then "🥇"
-                         when 2 then "🥈"
-                         when 3 then "🥉"
-                         end %>
-              <div class="absolute top-2 left-2 flex items-center gap-1">
-                <div class="text-xs font-bold px-2 py-0.5 rounded-full" style="<%= badge_color %>">#<%= classement[:rank] %></div>
-                <% if medal %><span class="text-base leading-none"><%= medal %></span><% end %>
+              <div class="absolute inset-0 bg-gradient-to-t from-base-300/80 to-transparent"></div>
+              <%# Avatar + bordure PNG centré en bas de l'image %>
+              <div class="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2">
+                <div class="relative w-11 h-11">
+                  <div class="w-full h-full rounded-full overflow-hidden">
+                    <% if @user.profile_picture.attached? %>
+                      <%= image_tag @user.profile_picture, class: "w-full h-full object-cover" %>
+                    <% else %>
+                      <div class="w-full h-full bg-base-300 flex items-center justify-center">
+                        <i class="fa-solid fa-user text-white/30 text-xl"></i>
+                      </div>
+                    <% end %>
+                  </div>
+                  <%= image_tag card_border_image, class: "absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[100px] h-[100px] max-w-none pointer-events-none", alt: "" %>
+                </div>
               </div>
             </div>
-            <!-- INFOS -->
-            <div class="px-3 py-2 flex flex-col gap-0.5">
-              <p class="text-xs font-semibold truncate"><%= classement[:court].name %></p>
-              <p class="text-xs text-base-content/50"><%= classement[:victories] %> point<%= classement[:victories] > 1 ? "s" : "" %></p>
+            <%# Infos — pt-10 pour laisser la place à l'avatar qui déborde %>
+            <div class="px-4 pt-10 pb-3 flex flex-col gap-1 items-center">
+              <p class="text-base font-bold truncate"><%= classement[:court].name %></p>
+              <p class="text-base font-semibold text-primary"><%= classement[:victories] %> point<%= classement[:victories] > 1 ? "s" : "" %></p>
             </div>
           <% end %>
         <% end %>
       </div>
     <% else %>
-      <p class="text-sm text-base-content/50">Aucune victoire pour l'instant.</p>
+      <div class="mx-6 h-24 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center">
+        <p class="text-white/30 text-base">Aucune victoire pour l'instant.</p>
+      </div>
     <% end %>
-  </div>
+  </section>
 
-  <!-- RENCONTRES PASSÉES -->
-  <div>
-    <div class="flex justify-between items-center mb-3">
-      <h2 class="font-bold text-base">Rencontres passées</h2>
-      <span class="text-sm text-base-content/50">Voir plus</span>
+  <%# Rencontres passées %>
+  <section class="mt-8">
+    <div class="flex items-center justify-between px-6 mb-4">
+      <h2 class="font-bold text-lg">Rencontres passées</h2>
+      <span class="text-sm text-white/40">Voir plus</span>
     </div>
-    <div class="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4">
-      <% @meets.each do |meet| %>
-        <% if meet.meetable_type == "Match" && (meet.meetable.red_team.users.include?(@user) || meet.meetable.blue_team.users.include?(@user)) %>
+    <% match_meets = @meets.select { |meet| meet.meetable_type == "Match" && (meet.meetable.red_team.users.include?(@user) || meet.meetable.blue_team.users.include?(@user)) } %>
+    <% if match_meets.any? %>
+      <div class="flex gap-4 overflow-x-auto px-6 pb-2 scrollbar-hide">
+        <% match_meets.each do |meet| %>
           <% blue_s = meet.meetable.blue_team_score.to_i; red_s = meet.meetable.red_team_score.to_i %>
           <% grad_color = blue_s > red_s ? "rgba(59,130,246,0.18)" : red_s > blue_s ? "rgba(239,68,68,0.18)" : "rgba(255,255,255,0.06)" %>
           <%= link_to meet_path(meet), class: "flex-shrink-0 w-52 rounded-2xl border border-white/10 p-3 flex flex-col gap-3 relative overflow-hidden", style: "background: linear-gradient(135deg, #{grad_color}, transparent);" do %>
-            <!-- Badge + score -->
             <div class="flex items-center justify-between">
-              <span class="badge badge-xs font-bold px-2 text-white tracking-wide" style="background-color: var(--color-primary);">MATCH</span>
-              <span class="text-xs font-bold text-base-content/40 tabular-nums">
-                <%= meet.meetable.blue_team_score %> – <%= meet.meetable.red_team_score %>
-              </span>
+              <span class="badge badge-sm font-bold px-2 text-white tracking-wide" style="background-color: var(--color-primary);">MATCH</span>
+              <span class="text-sm font-bold text-white/40 tabular-nums"><%= meet.meetable.blue_team_score %> – <%= meet.meetable.red_team_score %></span>
             </div>
-            <!-- Gagnant -->
-            <% blue_score = meet.meetable.blue_team_score.to_i
-               red_score  = meet.meetable.red_team_score.to_i %>
-            <% if blue_score == red_score %>
-              <div class="flex items-center gap-1.5">
-                <i class="fa-solid fa-handshake text-base-content/40 text-xs"></i>
-                <span class="text-xs font-semibold text-base-content/50">Égalité</span>
-              </div>
-            <% else %>
-              <% winner = blue_score > red_score ? "Équipe Bleue" : "Équipe Rouge" %>
-              <div class="flex items-center gap-1.5">
-                <i class="fa-solid fa-trophy text-xs" style="color: #FFD700;"></i>
-                <span class="text-xs font-semibold"><%= winner %></span>
-              </div>
-            <% end %>
-            <!-- Meta -->
-            <div class="flex items-center justify-between text-[10px] text-base-content/40">
+            <div class="flex items-center gap-1.5">
+              <% if blue_s == red_s %>
+                <i class="fa-solid fa-handshake text-white/40 text-sm"></i>
+                <span class="text-base font-semibold text-white/50">Égalité</span>
+              <% else %>
+                <i class="fa-solid fa-trophy text-sm" style="color: #FFD700;"></i>
+                <span class="text-base font-semibold"><%= blue_s > red_s ? "Équipe Bleue" : "Équipe Rouge" %></span>
+              <% end %>
+            </div>
+            <div class="flex items-center justify-between text-sm text-white/40">
               <div class="flex items-center gap-1">
                 <i class="fa-regular fa-calendar"></i>
                 <span><%= meet.date.strftime("%d %b %Y") %></span>
@@ -129,8 +146,12 @@
             </div>
           <% end %>
         <% end %>
-      <% end %>
-    </div>
-  </div>
+      </div>
+    <% else %>
+      <div class="mx-6 h-32 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center">
+        <p class="text-white/30 text-base">Aucune rencontre passée</p>
+      </div>
+    <% end %>
+  </section>
 
 </div>

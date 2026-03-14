@@ -1,0 +1,65 @@
+<div class="min-h-screen pb-24">
+
+  <%# Header %>
+  <div class="px-6 pt-10 pb-6">
+    <%= link_to profile_path(@user), class: "flex items-center gap-2 text-white/40 text-sm mb-4" do %>
+      <i class="fa-solid fa-chevron-left text-xs"></i> Retour
+    <% end %>
+    <h1 class="text-4xl font-extrabold tracking-tight">Classements</h1>
+    <p class="text-white/40 text-sm mt-2">Tous les terrains sur lesquels <span class="text-white font-semibold"><%= @user.username %></span> est classé.</p>
+  </div>
+
+  <% if @classements.any? %>
+    <div class="flex flex-col gap-3 px-6">
+      <% @classements.each do |classement| %>
+        <% border_image = case classement[:rank]
+                          when 1 then "avatar_border_king.png"
+                          when 2 then "avatar_border_second.png"
+                          when 3 then "avatar_border_third.png"
+                          else        "avatar_border_default.png"
+                          end %>
+        <%= link_to court_path(classement[:court]), class: "flex items-center gap-4 bg-white/5 border border-white/10 rounded-2xl p-4" do %>
+          <%# Image terrain %>
+          <div class="w-16 h-16 rounded-xl overflow-hidden flex-shrink-0">
+            <% if classement[:court].image.attached? %>
+              <%= image_tag classement[:court].image, class: "w-full h-full object-cover" %>
+            <% else %>
+              <div class="w-full h-full bg-base-200 flex items-center justify-center">
+                <i class="fa-solid fa-basketball text-white/20 text-xl"></i>
+              </div>
+            <% end %>
+          </div>
+
+          <%# Infos %>
+          <div class="flex-1 min-w-0">
+            <p class="text-base font-bold truncate"><%= classement[:court].name %></p>
+            <p class="text-sm text-white/40 truncate mt-0.5"><%= classement[:court].short_address %></p>
+            <p class="text-sm text-primary font-semibold mt-1"><%= classement[:victories] %> point<%= classement[:victories] > 1 ? "s" : "" %></p>
+          </div>
+
+          <%# Avatar + bordure + rang %>
+          <div class="flex flex-col items-center gap-1 flex-shrink-0">
+            <div class="relative w-11 h-11">
+              <div class="w-full h-full rounded-full overflow-hidden">
+                <% if @user.profile_picture.attached? %>
+                  <%= image_tag @user.profile_picture, class: "w-full h-full object-cover" %>
+                <% else %>
+                  <div class="w-full h-full bg-base-300 flex items-center justify-center">
+                    <i class="fa-solid fa-user text-white/30 text-lg"></i>
+                  </div>
+                <% end %>
+              </div>
+              <%= image_tag border_image, class: "absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[100px] h-[100px] max-w-none pointer-events-none", alt: "" %>
+            </div>
+            <span class="text-sm font-black text-white/60">#<%= classement[:rank] %></span>
+          </div>
+        <% end %>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="mx-6 h-40 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center">
+      <p class="text-white/30 text-base">Aucun classement pour l'instant.</p>
+    </div>
+  <% end %>
+
+</div>
