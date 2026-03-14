@@ -1,3 +1,7 @@
+.map {
+  background: #191a29;
+}
+
 /* Leaflet custom pin — container 98×91 (pin 75×89 + shadow 65×64) */
 .court-pin {
   position: relative;
@@ -53,6 +57,42 @@
   justify-content: center;
   color: #6b7280;
   font-size: 16px;
+}
+
+/* Marker de position de l'utilisateur */
+.user-location-marker {
+  position: relative;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.user-location-marker::after {
+  content: "";
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #fa6c00;
+  border: 3px solid #fff;
+  box-shadow: 0 0 6px rgba(250, 108, 0, 0.6);
+  z-index: 1;
+}
+
+.user-location-marker__pulse {
+  position: absolute;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(250, 108, 0, 0.25);
+  animation: user-pulse 2s ease-out infinite;
+}
+
+@keyframes user-pulse {
+  0%   { transform: scale(0.5); opacity: 1; }
+  100% { transform: scale(1.5); opacity: 0; }
 }
 
 /* Leaflet popup */
@@ -121,4 +161,13 @@
   color: #fa6c00;
   text-decoration: none;
   display: inline-block;
+}
+
+.leaflet-container {
+  background: #212131;
+}
+
+/* Alignement a droite du texte dans le select de la map */
+#map .select, .select select {
+    appearance: none;
 }
