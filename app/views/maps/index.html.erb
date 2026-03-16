@@ -2,6 +2,7 @@
   <div
     id="map"
     class="w-full h-screen z-0 bg-base-200"
+    data-turbo-permanent
     data-controller="map"
     data-map-markers-value="<%= (@markers || []).to_json %>"
     data-map-icon-path-value="<%= asset_path('marker.png') %>"

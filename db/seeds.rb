@@ -58,7 +58,7 @@ puts "Starting Teams seed"
 
 10.times do
   Team.create!(
-    number_player: rand(0..5)
+    number_player: rand(1..5)
   )
 end
 puts "#{Team.count} teams created"

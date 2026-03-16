@@ -14,6 +14,12 @@ export default class extends Controller {
   // La carte est initialisée dans connect() pour éviter de faire du work inutile si le composant n'est pas visible (ex: onglet non actif)
   connect() {
     if (!window.L) return;
+    if (this.map) return; // Même instance Stimulus, déjà initialisée
+    // Nettoie les résidus Leaflet si le conteneur a déjà été utilisé (cache Turbo / nouvelle instance Stimulus)
+    if (this.element._leaflet_id) {
+      this.element.querySelectorAll(".leaflet-pane, .leaflet-control-container, .map-overlay").forEach(el => el.remove());
+      delete this.element._leaflet_id;
+    }
     this.userLatLng = null;
     this.markerLayers = [];
     this.clusterGroup = L.markerClusterGroup();
@@ -27,6 +33,13 @@ export default class extends Controller {
     this.initEvents();
   }
 
+  disconnect() {
+    if (this.map) {
+      this.map.remove();
+      this.map = null;
+    }
+  }
+
   // ── Init ────────────────────────────────────────────────────────────────────
   // L'initialisation de la carte est séparée pour pouvoir afficher un loader pendant que Leaflet se charge
   initMap() {
@@ -34,21 +47,39 @@ export default class extends Controller {
       zoomControl: false,
       maxBounds: L.latLngBounds(L.latLng(-90, -180), L.latLng(90, 180)),
       maxBoundsViscosity: 1.0,
-    }).setView([46.603354, 1.888334], 6);
+    }).setView(...this.savedView);
 
     // Utilisation du style Mapbox Dark (https://docs.mapbox.com/api/maps/styles/#mapbox-styles) avec token d'accès
     L.tileLayer(
-      `https://api.mapbox.com/styles/v1/mapbox/dark-v11/tiles/256/{z}/{x}/{y}?access_token=${this.mapboxTokenValue}`,
-      { tileSize: 256, attribution: "&copy; OpenStreetMap contributors" }
+      `https://api.mapbox.com/styles/v1/mickaelhibon/cmmtrj88y001i01skec483i6z/tiles/512/{z}/{x}/{y}?access_token=${this.mapboxTokenValue}&v=2`,
+        {
+          tileSize: 512,
+          zoomOffset: -1,
+          attribution: "© Mapbox © OpenStreetMap"
+        }
     ).addTo(this.map);
 
     // Les clusters sont gérés par un layer dédié pour pouvoir les filtrer facilement
     this.clusterGroup.addTo(this.map);
     this.addMarkers();
+
+    // Overlay CSS — indépendant de Leaflet, toujours couvrant
+    this.overlayEl = Object.assign(document.createElement("div"), {
+      className: "map-overlay",
+    });
+    this.element.appendChild(this.overlayEl);
   }
 
   // Tente d'obtenir la géolocalisation de l'utilisateur avec plusieurs stratégies pour optimiser la réactivité et la précision
   initGeolocation() {
+    // Garde pour éviter que geoPromise ET locationfound appellent onLocationFound deux fois
+    let located = false;
+    const handleLocation = (latlng) => {
+      if (located) return;
+      located = true;
+      this.onLocationFound(latlng);
+    };
+
     // maximumAge: 60s → retourne instantanément si une position récente est en cache
     const geoPromise = new Promise((resolve) => {
       if (!navigator.geolocation) { resolve(null); return; }
@@ -59,17 +90,15 @@ export default class extends Controller {
       );
     });
 
-    // Si la géolocalisation est rapide, on centre directement la carte dessus. Sinon, on affiche la carte centrée sur la France et on tente d'obtenir la position en arrière-plan
     geoPromise.then((latlng) => {
       if (latlng) {
-        this.onLocationFound(latlng);
+        handleLocation(latlng);
       } else {
         this.map.locate({ setView: true, maxZoom: 16 });
       }
     });
 
-    // On écoute les événements de géolocalisation pour gérer les cas où la position n'était pas en cache ou a changé
-    this.map.on("locationfound", (e) => this.onLocationFound(e.latlng));
+    this.map.on("locationfound", (e) => handleLocation(e.latlng));
     this.map.on("locationerror", (e) => console.warn(e.message));
   }
 
@@ -83,13 +112,7 @@ export default class extends Controller {
       }
     });
 
-    // L'overlay nécessite une vue initialisée, donc on attend le premier moveend
-    this.map.once("moveend", () => {
-      this.overlay = L.rectangle(this.map.getBounds(), {
-        color: "#070747", weight: 0, fillOpacity: 0.25,
-      }).addTo(this.map);
-      this.map.on("moveend", () => this.overlay.setBounds(this.map.getBounds()));
-    });
+    this.map.on("moveend", () => this.saveView());
 
     // Corrige un bug Leaflet : les tiles ne remplissent pas le conteneur au 1er rendu
     requestAnimationFrame(() => {
@@ -122,6 +145,20 @@ export default class extends Controller {
 
   // ── Helpers ─────────────────────────────────────────────────────────────────
   // Formate l'affichage du rayon en mètres ou kilomètres selon la valeur
+  get savedView() {
+    const saved = localStorage.getItem("map_view");
+    if (saved) {
+      const { lat, lng, zoom } = JSON.parse(saved);
+      return [[lat, lng], zoom];
+    }
+    return [[46.603354, 1.888334], 6]; // France par défaut
+  }
+
+  saveView() {
+    const center = this.map.getCenter();
+    localStorage.setItem("map_view", JSON.stringify({ lat: center.lat, lng: center.lng, zoom: this.map.getZoom() }));
+  }
+
   get radiusLabel() {
     return this.radiusValue >= 1000 ? `${this.radiusValue / 1000} km` : `${this.radiusValue} m`;
   }
@@ -132,12 +169,13 @@ export default class extends Controller {
     this.updateUserMarker();
     this.updateRadiusCircle();
     this.filterByRadius();
-    this.centerOnUser();
+    // Ne recentre que si aucune vue n'est sauvegardée (première visite)
+    if (!localStorage.getItem("map_view")) this.centerOnUser();
   }
 
   // Recentre la carte pour que le cercle de rayon soit entièrement visible avec un padding
   centerOnUser() {
-    this.map.fitBounds(this.radiusCircle.getBounds(), { padding: [16, 16] });
+    this.map.fitBounds(this.radiusCircle.getBounds(), { padding: [16, 16], animate: false });
   }
 
   // Met à jour le marqueur de position de l'utilisateur. Si la position n'est pas encore connue, aucun marqueur n'est affiché

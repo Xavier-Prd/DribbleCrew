@@ -17,7 +17,7 @@ h2 {
 h3 {
   font-size: 1.25rem;
   line-height: 1.1;
-
+}
 
 /* Fond semi-transparent derrière les pop-ups <dialog> */
 ::backdrop {

@@ -104,6 +104,9 @@ class MeetsController < ApplicationController
   end
 
   def destroy
+    @meet = Meet.find(params[:id])
+    @meet.destroy
+    redirect_to meets_path, notice: "Rencontre supprimée."
   end
 
   def new
