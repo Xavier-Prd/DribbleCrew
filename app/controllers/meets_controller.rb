@@ -20,8 +20,9 @@ class MeetsController < ApplicationController
       # Au lieu de rediriger, on récupère le programme pour l'afficher dans la vue du Meet
       @program = @meet.meetable
     else
-    # meetable (polymorphic) est un match donc je récupére l'obet match
-    @match = @meet.meetable
+      # meetable (polymorphic) est un match donc je récupére l'obet match
+      @match = @meet.meetable
+    # @qr_code = RQRCode::QRCode.new(@match.qr_code)
     # il faut que je calcule le nombre de joeur par équipe (équipe rouge et équipe bleu )
     @current_players_count = @match.blue_team.users.count + @match.red_team.users.count
     end
@@ -47,14 +48,14 @@ class MeetsController < ApplicationController
         end
 
     UserTeam.create!(user: current_user, team: @team)
-    return redirect_to meet_path(@meet), notice: "Tu as rejoint l'entraînement !"
+    redirect_to meet_path(@meet), notice: "Tu as rejoint l'entraînement !"
 
     # Cas 2 : Match
     else
     @match = @meetable
     @team = Team.find(params[:team_id])
 
-    # Empêcher l'organisateur de changer d'équipe
+      # Empêcher l'organisateur de changer d'équipe
       if @match.user == current_user
         return redirect_to meet_path(@meet), alert: "En tant qu'organisateur, tu es déjà chez les Bleus."
       end

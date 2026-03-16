@@ -21,7 +21,10 @@ module DribbleCrew
     # These settings can be overridden in specific environments using the files
     # in config/environments, which are processed later.
     #
-    # config.time_zone = "Central Time (US & Canada)"
+    # Fuseau horaire de l'app : toutes les heures saisies et affichées sont en heure de Paris
+    # Les dates sont toujours stockées en UTC en base, mais Rails fait la conversion automatiquement
+    config.time_zone = "Paris"
+    config.active_record.default_timezone = :local
     # config.eager_load_paths << Rails.root.join("extras")
   end
 end

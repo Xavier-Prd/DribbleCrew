@@ -51,6 +51,7 @@ gem "devise"
 gem "simple_form"
 gem "simple_form-tailwind"
 gem "faker"
+gem "rqrcode" # Génération de QR codes en SVG (utilisé pour la validation de match)
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
