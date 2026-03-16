@@ -67,12 +67,13 @@ puts "#{Team.count} teams created"
 puts "Starting Matches seed"
 
 10.times do
-  team = Team.all.sample
+  red_team = Team.all.sample
+  blue_team = Team.where(number_player: red_team.number_player).where.not(id: red_team.id).sample || Team.where.not(id: red_team.id).sample
 
   Match.create!(
     user: User.all.sample,
-    red_team: team,
-    blue_team: team,
+    red_team: red_team,
+    blue_team: blue_team,
     red_team_score: rand(0..10),
     blue_team_score: rand(0..10)
   )
@@ -83,9 +84,14 @@ puts "#{Match.count} matches created"
 # ---- COURTS from OpenStreetMap ----
 puts "Starting Courts seed via OpenStreetMap"
 
+# On cible les terrains de basketball dans une zone géographique spécifique (ex: Lille et environs)
+CITIES = [ "Lille", "Lomme", "Lambersart" ]
 
-CITIES = [ "Lille", "Lomme", "Lmabersart" ]
-
+# On construit une requête Overpass pour récupérer les terrains de basketball dans ces villes
+# Pour chaque ville, génère un bloc de requête qui :
+# - trouve la zone administrative de la ville (.city0, .city1, etc.)
+# - cherche les terrains de basket publics (leisure=pitch, sport=basketball) dans cette zone
+# - exclut les terrains privés (access != private|members|customers)
 city_unions = CITIES.map.with_index do |city, i|
   <<~AREA
     area["name"="#{city}"]["boundary"="administrative"]->.city#{i};
@@ -94,6 +100,7 @@ city_unions = CITIES.map.with_index do |city, i|
   AREA
 end.join("\n")
 
+# On combine les blocs de requête pour créer la requête finale à envoyer à l'API Overpass
 overpass_query = <<~QUERY
   [out:json][timeout:60];
   (
@@ -101,6 +108,8 @@ overpass_query = <<~QUERY
   );
   out center;
 QUERY
+
+# On récupère la liste des images de terrains de basket pour les associer aux courts créés
 playground_images = Dir[Rails.root.join("app/assets/images/playgrounds/*")]
 
 uri = URI("https://overpass-api.de/api/interpreter")
@@ -120,11 +129,17 @@ data["elements"].first(50).each do |element|
   nominatim_response = Net::HTTP.start(nominatim_uri.host, nominatim_uri.port, use_ssl: true) { |http| http.request(nominatim_request) }
   nominatim_data = JSON.parse(nominatim_response.body)
 
+  # Extract address components
   street = nominatim_data.dig("address", "road")
-  address = nominatim_data["display_name"] || "Lille"
+  house_number = nominatim_data.dig("address", "house_number")
+  city = nominatim_data.dig("address", "city") || nominatim_data.dig("address", "town") || nominatim_data.dig("address", "village") || "Lille"
+  # Construct a full(but small) address for the court
+  address = [ house_number, street, city ].compact.join(", ")
+  # Remove common street type prefixes for a cleaner court name
   street_name = street&.sub(/\A(Rue|Avenue|Boulevard|Allée|Impasse|Place|Chemin|Route|Passage|Parc|Square|Villa|Voie|Résidence)\s+/i, "")
   name = street_name.present? ? "Terrain #{street_name}" : "Terrain de basketball"
 
+  # Create the court if it doesn't already exist at this location
   Court.find_or_create_by!(lat: lat, long: lon) do |court|
     court.name    = name
     court.address = address
@@ -172,7 +187,7 @@ puts "#{Meet.count} meets created"
 
 # ---- VICTORIES ----
 puts "Starting Victories seed"
-1500.times do
+1000.times do
   Victory.create!(
     user: User.all.sample,
     court: Court.all.sample
