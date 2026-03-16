@@ -6,12 +6,12 @@
       <i class="fa-solid fa-chevron-left text-base"></i>
     <% end %>
     <div>
-      <h1 class="text-lg font-bold leading-tight">Mon compte</h1>
+      <h1 class="font-bold leading-tight">Mon compte</h1>
     </div>
   </div>
 
   <div class="mb-10">
-    <h2 class="text-3xl font-bold">Modifier mes<br>informations</h2>
+    <h2 class="font-bold">Modifier mes<br>informations</h2>
   </div>
 
   <%= simple_form_for(resource, as: resource_name, url: registration_path(resource_name), html: { method: :put, class: "space-y-6" }) do |f| %>

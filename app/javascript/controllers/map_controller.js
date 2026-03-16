@@ -47,12 +47,22 @@ export default class extends Controller {
       this.updateUserMarker();
       this.updateRadiusCircle();
       this.filterByRadius();
-      this.map.fitBounds(this.radiusCircle.getBounds(), { padding: [20, 20] });
+      this.map.fitBounds(this.radiusCircle.getBounds(), { padding: [16, 16] });
     });
 
     // Si la géolocalisation échoue (refus, timeout...), tous les markers restent visibles
     this.map.on('locationerror', (e) => {
       console.warn(e.message);
+    });
+
+    // Ajuste la largeur des popups pour qu'elles ne dépassent pas du conteneur de la carte
+    this.map.on("popupopen", (e) => {
+      const wrapper = e.popup.getElement().querySelector(".leaflet-popup-content-wrapper");
+      if (wrapper) {
+        const width = this.map.getContainer().offsetWidth - 32; // 16px de marge de chaque côté
+        wrapper.style.width = `${width}px`;
+        e.popup.update();
+      }
     });
 
     // Overlay bleu semi-transparent pour faire ressortir les pins sur le fond de carte.
@@ -80,9 +90,12 @@ export default class extends Controller {
   }
 
   // Recentre la carte sur la position de l'utilisateur et le périmètre actuel
+  // Si la position n'est pas encore connue, redemande la géolocalisation
   recenter() {
     if (this.userLatLng && this.radiusCircle) {
-      this.map.fitBounds(this.radiusCircle.getBounds(), { padding: [20, 20] });
+      this.map.fitBounds(this.radiusCircle.getBounds(), { padding: [16, 16] });
+    } else {
+      this.map.locate({ setView: true, maxZoom: 16 }); // Redemande la géolocalisation si la position n'est pas encore connue
     }
   }
 
@@ -95,7 +108,7 @@ export default class extends Controller {
     this.updateRadiusCircle();
     this.filterByRadius();
     if (this.userLatLng && this.radiusCircle) {
-      this.map.fitBounds(this.radiusCircle.getBounds(), { padding: [20, 20] });
+      this.map.fitBounds(this.radiusCircle.getBounds(), { padding: [16, 16] });
     }
   }
 
@@ -124,9 +137,10 @@ export default class extends Controller {
     if (this.radiusCircle) this.radiusCircle.remove();
     this.radiusCircle = L.circle(this.userLatLng, {
       radius: this.radiusValue,
-      color: "#fa6c00",
+      color: "rgb(250, 108, 0, 1)",
       weight: 2,
-      fillOpacity: 0.08
+      fillOpacity: 0.04,
+      opacity: 0.4
     }).addTo(this.map);
   }
 
@@ -183,14 +197,16 @@ export default class extends Controller {
       : `<div class="map-popup__image map-popup__image--empty"><i class="fa-solid fa-basketball"></i></div>`;
 
     return `
-      <div class="map-popup">
+      <a href="${marker.url}" class="map-popup">
         ${imageHtml}
         <div class="map-popup__body">
-          <p class="map-popup__name">${marker.name}</p>
-          <p class="map-popup__address">${marker.address || ""}</p>
-          <a href="${marker.url}" class="map-popup__link">Voir plus</a>
+          <div>
+            <h3 class="map-popup__name">${marker.name}</h3>
+            <p class="map-popup__address">${marker.address || ""}</p>
+          </div>
+          <span class="map-popup__link">Voir le terrain</span>
         </div>
-      </div>
+      </a>
     `;
   }
 
@@ -199,7 +215,13 @@ export default class extends Controller {
     this.markersValue.forEach((marker) => {
       const layer = window.L.marker([marker.lat, marker.lng], {
         icon: this.buildIcon(marker),
-      }).bindPopup(this.buildPopup(marker));
+      }).bindPopup(this.buildPopup(marker), {
+        closeButton: false,
+      });
+
+      layer.on("click", () => {
+        this.map.panTo([marker.lat, marker.lng]);
+      });
 
       this.markerLayers.push({ layer, lat: marker.lat, lng: marker.lng });
       this.clusterGroup.addLayer(layer);

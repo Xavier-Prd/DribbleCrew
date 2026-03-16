@@ -1,6 +1,6 @@
 <div class="max-w-sm mx-auto px-6 py-8 flex flex-col gap-6">
 
-  <h1 class="text-xl font-bold text-center">Modifier mon profil</h1>
+  <h1 class="font-bold text-center">Modifier mon profil</h1>
 
   <%= simple_form_for @user, url: profile_path(@user), method: :patch, html: { multipart: true, class: "flex flex-col gap-6 pb-24" } do |f| %>
 
