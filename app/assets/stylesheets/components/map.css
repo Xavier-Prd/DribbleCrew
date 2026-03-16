@@ -113,11 +113,12 @@
 }
 .map-popup {
   display: flex;
-  background-color: var(--color-base-200)
+  background-color: var(--color-base-200);
 }
 .map-popup__image {
   width: 150px;
   height: 150px;
+  max-width: 40%;
   flex-shrink: 0;
   background-size: cover;
   background-position: center;

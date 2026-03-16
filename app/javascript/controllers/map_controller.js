@@ -59,7 +59,7 @@ export default class extends Controller {
     this.map.on("popupopen", (e) => {
       const wrapper = e.popup.getElement().querySelector(".leaflet-popup-content-wrapper");
       if (wrapper) {
-        const width = this.map.getContainer().offsetWidth - 32; // 16px de marge de chaque côté
+        const width = Math.min(this.map.getContainer().offsetWidth - 32, 400);
         wrapper.style.width = `${width}px`;
         e.popup.update();
       }
