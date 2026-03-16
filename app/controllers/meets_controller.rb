@@ -1,17 +1,17 @@
 class MeetsController < ApplicationController
   def index
     # 1. Les rencontres planifiées
-  @upcoming_meets = Meet.includes(:court, :meetable)
-                        .where("date >= ?", Time.current)
-                        .order(:date)
-
-  # 2. Tous les programs de l'user
-  @programs = current_user.programs
-
-  # 3. Les rencontres passées
-  @past_meets = Meet.includes(:court, :meetable)
-                    .where("date < ?", Time.current)
-                    .order(date: :desc)
+    @upcoming_meets = Meet.includes(:court, :meetable)
+                          .where("date >= ?", Time.current)
+                          .order(:date)
+  
+    # 2. Tous les programs de l'user
+    @programs = current_user.programs
+  
+    # 3. Les rencontres passées
+    @past_meets = Meet.includes(:court, :meetable)
+                      .where("date < ?", Time.current)
+                      .order(date: :desc)
   end
 
   def show
@@ -32,7 +32,12 @@ class MeetsController < ApplicationController
    @meet = Meet.find(params[:id])
    @meetable = @meet.meetable
 
-  # Cas 1 : Entrainement
+   # Sécurité : on bloque la tentative même si quelqu'un forge une requête manuellement
+   if @meet.date <= Time.current
+     return redirect_to meet_path(@meet), alert: "Cette rencontre a déjà commencé. Vous ne pouvez plus la rejoindre."
+   end
+
+    # Cas 1 : Entrainement
     if @meet.meetable_type == "Program"
     # On récupère l'équipe unique du programme
     @team = @meetable.team
@@ -44,7 +49,7 @@ class MeetsController < ApplicationController
     UserTeam.create!(user: current_user, team: @team)
     return redirect_to meet_path(@meet), notice: "Tu as rejoint l'entraînement !"
 
-  # Cas 2 : Match
+    # Cas 2 : Match
     else
     @match = @meetable
     @team = Team.find(params[:team_id])
@@ -54,12 +59,12 @@ class MeetsController < ApplicationController
         return redirect_to meet_path(@meet), alert: "En tant qu'organisateur, tu es déjà chez les Bleus."
       end
 
-    # Empêcher le double enregistrement (Bleu ou Rouge)
+      # Empêcher le double enregistrement (Bleu ou Rouge)
       if @match.blue_team.users.include?(current_user) || @match.red_team.users.include?(current_user)
         return redirect_to meet_path(@meet), alert: "Tu es déjà inscrit à ce match !"
       end
 
-    # Vérification des places
+      # Vérification des places
       if @team.users.count < @team.number_player
       UserTeam.create!(user: current_user, team: @team)
       redirect_to meet_path(@meet), notice: "Tu as rejoint l'équipe avec succès !"
@@ -72,6 +77,11 @@ class MeetsController < ApplicationController
   def leave
   @meet = Meet.find(params[:id])
   @meetable = @meet.meetable
+
+  # Sécurité : on bloque la tentative même si quelqu'un forge une requête manuellement
+  if @meet.date <= Time.current
+    return redirect_to meet_path(@meet), alert: "Cette rencontre a déjà commencé. Vous ne pouvez plus la quitter."
+  end
 
     # On détermine l'équipe (ou les équipes) dans lesquelles chercher
     if @meet.meetable_type == "Program"
