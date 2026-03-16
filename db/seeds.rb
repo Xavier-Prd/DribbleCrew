@@ -175,7 +175,15 @@ puts "#{Program.count} programs created"
 
 # ---- MEETS ----
 puts "Starting Meets seed"
-10.times do
+30.times do
+  Meet.create!(
+    court: Court.all.sample,
+    date: Faker::Date.backward(days: 180),
+    duration: Meet::DURATIONS.sample,
+    meetable: [ Program.all.sample, Match.all.sample ].sample
+  )
+end
+30.times do
   Meet.create!(
     court: Court.all.sample,
     date: Faker::Date.forward(days: 30),
