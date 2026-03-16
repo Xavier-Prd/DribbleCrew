@@ -4,4 +4,6 @@ class Meet < ApplicationRecord
   belongs_to :meetable, polymorphic: true
   validates :date, :duration, :meetable, presence: true
   validates :duration, inclusion: { in: DURATIONS }
+  # Empêche de créer un meet avec une date déjà passée
+  validates :date, comparison: { greater_than: -> { Time.current }, message: ": La date doit être une date future" }
 end
