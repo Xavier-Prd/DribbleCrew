@@ -107,36 +107,95 @@
   <section class="mt-8">
     <div class="flex items-center justify-between px-6 mb-4">
       <h2 class="font-bold text-lg">Rencontres passées</h2>
-      <span class="text-base text-white/40">Voir plus</span>
+      <%= link_to "Voir plus", sessions_profile_path(@user) , class:"text-base text-white/40" %>
     </div>
-    <% match_meets = @meets.select { |meet| meet.meetable_type == "Match" && (meet.meetable.red_team.users.include?(@user) || meet.meetable.blue_team.users.include?(@user)) } %>
-    <% if match_meets.any? %>
+    <% past_meets = @meets.select { |meet|
+        meet.meetable_type == "Program" ||
+        (meet.meetable_type == "Match" && (meet.meetable.red_team.users.include?(@user) || meet.meetable.blue_team.users.include?(@user)))
+      } %>
+    <% if past_meets.any? %>
       <div class="flex gap-4 overflow-x-auto px-6 pb-2 scrollbar-hide">
-        <% match_meets.each do |meet| %>
-          <% blue_s = meet.meetable.blue_team_score.to_i; red_s = meet.meetable.red_team_score.to_i %>
-          <% grad_color = blue_s > red_s ? "rgba(59,130,246,0.18)" : red_s > blue_s ? "rgba(239,68,68,0.18)" : "rgba(255,255,255,0.06)" %>
-          <%= link_to meet_path(meet), class: "flex-shrink-0 w-64 rounded-2xl border border-white/10 p-3 flex flex-col gap-3 relative overflow-hidden", style: "background: linear-gradient(135deg, #{grad_color}, transparent);" do %>
-            <div class="flex items-center justify-between">
-              <span class="badge badge-sm font-bold px-2 text-white tracking-wide" style="background-color: var(--color-primary);">MATCH</span>
-              <span class="text-base font-bold text-white/40 tabular-nums"><%= meet.meetable.blue_team_score %> – <%= meet.meetable.red_team_score %></span>
-            </div>
-            <div class="flex items-center gap-1.5">
-              <% if blue_s == red_s %>
-                <i class="fa-solid fa-handshake text-white/40 text-base"></i>
-                <span class="text-base font-semibold text-white/50">Égalité</span>
+        <% past_meets.each do |meet| %>
+          <% if meet.meetable_type == "Match" %>
+            <% match = meet.meetable %>
+            <% blue_s = match.blue_team_score.to_i; red_s = match.red_team_score.to_i %>
+            <% user_on_blue = match.blue_team.users.include?(@user) %>
+            <% user_won  = user_on_blue ? blue_s > red_s : red_s > blue_s %>
+            <% user_lost = user_on_blue ? red_s > blue_s : blue_s > red_s %>
+            <% accent      = user_won ? "#22c55e" : user_lost ? "#ef4444" : "#6b7280" %>
+            <% result_label = user_won ? "Victoire" : user_lost ? "Défaite" : "Égalité" %>
+            <% result_color = user_won ? "#86efac" : user_lost ? "#fca5a5" : "rgba(255,255,255,0.4)" %>
+            <% result_icon  = user_won ? "fa-trophy" : user_lost ? "fa-circle-xmark" : "fa-handshake" %>
+            <% icon_color   = user_won ? "#fbbf24" : user_lost ? "#fca5a5" : "rgba(255,255,255,0.3)" %>
+            <% blue_score_color = blue_s >= red_s ? "rgba(255,255,255,0.95)" : "rgba(255,255,255,0.25)" %>
+            <% red_score_color  = red_s >= blue_s ? "rgba(255,255,255,0.95)" : "rgba(255,255,255,0.25)" %>
+            <% card_bg = user_won  ? "background:rgba(15,23,42,0.85);border-color:rgba(34,197,94,0.2);"
+                       : user_lost ? "background:rgba(15,23,42,0.85);border-color:rgba(239,68,68,0.2);"
+                       :             "background:rgba(15,23,42,0.85);border-color:rgba(255,255,255,0.08);" %>
+          <% else %>
+            <% accent = "#a855f7" %>
+            <% card_bg = "background:rgba(15,23,42,0.85);border-color:rgba(168,85,247,0.2);" %>
+          <% end %>
+          <%= link_to meet_path(meet), class: "flex-shrink-0 w-76 rounded-2xl border overflow-hidden flex flex-col", style: card_bg do %>
+            <%# Barre colorée en haut %>
+            <div class="h-1 w-full" style="background:linear-gradient(90deg,<%= accent %>,<%= accent %>88);"></div>
+
+            <div class="px-4 pt-3 pb-4 flex flex-col gap-3">
+              <% if meet.meetable_type == "Match" %>
+                <%# Résultat + date %>
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-1.5">
+                    <i class="fa-solid <%= result_icon %> text-xs" style="color:<%= icon_color %>;"></i>
+                    <span class="text-xs font-black uppercase tracking-widest" style="color:<%= result_color %>;"><%= result_label %></span>
+                  </div>
+                  <span class="text-[11px] text-white/30 font-medium"><%= meet.date.strftime("%-d %b %Y") %></span>
+                </div>
+
+                <%# Cercles scores %>
+                <div class="flex items-center justify-center gap-2 py-1">
+                  <div class="flex flex-col items-center gap-1.5">
+                    <% blue_circle = blue_s > red_s ? "background:radial-gradient(circle at 35% 35%,rgba(96,165,250,0.35),rgba(59,130,246,0.1));border:1.5px solid rgba(96,165,250,0.7);box-shadow:0 0 16px rgba(59,130,246,0.4);"
+                                                    : "background:rgba(255,255,255,0.04);border:1.5px solid rgba(255,255,255,0.1);" %>
+                    <div class="w-16 h-16 rounded-full flex items-center justify-center" style="<%= blue_circle %>">
+                      <span class="text-2xl font-black tabular-nums" style="color:<%= blue_score_color %>;"><%= match.blue_team_score %></span>
+                    </div>
+                    <span class="text-[9px] font-bold uppercase tracking-widest" style="color:<%= blue_s > red_s ? 'rgba(96,165,250,0.7)' : 'rgba(255,255,255,0.2)' %>;">Bleu</span>
+                  </div>
+
+                  <%= image_tag "vs.png", class: "w-12 h-12 object-contain mb-5" %>
+
+                  <div class="flex flex-col items-center gap-1.5">
+                    <% red_circle = red_s > blue_s ? "background:radial-gradient(circle at 35% 35%,rgba(248,113,113,0.35),rgba(239,68,68,0.1));border:1.5px solid rgba(248,113,113,0.7);box-shadow:0 0 16px rgba(239,68,68,0.4);"
+                                                   : "background:rgba(255,255,255,0.04);border:1.5px solid rgba(255,255,255,0.1);" %>
+                    <div class="w-16 h-16 rounded-full flex items-center justify-center" style="<%= red_circle %>">
+                      <span class="text-2xl font-black tabular-nums" style="color:<%= red_score_color %>;"><%= match.red_team_score %></span>
+                    </div>
+                    <span class="text-[9px] font-bold uppercase tracking-widest" style="color:<%= red_s > blue_s ? 'rgba(248,113,113,0.7)' : 'rgba(255,255,255,0.2)' %>;">Rouge</span>
+                  </div>
+                </div>
+
               <% else %>
-                <i class="fa-solid fa-trophy text-base" style="color: #FFD700;"></i>
-                <span class="text-base font-semibold"><%= blue_s > red_s ? "Équipe Bleue" : "Équipe Rouge" %></span>
+                <%# Programme %>
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-1.5">
+                    <i class="fa-solid fa-dumbbell text-[10px] text-purple-400/80"></i>
+                    <span class="text-xs font-black uppercase tracking-widest text-purple-400/80">Programme</span>
+                  </div>
+                  <span class="text-[11px] text-white/30 font-medium"><%= meet.date.strftime("%-d %b %Y") %></span>
+                </div>
+                <div class="flex flex-col gap-1 py-2">
+                  <span class="text-base font-extrabold text-white leading-snug"><%= meet.meetable.title %></span>
+                  <span class="inline-flex w-fit text-[12px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full" style="background:rgba(168,85,247,0.2);color:rgba(216,180,254,0.8);"><%= meet.meetable.level %></span>
+                </div>
               <% end %>
-            </div>
-            <div class="flex items-center justify-between text-base text-white/40">
-              <div class="flex items-center gap-1">
-                <i class="fa-regular fa-calendar"></i>
-                <span><%= meet.date.strftime("%d %b %Y") %></span>
-              </div>
-              <div class="flex items-center gap-1">
-                <i class="fa-regular fa-clock"></i>
-                <span><%= meet.duration %> min</span>
+
+              <%# Pied : terrain + durée %>
+              <div class="flex items-center justify-between pt-2 border-t border-white/8">
+                <div class="flex items-center gap-1 text-[12px] text-white/30 min-w-0">
+                  <i class="fa-solid fa-location-dot flex-shrink-0 text-[9px]"></i>
+                  <span class="truncate"><%= meet.court&.name || "Terrain inconnu" %></span>
+                </div>
+                <span class="text-[11px] text-white/30 font-medium flex-shrink-0 ml-2"><%= meet.duration %> min</span>
               </div>
             </div>
           <% end %>

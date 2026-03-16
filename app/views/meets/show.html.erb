@@ -1,47 +1,146 @@
-<div style="background: #12121e; color: white; padding: 20px; font-family: sans-serif;">
-  <h1>Détails du Match (<%= @match.blue_team.number_player %> vs <%= @match.red_team.number_player %>)</h1>
+<div style="background: #12121e; color: white; padding: 24px; font-family: sans-serif; min-height: 100vh;">
 
-  <div style="display: flex; gap: 40px;">
-
-    <div>
-      <h3 style="color: #3b82f6;">Équipe Bleue (<%= @match.blue_team.users.count %> / <%= @match.blue_team.number_player %>)</h3>
-      <ul>
-        <% @match.blue_team.users.each do |f| %>
-          <li><%= f.username %> <%= "(Organisateur)" if f == @match.user %></li>
-        <% end %>
-      </ul>
-    <%# Bouton équipe bleu : Apparaît si l'user est inscrit dans une équipe MAIS n'est pas le créateur %>
-
-      <% if !@match.blue_team.users.include?(current_user) && !@match.red_team.users.include?(current_user) && @match.blue_team.users.count < @match.blue_team.number_player %>
-        <%= button_to "Rejoindre les Bleus", join_meet_path(@meet, team_id: @match.blue_team_id), method: :post, style: "background: #3b82f6; color: white; border: none; padding: 5px 10px; cursor: pointer;" %>
-      <% end %>
-    </div>
-
-    <div>
-      <h3 style="color: #ef4444;">Équipe Rouge (<%= @match.red_team.users.count %> / <%= @match.red_team.number_player %>)</h3>
-      <ul>
-        <% @match.red_team.users.each do |u| %>
-          <li><%= u.username %></li>
-        <% end %>
-      </ul>
-  <%# Bouton équipe rouge : Apparaît si l'user est inscrit dans une équipe mais n'est pas le créateur %>
-
-      <% if !@match.red_team.users.include?(current_user) && !@match.blue_team.users.include?(current_user) && @match.red_team.users.count < @match.red_team.number_player %>
-        <%= button_to "Rejoindre les Rouges", join_meet_path(@meet, team_id: @match.red_team_id), method: :post, style: "background: #ef4444; color: white; border: none; padding: 5px 10px; cursor: pointer;" %>
-      <% end %>
-    </div>
-
-  </div>
-
-  <hr style="margin: 20px 0; border: 0; border-top: 1px solid #333;">
-
-  <%# Bouton quitter : Apparaît si l'user est inscrit dans une équipe mais n'est pas le créateur %>
-  <% if (@match.blue_team.users.include?(current_user) || @match.red_team.users.include?(current_user)) && @match.user != current_user %>
-    <%= button_to "Quitter le match", leave_meet_path(@meet), method: :post, style: "background: #ff4444; color: white; border: none; padding: 10px 20px; cursor: pointer;" %>
+  <%# Header : Bouton Retour %>
+  <%= link_to meets_path, style: "color: rgba(255,255,255,0.4); text-decoration: none; font-size: 0.85rem; display: flex; align-items: center; gap: 8px; margin-bottom: 24px;" do %>
+    <i class="fa-solid fa-arrow-left"></i> Retour aux rencontres
   <% end %>
 
-  <p style="margin-top: 20px;">
-    <strong>Terrain :</strong> <%= @meet.court.name %><br>
-    <strong>Date :</strong> <%= @meet.date %>
-  </p>
+  <%# Cas 1 : Entrainement (Program) %>
+  <% if @meet.meetable_type == "Program" %>
+    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+      <div>
+        <span style="color: #f97316; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; tracking-widest: 0.1em;">Session d'entraînement</span>
+        <h1 style="font-size: 2rem; margin-top: 8px; font-weight: 800;"><%= @program.title %></h1>
+        <p style="color: rgba(255,255,255,0.4); font-size: 0.9rem; margin-top: 4px;">
+          Organisé par <strong style="color: white;"><%= @program.user.username %></strong>
+        </p>
+      </div>
+
+      <%# Bouton Rejoindre : Si l'user n'est pas déjà inscrit et n'est pas le créateur %>
+      <% if @program.user != current_user && !@program.team.users.include?(current_user) %>
+        <%= button_to "Participer", join_meet_path(@meet), method: :post, style: "background: #f97316; color: white; border: none; padding: 12px 24px; border-radius: 12px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(249, 115, 22, 0.2);" %>
+      <% end %>
+    </div>
+
+    <%# Liste des Participants %>
+    <div style="margin-top: 24px;">
+      <h3 style="color: rgba(255,255,255,0.4); font-size: 0.75rem; text-transform: uppercase; margin-bottom: 12px;">Participants (<%= @program.team.users.count %>)</h3>
+      <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
+        <% @program.team.users.each do |user| %>
+          <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 6px 12px; border-radius: 20px; display: flex; align-items: center; gap: 8px; font-size: 0.85rem;">
+            <i class="fa-solid fa-circle-user" style="color: #f97316; opacity: 0.8;"></i>
+            <%= user.username %>
+          </div>
+        <% end %>
+
+        <%# Bouton Quitter : Uniquement pour les participants inscrits qui ne sont pas l'org %>
+        <% if @program.team.users.include?(current_user) && @program.user != current_user %>
+          <%= button_to leave_meet_path(@meet), method: :post, style: "background: none; border: none; color: #ff4444; font-size: 0.75rem; cursor: pointer; text-decoration: underline; margin-left: 8px;" do %>
+            Quitter la session
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+
+    <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; padding: 24px; margin: 24px 0;">
+      <% content = JSON.parse(@program.content.gsub("=>", ":")) %>
+      <h3 style="color: #f97316; margin-top: 0; font-size: 1.1rem;"><%= content["description"] %></h3>
+
+      <ul style="list-style: none; padding: 0; margin-top: 20px;">
+        <% content["exercises"].each do |exercise| %>
+          <li style="background: rgba(255,255,255,0.05); margin-bottom: 10px; padding: 16px; border-radius: 12px; font-size: 0.95rem; border-left: 3px solid #f97316;">
+            <%= exercise %>
+          </li>
+        <% end %>
+      </ul>
+    </div>
+
+  <%# Cas 2 : C'est un Match %>
+  <% else %>
+    <span style="color: #3b82f6; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; tracking-widest: 0.1em;">Match compétitif</span>
+    <h1 style="font-size: 2rem; margin-top: 8px; font-weight: 800;"><%= @match.blue_team.number_player %> vs <%= @match.red_team.number_player %></h1>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 24px;">
+
+      <%# Colonne équipe bleue %>
+      <div style="background: rgba(59, 130, 246, 0.05); border: 1px solid rgba(59, 130, 246, 0.2); border-radius: 20px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between;">
+        <div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <h3 style="color: #3b82f6; margin: 0; font-size: 0.9rem;">TEAM BLEUE</h3>
+            <span style="font-size: 0.75rem; background: rgba(59, 130, 246, 0.2); padding: 2px 8px; border-radius: 10px;"><%= @match.blue_team.users.count %>/<%= @match.blue_team.number_player %></span>
+          </div>
+          <ul style="list-style: none; padding: 0; margin-bottom: 20px;">
+            <% @match.blue_team.users.each do |user| %>
+              <li style="font-size: 0.9rem; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
+                <i class="fa-solid fa-circle-user" style="color: rgba(255,255,255,0.3);"></i>
+                <%= user.username %> <%= '<span style="font-size: 10px; opacity: 0.5;">(Org.)</span>'.html_safe if user == @match.user %>
+              </li>
+            <% end %>
+            <% (@match.blue_team.number_player - @match.blue_team.users.count).times do %>
+               <li style="font-size: 0.9rem; margin-bottom: 8px; color: rgba(255,255,255,0.15);"><i>Libre...</i></li>
+            <% end %>
+          </ul>
+        </div>
+
+        <% if !@match.blue_team.users.include?(current_user) && !@match.red_team.users.include?(current_user) && @match.blue_team.users.count < @match.blue_team.number_player %>
+          <%= button_to "Rejoindre", join_meet_path(@meet, team_id: @match.blue_team_id), method: :post, style: "width: 100%; background: #3b82f6; color: white; border: none; padding: 10px; border-radius: 12px; font-weight: bold; cursor: pointer; transition: 0.2s;" %>
+        <% end %>
+      </div>
+
+      <%# Colonne équipe rouge %>
+      <div style="background: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 20px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between;">
+        <div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <h3 style="color: #ef4444; margin: 0; font-size: 0.9rem;">TEAM ROUGE</h3>
+            <span style="font-size: 0.75rem; background: rgba(239, 68, 68, 0.2); padding: 2px 8px; border-radius: 10px;"><%= @match.red_team.users.count %>/<%= @match.red_team.number_player %></span>
+          </div>
+          <ul style="list-style: none; padding: 0; margin-bottom: 20px;">
+            <% @match.red_team.users.each do |user| %>
+              <li style="font-size: 0.9rem; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
+                <i class="fa-solid fa-circle-user" style="color: rgba(255,255,255,0.3);"></i>
+                <%= user.username %>
+              </li>
+            <% end %>
+            <% (@match.red_team.number_player - @match.red_team.users.count).times do %>
+               <li style="font-size: 0.9rem; margin-bottom: 8px; color: rgba(255,255,255,0.15);"><i>Libre...</i></li>
+            <% end %>
+          </ul>
+        </div>
+
+        <% if !@match.red_team.users.include?(current_user) && !@match.blue_team.users.include?(current_user) && @match.red_team.users.count < @match.red_team.number_player %>
+          <%= button_to "Rejoindre", join_meet_path(@meet, team_id: @match.red_team_id), method: :post, style: "width: 100%; background: #ef4444; color: white; border: none; padding: 10px; border-radius: 12px; font-weight: bold; cursor: pointer;" %>
+        <% end %>
+      </div>
+    </div>
+
+    <%# Bouton quitter match %>
+    <% if (@match.blue_team.users.include?(current_user) || @match.red_team.users.include?(current_user)) && @match.user != current_user %>
+      <%= button_to "Quitter le match", leave_meet_path(@meet), method: :post, style: "width: 100%; margin-top: 24px; background: rgba(255,255,255,0.05); color: #ff4444; border: 1px solid rgba(255,68,68,0.3); padding: 14px; border-radius: 15px; font-weight: bold; cursor: pointer;" %>
+    <% end %>
+
+  <% end %>
+
+  <%# Infos communes (Lieu et Date) %>
+  <div style="margin-top: 32px; padding-top: 24px; border-top: 1px solid rgba(255,255,255,0.05); display: flex; flex-direction: column; gap: 12px;">
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <div style="width: 40px; height: 40px; background: rgba(255,255,255,0.05); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+        <i class="fa-solid fa-location-dot" style="color: rgba(255,255,255,0.4);"></i>
+      </div>
+      <div>
+        <span style="display: block; font-size: 0.7rem; color: rgba(255,255,255,0.3); text-transform: uppercase;">Lieu du rendez-vous</span>
+        <span style="font-weight: 600; font-size: 0.95rem;"><%= @meet.court.name %></span>
+      </div>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <div style="width: 40px; height: 40px; background: rgba(255,255,255,0.05); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+        <i class="fa-solid fa-calendar-day" style="color: rgba(255,255,255,0.4);"></i>
+      </div>
+      <div>
+        <span style="display: block; font-size: 0.7rem; color: rgba(255,255,255,0.3); text-transform: uppercase;">Date et Heure</span>
+        <span style="font-weight: 600; font-size: 0.95rem;"><%= @meet.date.strftime("%d %B %Y à %H:%M") %></span>
+      </div>
+    </div>
+  </div>
+
 </div>

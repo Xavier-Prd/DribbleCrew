@@ -5,4 +5,17 @@ class Match < ApplicationRecord
   has_one :meet, as: :meetable
   # Permet de créer le Meet en même temps que le Match
   accepts_nested_attributes_for :meet
+
+  # Savoir si le match est fini
+  def finished?
+    meet.date < Time.current
+  end
+  # Déterminer l'équipe gagnante
+  def winner
+  end
+
+  # Vérifier l'équipe gagnante
+  def winner?(team)
+    winner == team
+  end
 end

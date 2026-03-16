@@ -28,6 +28,7 @@ Rails.application.routes.draw do
   resources :profiles, only: [ :show, :edit, :update ] do
     member do
       get "classements"
+      get "sessions"
     end
   end
   resources :programs, only: [ :index, :show, :new, :create ] do
