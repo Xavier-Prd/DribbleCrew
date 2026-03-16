@@ -23,6 +23,10 @@ class Match < ApplicationRecord
   end
   # Déterminer l'équipe gagnante
   def winner
+    return nil unless blue_team_score.present? && red_team_score.present?
+    return blue_team if blue_team_score > red_team_score
+    return red_team if red_team_score > blue_team_score
+    nil # égalité
   end
 
   # Vérifier l'équipe gagnante

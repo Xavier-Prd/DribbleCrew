@@ -66,7 +66,7 @@ class MatchesController < ApplicationController
   private
 
   def match_params
-    params.require(:match).permit(:red_team_id, :blue_team_score, :red_team_score, :qr_code, meet_attributes: [ :date, :duration, :court_id ])
+    params.require(:match).permit(:red_team_id, :blue_team_score, :red_team_score, meet_attributes: [ :date, :duration, :court_id ])
   end
 
   # Paramètres autorisés pour terminer un match (saisie des scores uniquement)

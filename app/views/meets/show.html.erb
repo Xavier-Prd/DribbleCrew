@@ -73,7 +73,7 @@
             <% @match.blue_team.users.each do |user| %>
               <li style="font-size: 0.9rem; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
                 <i class="fa-solid fa-circle-user" style="color: rgba(255,255,255,0.3);"></i>
-                <%= user.username %> <%= '<span style="font-size: 10px; opacity: 0.5;">(Org.)</span>'.html_safe if user == @match.user %>
+                <%= user.username %> <% if user == @match.user %><span style="font-size: 10px; opacity: 0.5;">(Org.)</span><% end %>
               </li>
             <% end %>
             <% (@match.blue_team.number_player - @match.blue_team.users.count).times do %>
@@ -161,7 +161,7 @@
 
         <%# Cadre du QR code avec bordure orange et coins arrondis %>
         <div style="display: inline-block; background: white; padding: 16px; border-radius: 20px; box-shadow: 0 0 0 4px rgba(249,115,22,0.3), 0 20px 40px rgba(0,0,0,0.4);">
-          <%= qr_svg.html_safe %>
+          <%= sanitize qr_svg, tags: %w[svg path rect], attributes: %w[xmlns viewBox width height d fill] %>
         </div>
 
       </div>
