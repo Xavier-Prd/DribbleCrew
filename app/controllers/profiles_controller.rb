@@ -24,6 +24,7 @@ class ProfilesController < ApplicationController
     @won_matches = Match.where("(blue_team_id IN (?) AND blue_team_score > red_team_score) OR (red_team_id IN (?) AND red_team_score > blue_team_score)", user_team_ids, user_team_ids).count
     # ----- Past sessions cards infos -----
     @meets = Meet.all
+    # @meets = Meet.where("date < ?", Time.current).order(date: :desc)
   end
 
   def classements
@@ -42,6 +43,12 @@ class ProfilesController < ApplicationController
                  .count.length + 1
       { court: court, victories: victories_count, rank: rank }
     end.sort_by { |c| c[:rank] }
+  end
+
+  def sessions
+    @user = User.find(params[:id])
+    # @meets = Meet.where("date < ?", Time.current).order(date: :desc)
+    @meets = Meet.all
   end
 
   def edit
