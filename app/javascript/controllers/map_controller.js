@@ -18,6 +18,7 @@ export default class extends Controller {
 
     this.userLatLng = null;  // Position de l'utilisateur (null tant que non géolocalisé)
     this.markerLayers = [];  // Références aux layers Leaflet pour pouvoir les filtrer
+    this.clusterGroup = L.markerClusterGroup();
 
     // Initialisation de la carte Leaflet sur l'élément HTML du contrôleur
     this.map = window.L.map(this.element, {
@@ -31,6 +32,8 @@ export default class extends Controller {
       tileSize: 256,
       attribution: '&copy; OpenStreetMap contributors'
     }).addTo(this.map);
+
+    this.clusterGroup.addTo(this.map);
 
     // Ajout de tous les markers (terrains) depuis les données Rails
     this.addMarkers();
@@ -132,14 +135,14 @@ export default class extends Controller {
   filterByRadius() {
     this.markerLayers.forEach(({ layer, lat, lng }) => {
       if (!this.userLatLng) {
-        layer.addTo(this.map);
+        this.clusterGroup.addLayer(layer);
         return;
       }
       const distance = this.userLatLng.distanceTo(L.latLng(lat, lng));
       if (distance <= this.radiusValue) {
-        layer.addTo(this.map);
+        this.clusterGroup.addLayer(layer);
       } else {
-        layer.remove();
+        this.clusterGroup.removeLayer(layer);
       }
     });
   }
@@ -199,7 +202,7 @@ export default class extends Controller {
       }).bindPopup(this.buildPopup(marker));
 
       this.markerLayers.push({ layer, lat: marker.lat, lng: marker.lng });
-      layer.addTo(this.map);
+      this.clusterGroup.addLayer(layer);
     });
   }
 }
