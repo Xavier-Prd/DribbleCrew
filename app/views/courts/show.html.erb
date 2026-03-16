@@ -4,69 +4,85 @@
     <% if @court.image.attached? %>
       <%= image_tag @court.image, class: "w-full h-full object-cover" %>
     <% else %>
-      <div class="w-full h-full bg-base-200"></div>
+      <div class="w-full h-full bg-base-200 flex items-center justify-center">
+        <i class="fa-solid fa-basketball text-4xl text-gray-600"></i>
+      </div>
     <% end %>
     <div class="absolute inset-0 bg-gradient-to-t from-base-300 via-base-300/50 to-transparent"></div>
-    <%= link_to root_path, class: "absolute top-4 left-4 text-white text-sm flex items-center gap-1 z-10" do %>
-      <i class="fa-solid fa-chevron-left text-xs"></i> Retour
+
+    <%# Bouton retour %>
+    <%= link_to root_path, class: "absolute top-4 left-4 text-white text-base flex items-center gap-1 z-10" do %>
+      <i class="fa-solid fa-chevron-left text-base"></i> Retour
     <% end %>
-    <div class="absolute bottom-4 left-4">
+
+    <%# Nom + adresse courte %>
+    <div class="absolute bottom-4 left-4 right-20">
       <h1 class="text-3xl font-black text-white leading-tight"><%= @court.name %></h1>
-      <p class="text-sm text-gray-300 mt-0.5"><%= @court.address %></p>
+      <p class="text-base text-gray-300 mt-0.5 flex items-center gap-1">
+        <i class="fa-solid fa-location-dot text-primary text-base"></i>
+        <%= @court.short_address %>
+      </p>
     </div>
-    <% if @top_user %>
-      <div class="absolute top-4 right-4 flex flex-col items-center gap-1">
-        <div class="w-14 h-14 rounded-full overflow-hidden border-2 border-white shadow-lg">
-          <% if @top_user.profile_picture.attached? %>
-            <%= image_tag @top_user.profile_picture, class: "w-full h-full object-cover" %>
+
+    <%# Avatar du joueur connecté + ses points sur ce terrain %>
+    <%= link_to profile_path(current_user), class: "absolute top-4 right-4 flex flex-col items-center gap-1" do %>
+      <div class="relative w-11 h-11">
+        <div class="w-full h-full rounded-full overflow-hidden">
+          <% if current_user.profile_picture.attached? %>
+            <%= image_tag current_user.profile_picture, class: "w-full h-full object-cover" %>
           <% else %>
             <div class="w-full h-full bg-base-200 flex items-center justify-center">
               <i class="fa-solid fa-user text-gray-400 text-xl"></i>
             </div>
           <% end %>
         </div>
-        <span class="badge badge-warning text-xs font-bold px-2">
-          <%= @victory_counts[@top_user.id] || 0 %> pts
-        </span>
+        <%= image_tag "avatar_border_default.png", class: "absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[100px] h-[100px] max-w-none pointer-events-none", alt: "" %>
       </div>
+      <span class="badge badge-primary text-base font-bold px-2">
+        <%= @my_victories %> pts
+      </span>
     <% end %>
   </div>
-  <%# ===================== DEFAULT CONTENT (podium + meets) ===================== %>
-  <div>
-    <%# --- TOP 3 PODIUM --- %>
-    <div class="px-4 mt-5">
-      <div class="flex items-center justify-between mb-4">
-        <h2 class="text-lg font-bold text-white">Classement</h2>
-        <%= link_to "Voir plus", leaderboard_court_path(@court), class: "text-sm text-gray-400 hover:text-white transition-colors" %>
-      </div>
-      <% top3 = @ranked_users.first(3) %>
-      <% if top3.any? %>
-        <div class="flex items-end justify-center gap-2 h-52">
-          <%# 2nd place — left %>
-          <div class="flex flex-col items-center flex-1 <%= top3[1] ? '' : 'invisible' %>">
-            <% u2 = top3[1] %>
-            <% if u2 %>
-              <div class="w-11 h-11 rounded-full overflow-hidden border-2 border-white mb-1 shadow">
+
+  <%# ===================== PODIUM ===================== %>
+  <div class="px-4 mt-5">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-lg font-bold text-white">Classement</h2>
+      <%= link_to "Voir plus", leaderboard_court_path(@court), class: "text-base text-gray-400 hover:text-white transition-colors" %>
+    </div>
+    <% top3 = @ranked_users.first(3) %>
+    <% if top3.any? %>
+      <div class="flex items-end justify-center gap-2 h-52">
+
+        <%# 2ème place — gauche %>
+        <div class="flex flex-col items-center flex-1 <%= top3[1] ? '' : 'invisible' %>">
+          <% u2 = top3[1] %>
+          <% if u2 %>
+            <%= link_to profile_path(u2), class: "relative w-11 h-11 mb-1 block" do %>
+              <div class="w-full h-full rounded-full overflow-hidden shadow">
                 <% if u2.profile_picture.attached? %>
                   <%= image_tag u2.profile_picture, class: "w-full h-full object-cover" %>
                 <% else %>
                   <div class="w-full h-full bg-base-100 flex items-center justify-center">
-                    <i class="fa-solid fa-user text-gray-400 text-sm"></i>
+                    <i class="fa-solid fa-user text-gray-400 text-base"></i>
                   </div>
                 <% end %>
               </div>
-              <div class="w-full rounded-t-xl flex flex-col items-center justify-end pb-3 h-24"
-                   style="background: linear-gradient(to bottom, #f59e0b, #b45309);">
-                <span class="text-white font-bold text-sm"><%= @victory_counts[u2.id] || 0 %> pts</span>
-              </div>
+              <%= image_tag "avatar_border_second.png", class: "absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[100px] h-[100px] max-w-none pointer-events-none", alt: "" %>
             <% end %>
-          </div>
-          <%# 1st place — center %>
-          <div class="flex flex-col items-center flex-1 <%= top3[0] ? '' : 'invisible' %>">
-            <% u1 = top3[0] %>
-            <% if u1 %>
-              <span class="text-2xl leading-none mb-0.5">👑</span>
-              <div class="w-14 h-14 rounded-full overflow-hidden border-2 border-yellow-300 mb-1 shadow-lg">
+            <div class="w-full rounded-t-xl flex flex-col items-center justify-end pb-3 h-24"
+                 style="background: linear-gradient(to bottom, #f59e0b, #b45309);">
+              <span class="text-white font-bold text-base"><%= @victory_counts[u2.id] || 0 %> pts</span>
+            </div>
+          <% end %>
+        </div>
+
+        <%# 1ère place — centre %>
+        <div class="flex flex-col items-center flex-1 <%= top3[0] ? '' : 'invisible' %>">
+          <% u1 = top3[0] %>
+          <% if u1 %>
+            <%= link_to profile_path(u1), class: "relative w-11 h-11 mb-1 block" do %>
+              <div class="w-full h-full rounded-full overflow-hidden shadow-lg">
                 <% if u1.profile_picture.attached? %>
                   <%= image_tag u1.profile_picture, class: "w-full h-full object-cover" %>
                 <% else %>
@@ -75,87 +91,92 @@
                   </div>
                 <% end %>
               </div>
-              <div class="w-full rounded-t-xl flex flex-col items-center justify-end pb-3 h-36"
-                   style="background: linear-gradient(to bottom, #fbbf24, #d97706);">
-                <span class="text-white font-bold text-base"><%= @victory_counts[u1.id] || 0 %> pts</span>
-              </div>
+              <%= image_tag "avatar_border_king.png", class: "absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[100px] h-[100px] max-w-none pointer-events-none", alt: "" %>
             <% end %>
-          </div>
-          <%# 3rd place — right %>
-          <div class="flex flex-col items-center flex-1 <%= top3[2] ? '' : 'invisible' %>">
-            <% u3 = top3[2] %>
-            <% if u3 %>
-              <div class="w-11 h-11 rounded-full overflow-hidden border-2 border-white mb-1 shadow">
+            <div class="w-full rounded-t-xl flex flex-col items-center justify-end pb-3 h-36"
+                 style="background: linear-gradient(to bottom, #fbbf24, #d97706);">
+              <span class="text-white font-bold text-base"><%= @victory_counts[u1.id] || 0 %> pts</span>
+            </div>
+          <% end %>
+        </div>
+
+        <%# 3ème place — droite %>
+        <div class="flex flex-col items-center flex-1 <%= top3[2] ? '' : 'invisible' %>">
+          <% u3 = top3[2] %>
+          <% if u3 %>
+            <%= link_to profile_path(u3), class: "relative w-11 h-11 mb-1 block" do %>
+              <div class="w-full h-full rounded-full overflow-hidden shadow">
                 <% if u3.profile_picture.attached? %>
                   <%= image_tag u3.profile_picture, class: "w-full h-full object-cover" %>
                 <% else %>
                   <div class="w-full h-full bg-base-100 flex items-center justify-center">
-                    <i class="fa-solid fa-user text-gray-400 text-sm"></i>
+                    <i class="fa-solid fa-user text-gray-400 text-base"></i>
                   </div>
                 <% end %>
               </div>
-              <div class="w-full rounded-t-xl flex flex-col items-center justify-end pb-3 h-20"
-                   style="background: linear-gradient(to bottom, #f97316, #c2410c);">
-                <span class="text-white font-bold text-sm"><%= @victory_counts[u3.id] || 0 %> pts</span>
-              </div>
+              <%= image_tag "avatar_border_third.png", class: "absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[100px] h-[100px] max-w-none pointer-events-none", alt: "" %>
             <% end %>
-          </div>
-        </div>
-      <% else %>
-        <p class="text-gray-400 text-center py-6 text-sm">Aucun classement disponible</p>
-      <% end %>
-    </div>
-    <%# --- UPCOMING MEETS --- %>
-    <div class="px-4 mt-6">
-      <h2 class="text-lg font-bold text-white mb-3">Rencontres à venir</h2>
-      <% if @upcoming_meets.any? %>
-        <div class="flex flex-col gap-3">
-          <% @upcoming_meets.each do |meet| %>
-            <div class="bg-base-200 rounded-2xl p-4 relative">
-              <%# Type badge %>
-              <div class="absolute top-3 right-3">
-                <% if meet.meetable_type == "Match" %>
-                  <span class="badge badge-secondary text-white text-xs font-bold">Match</span>
-                <% else %>
-                  <span class="badge badge-success text-white text-xs font-bold">Entrainement</span>
-                <% end %>
-              </div>
-              <%# Date %>
-              <div class="flex items-center gap-2 mb-2 pr-24">
-                <i class="fa-solid fa-calendar-days text-primary text-sm shrink-0"></i>
-                <span class="text-white text-sm font-semibold">
-                  <%= meet.date.strftime("%d %b %Y à %H:%M") %>
-                </span>
-              </div>
-              <%# Duration %>
-              <div class="flex items-center gap-2 mb-2">
-                <i class="fa-solid fa-clock text-primary text-sm shrink-0"></i>
-                <span class="text-gray-300 text-sm"><%= meet.duration %> min</span>
-              </div>
-              <%# Meetable details %>
-              <% if meet.meetable_type == "Match" %>
-                <div class="flex items-center gap-2">
-                  <i class="fa-solid fa-shield-halved text-secondary text-sm shrink-0"></i>
-                  <span class="text-gray-300 text-sm font-medium">
-                    Equipe Bleu <span class="text-gray-500 mx-1">vs</span> Equipe Rouge
-                  </span>
-                </div>
-              <% else %>
-                <div class="flex items-center gap-2 mb-1">
-                  <i class="fa-solid fa-bullseye text-success text-sm shrink-0"></i>
-                  <span class="text-gray-300 text-sm"><%= meet.meetable.goal %></span>
-                </div>
-                <div class="flex items-center gap-2">
-                  <i class="fa-solid fa-signal text-success text-sm shrink-0"></i>
-                  <span class="text-gray-300 text-sm">Niveau : <%= meet.meetable.level %></span>
-                </div>
-              <% end %>
+            <div class="w-full rounded-t-xl flex flex-col items-center justify-end pb-3 h-20"
+                 style="background: linear-gradient(to bottom, #f97316, #c2410c);">
+              <span class="text-white font-bold text-base"><%= @victory_counts[u3.id] || 0 %> pts</span>
             </div>
           <% end %>
         </div>
-      <% else %>
-        <p class="text-gray-400 text-center py-6 text-sm">Aucune rencontre à venir</p>
-      <% end %>
-    </div>
+
+      </div>
+    <% else %>
+      <p class="text-gray-400 text-center py-6 text-base">Aucun classement disponible</p>
+    <% end %>
+  </div>
+
+  <%# ===================== RENCONTRES À VENIR ===================== %>
+  <div class="px-4 mt-6">
+    <h2 class="text-lg font-bold text-white mb-3">Rencontres à venir</h2>
+    <% if @upcoming_meets.any? %>
+      <div class="flex flex-col gap-3">
+        <% @upcoming_meets.each do |meet| %>
+          <div class="bg-base-200 rounded-2xl p-4 relative">
+            <div class="absolute top-3 right-3">
+              <% if meet.meetable_type == "Match" %>
+                <span class="badge badge-secondary text-white text-base font-bold">Match</span>
+              <% else %>
+                <span class="badge badge-success text-white text-base font-bold">Entrainement</span>
+              <% end %>
+            </div>
+            <div class="flex items-center gap-2 mb-2 pr-24">
+              <i class="fa-solid fa-calendar-days text-primary text-base shrink-0"></i>
+              <span class="text-white text-base font-semibold">
+                <%= meet.date.strftime("%d %b %Y à %H:%M") %>
+              </span>
+            </div>
+            <div class="flex items-center gap-2 mb-2">
+              <i class="fa-solid fa-clock text-primary text-base shrink-0"></i>
+              <span class="text-gray-300 text-base"><%= meet.duration %> min</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <% if meet.meetable_type == "Match" %>
+
+                <i class="fa-solid fa-shield-halved text-secondary text-base shrink-0"></i>
+                <span class="text-gray-300 text-base font-medium">
+                  Equipe Bleu <span class="text-gray-500 mx-1">vs</span> Equipe Rouge
+                </span>
+
+              <% else %>
+                <div class="flex items-center gap-2 mb-1">
+                  <i class="fa-solid fa-bullseye text-success text-base shrink-0"></i>
+                  <span class="text-gray-300 text-base"><%= meet.meetable.goal %></span>
+                </div>
+
+                <i class="fa-solid fa-signal text-success text-base shrink-0"></i>
+                <span class="text-gray-300 text-base">Niveau : <%= meet.meetable.level %></span>
+
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <p class="text-gray-400 text-center py-6 text-base">Aucune rencontre à venir</p>
+    <% end %>
   </div>
 </div>

@@ -3,10 +3,10 @@
   <%# Header %>
   <div class="flex items-center gap-4 pt-10 mb-8">
     <%= link_to program_path(@program), class: "flex items-center justify-center w-10 h-10 rounded-full border border-white/10" do %>
-      <i class="fa-solid fa-chevron-left text-sm"></i>
+      <i class="fa-solid fa-chevron-left text-base"></i>
     <% end %>
     <div>
-      <p class="text-xs text-white/40 uppercase tracking-widest">Programme</p>
+      <p class="text-base text-white/40 uppercase tracking-widest">Programme</p>
       <h1 class="text-lg font-bold leading-tight"><%= @program.title %></h1>
     </div>
   </div>
@@ -14,14 +14,14 @@
   <%# Title %>
   <div class="mb-10">
     <h2 class="text-3xl font-bold">Planifier une rencontre</h2>
-    <p class="text-white/40 text-sm mt-2">Choisissez une date, une durée et un terrain.</p>
+    <p class="text-white/40 text-base mt-2">Choisissez une date, une durée et un terrain.</p>
   </div>
 
   <%= simple_form_for [@program, @meet], html: { class: "space-y-6" } do |f| %>
 
     <%# Date %>
     <div>
-      <label class="text-xs font-semibold uppercase tracking-widest text-white/40 mb-2 block">Date & heure</label>
+      <label class="text-base font-semibold uppercase tracking-widest text-white/40 mb-2 block">Date & heure</label>
       <%= f.input :date,
           as: :string,
           label: false,
@@ -30,30 +30,30 @@
             type: "datetime-local",
             class: "input input-bordered w-full bg-white/5 border-white/10 text-white [color-scheme:dark] focus:border-primary focus:outline-none"
           } %>
-      <%= f.error :date, class: "text-error text-xs mt-1" %>
+      <%= f.error :date, class: "text-error text-base mt-1" %>
     </div>
 
     <%# Duration %>
     <div>
-      <label class="text-xs font-semibold uppercase tracking-widest text-white/40 mb-2 block">Durée</label>
+      <label class="text-base font-semibold uppercase tracking-widest text-white/40 mb-2 block">Durée</label>
       <div class="grid grid-cols-3 gap-2">
         <% Meet::DURATIONS.each do |duration| %>
           <label class="relative cursor-pointer">
             <%= f.radio_button :duration, duration, class: "peer sr-only" %>
-            <div class="flex flex-col items-center justify-center py-3 rounded-xl border border-white/10 bg-white/5 text-white/50 text-sm font-medium
+            <div class="flex flex-col items-center justify-center py-3 rounded-xl border border-white/10 bg-white/5 text-white/50 text-base font-medium
                         peer-checked:border-primary peer-checked:bg-primary/10 peer-checked:text-primary transition-all">
               <span class="text-base font-bold"><%= duration %></span>
-              <span class="text-xs">min</span>
+              <span class="text-base">min</span>
             </div>
           </label>
         <% end %>
       </div>
-      <%= f.error :duration, class: "text-error text-xs mt-1" %>
+      <%= f.error :duration, class: "text-error text-base mt-1" %>
     </div>
 
     <%# Court %>
     <div>
-      <label class="text-xs font-semibold uppercase tracking-widest text-white/40 mb-2 block">Terrain</label>
+      <label class="text-base font-semibold uppercase tracking-widest text-white/40 mb-2 block">Terrain</label>
       <%= f.input :court_id,
           as: :select,
           label: false,
@@ -65,7 +65,7 @@
           input_html: {
             class: "select select-bordered w-full bg-white/5 border-white/10 text-white focus:border-primary focus:outline-none"
           } %>
-      <%= f.error :court_id, class: "text-error text-xs mt-1" %>
+      <%= f.error :court_id, class: "text-error text-base mt-1" %>
     </div>
 
     <%# Submit %>

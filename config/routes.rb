@@ -25,7 +25,11 @@ Rails.application.routes.draw do
       post "leave"
     end
   end
-  resources :profiles, only: [ :show, :edit, :update ]
+  resources :profiles, only: [ :show, :edit, :update ] do
+    member do
+      get "classements"
+    end
+  end
   resources :programs, only: [ :index, :show, :new, :create ] do
     resources :meets, only: [ :new, :create ]
   end

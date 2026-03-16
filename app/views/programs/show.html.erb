@@ -1,12 +1,48 @@
-<%= link_to "← Retour aux rencontres", meets_path %>
+<div class="min-h-screen pb-24 text-white">
 
-<h1><%= @program.title %></h1>
-<br>
-<% content = @program.content %>
-<% content = JSON.parse(content.gsub("=>", ":")) %>
-<h3><%= content["description"] %></h3>
-<br>
-<% content["exercises"].each do |exercise| %>
-  <li>- <%= exercise %></li>
-<% end %>
-<%= link_to "Créer une rencontre", new_program_meet_path(@program) %>
+  <%# Header avec bouton retour stylé %>
+  <div class="px-6 pt-10 pb-6">
+    <%= link_to meets_path, class: "text-white/40 hover:text-white flex items-center gap-2 text-base transition mb-4" do %>
+      <i class="fa-solid fa-arrow-left"></i>
+      Retour aux rencontres
+    <% end %>
+
+    <span class="text-base text-orange-500 uppercase tracking-widest font-bold"><%= @program.level %></span>
+    <h1 class="text-4xl font-extrabold tracking-tight mt-2"><%= @program.title %></h1>
+  </div>
+
+  <%# Contenu du programme %>
+  <div class="px-6">
+    <% content = JSON.parse(@program.content.gsub("=>", ":")) %>
+
+    <%# Description %>
+    <div class="bg-white/5 border border-white/10 rounded-2xl p-6 mb-8">
+      <h2 class="text-white/40 text-base uppercase tracking-widest mb-2 font-bold">Objectif & Description</h2>
+      <p class="text-lg font-semibold leading-tight"><%= content["description"] %></p>
+    </div>
+
+    <%# Liste des exercices %>
+    <h2 class="font-bold text-base mb-4 px-1">Exercices du programme</h2>
+    <div class="space-y-4">
+      <% content["exercises"].each_with_index do |exercise, index| %>
+        <div class="bg-white/5 border border-white/10 p-5 rounded-2xl flex items-start gap-4">
+          <span class="flex-shrink-0 w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-base font-bold text-orange-500">
+            <%= index + 1 %>
+          </span>
+          <p class="text-base font-medium leading-relaxed text-white/90">
+            <%= exercise %>
+          </p>
+        </div>
+      <% end %>
+    </div>
+
+    <%# Bouton pour envoyer vers un rencontre%>
+    <div class="mt-10">
+      <%= link_to new_program_meet_path(@program), class: "flex items-center justify-center gap-3 w-full py-5 rounded-2xl font-bold text-white transition-transform active:scale-95 shadow-lg", style: "background-color: var(--color-primary);" do %>
+        <i class="fa-solid fa-calendar-plus"></i>
+        Planifier cette séance
+      <% end %>
+    </div>
+  </div>
+
+</div>

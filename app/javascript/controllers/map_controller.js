@@ -1,48 +1,150 @@
 import { Controller } from "@hotwired/stimulus";
 
 export default class extends Controller {
+  // Valeurs passées depuis le HTML via data-map-*-value
   static values = {
-    markers: { type: Array, default: [] },
-    iconPath: { type: String, default: "" },
+    markers: { type: Array, default: [] },    // Liste des terrains à afficher
+    iconPath: { type: String, default: "" },  // Chemin de l'image du pin
     mapboxToken: { type: String, default: "" },
-    shadowPath: { type: String, default: "" }
+    shadowPath: { type: String, default: "" }, // Chemin de l'ombre sous le pin
+    radius: { type: Number, default: 1000 }   // Périmètre de filtrage en mètres (défaut : 1 km)
   };
+
+  // Cible optionnelle pour afficher le libellé du rayon en temps réel
+  static targets = ["radiusDisplay"];
 
   connect() {
     if (!window.L) return;
-    this.map = window.L.map(this.element);
 
+    this.userLatLng = null;  // Position de l'utilisateur (null tant que non géolocalisé)
+    this.markerLayers = [];  // Références aux layers Leaflet pour pouvoir les filtrer
+
+    // Initialisation de la carte Leaflet sur l'élément HTML du contrôleur
+    this.map = window.L.map(this.element, {
+      zoomControl: false,
+      maxBounds: L.latLngBounds(L.latLng(-90, -180), L.latLng(90, 180)),
+      maxBoundsViscosity: 1.0  // Bloque complètement le dépassement des bords
+    });
+
+    // Fond de carte Mapbox en thème sombre
     L.tileLayer(`https://api.mapbox.com/styles/v1/mapbox/dark-v11/tiles/256/{z}/{x}/{y}?access_token=${this.mapboxTokenValue}`, {
       tileSize: 256,
       attribution: '&copy; OpenStreetMap contributors'
-    }).addTo(this.map)
+    }).addTo(this.map);
 
+    // Ajout de tous les markers (terrains) depuis les données Rails
     this.addMarkers();
 
-    if (this.markersValue.length > 0) {
-      const bounds = window.L.latLngBounds(
-        this.markersValue.map((marker) => [marker.lat, marker.lng]),
-      );
-      this.map.fitBounds(bounds, { padding: [32, 32] });
-    } else {
-      this.map.setView([50.63, 3.06], 13);
-    }
-    this.overlay = L.rectangle(
-      this.map.getBounds(),
-      {
-        color: "#070747",
-        weight: 0,
-        fillOpacity: 0.25
-      }
-    ).addTo(this.map);
+    // Demande la géolocalisation du navigateur et centre la carte sur l'utilisateur
+    this.map.locate({ setView: true, maxZoom: 16 });
 
-    this.map.on("moveend", () => {
-      this.overlay.setBounds(this.map.getBounds())
-    })
+    // Une fois la position trouvée : stocke les coordonnées, place le marker utilisateur, dessine le cercle et filtre
+    this.map.on('locationfound', (e) => {
+      this.userLatLng = e.latlng;
+      this.updateUserMarker();
+      this.updateRadiusCircle();
+      this.filterByRadius();
+      this.map.fitBounds(this.radiusCircle.getBounds(), { padding: [20, 20] });
+    });
 
-    requestAnimationFrame(() => this.map.invalidateSize());
+    // Si la géolocalisation échoue (refus, timeout...), tous les markers restent visibles
+    this.map.on('locationerror', (e) => {
+      console.warn(e.message);
+    });
+
+    // Overlay bleu semi-transparent pour faire ressortir les pins sur le fond de carte.
+    // Créé après le premier moveend car getBounds() nécessite une vue initialisée.
+    this.map.once("moveend", () => {
+      this.overlay = L.rectangle(
+        this.map.getBounds(),
+        { color: "#070747", weight: 0, fillOpacity: 0.25 }
+      ).addTo(this.map);
+
+      // Met à jour les dimensions de l'overlay à chaque déplacement
+      this.map.on("moveend", () => {
+        this.overlay.setBounds(this.map.getBounds());
+      });
+    });
+
+    // Corrige un bug Leaflet où les tiles ne remplissent pas correctement le conteneur au 1er rendu
+    // Puis calcule et applique le zoom minimum pour que les tuiles remplissent toujours l'écran
+    requestAnimationFrame(() => {
+      this.map.invalidateSize();
+      const size = this.map.getSize();
+      const minZoom = Math.ceil(Math.log2(Math.max(size.x, size.y) / 256));
+      this.map.setMinZoom(minZoom);
+    });
   }
 
+  // Recentre la carte sur la position de l'utilisateur et le périmètre actuel
+  recenter() {
+    if (this.userLatLng && this.radiusCircle) {
+      this.map.fitBounds(this.radiusCircle.getBounds(), { padding: [20, 20] });
+    }
+  }
+
+  // Action Stimulus déclenchée par le <select> de périmètre (data-action="change->map#setRadius")
+  setRadius(event) {
+    this.radiusValue = parseInt(event.target.value);
+    if (this.hasRadiusDisplayTarget) {
+      this.radiusDisplayTarget.textContent = this.radiusLabel;
+    }
+    this.updateRadiusCircle();
+    this.filterByRadius();
+    if (this.userLatLng && this.radiusCircle) {
+      this.map.fitBounds(this.radiusCircle.getBounds(), { padding: [20, 20] });
+    }
+  }
+
+  // Formate le rayon en "500 m" ou "1 km" selon la valeur
+  get radiusLabel() {
+    return this.radiusValue >= 1000
+      ? `${this.radiusValue / 1000} km`
+      : `${this.radiusValue} m`;
+  }
+
+  // Place (ou déplace) le marker de position de l'utilisateur
+  updateUserMarker() {
+    if (this.userMarker) this.userMarker.remove();
+    const icon = L.divIcon({
+      className: "",
+      html: `<div class="user-location-marker"><div class="user-location-marker__pulse"></div></div>`,
+      iconSize: [20, 20],
+      iconAnchor: [10, 10],
+    });
+    this.userMarker = L.marker(this.userLatLng, { icon, zIndexOffset: 1000 }).addTo(this.map);
+  }
+
+  // Dessine (ou redessine) le cercle orange autour de l'utilisateur selon le rayon sélectionné
+  updateRadiusCircle() {
+    if (!this.userLatLng) return;
+    if (this.radiusCircle) this.radiusCircle.remove();
+    this.radiusCircle = L.circle(this.userLatLng, {
+      radius: this.radiusValue,
+      color: "#fa6c00",
+      weight: 2,
+      fillOpacity: 0.08
+    }).addTo(this.map);
+  }
+
+  // Affiche ou masque chaque marker selon sa distance à l'utilisateur.
+  // Si la position n'est pas encore connue, tous les markers sont affichés.
+  filterByRadius() {
+    this.markerLayers.forEach(({ layer, lat, lng }) => {
+      if (!this.userLatLng) {
+        layer.addTo(this.map);
+        return;
+      }
+      const distance = this.userLatLng.distanceTo(L.latLng(lat, lng));
+      if (distance <= this.radiusValue) {
+        layer.addTo(this.map);
+      } else {
+        layer.remove();
+      }
+    });
+  }
+
+  // Construit l'icône personnalisée d'un terrain (pin + avatar du top utilisateur + ombre)
   buildIcon(marker) {
     const avatarHtml = marker.top_user_image
       ? `<div class="court-pin__avatar" style="background-image: url('${marker.top_user_image}')"></div>`
@@ -63,7 +165,7 @@ export default class extends Controller {
           </div>
         </div>
       `,
-      // Container 98×91 : pin (75×89) à [0,0] + shadow (65×64) à [33,27]
+      // Container 98×91 : pin (75×89) + ombre (65×64) décalée à [33,27]
       // Ancre = bas-centre du pin = [37, 89] dans le container
       iconSize: [98, 91],
       iconAnchor: [37, 89],
@@ -71,6 +173,7 @@ export default class extends Controller {
     });
   }
 
+  // Construit le HTML de la popup affichée au clic sur un marker
   buildPopup(marker) {
     const imageHtml = marker.image
       ? `<div class="map-popup__image" style="background-image: url('${marker.image}')"></div>`
@@ -88,13 +191,15 @@ export default class extends Controller {
     `;
   }
 
+  // Crée un marker Leaflet pour chaque terrain et le stocke dans markerLayers pour le filtrage
   addMarkers() {
     this.markersValue.forEach((marker) => {
-      window.L.marker([marker.lat, marker.lng], {
+      const layer = window.L.marker([marker.lat, marker.lng], {
         icon: this.buildIcon(marker),
-      })
-        .addTo(this.map)
-        .bindPopup(this.buildPopup(marker));
+      }).bindPopup(this.buildPopup(marker));
+
+      this.markerLayers.push({ layer, lat: marker.lat, lng: marker.lng });
+      layer.addTo(this.map);
     });
   }
 }
