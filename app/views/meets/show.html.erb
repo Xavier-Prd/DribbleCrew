@@ -199,7 +199,7 @@
     <%# Affiché uniquement si le match n'a pas encore de scores soumis %>
     <%# et seulement pour l'organisateur du match %>
     <%# ================================================================ %>
-    <% elsif @match.user == current_user %>
+    <% elsif @match.user == current_user && @match.finished? %>
 
       <%# Ce bouton ouvre la pop-up (balise <dialog>) via son identifiant HTML %>
       <button onclick="document.getElementById('finish-match-modal').showModal()"
