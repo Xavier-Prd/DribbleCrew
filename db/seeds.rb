@@ -175,7 +175,7 @@ puts "#{Program.count} programs created"
 
 # ---- MEETS ----
 puts "Starting Meets seed"
-10.times do
+100.times do
   Meet.create!(
     court: Court.all.sample,
     date: Faker::Date.forward(days: 30),
@@ -187,7 +187,7 @@ puts "#{Meet.count} meets created"
 
 # ---- VICTORIES ----
 puts "Starting Victories seed"
-1000.times do
+10000.times do
   Victory.create!(
     user: User.all.sample,
     court: Court.all.sample

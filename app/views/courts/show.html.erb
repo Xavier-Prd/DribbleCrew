@@ -20,7 +20,7 @@
       <h1 class="text-3xl font-black text-white leading-tight"><%= @court.name %></h1>
       <p class="text-base text-gray-300 mt-0.5 flex items-center gap-1">
         <i class="fa-solid fa-location-dot text-primary text-base"></i>
-        <%= @court.short_address %>
+        <%= @court.address %>
       </p>
     </div>
 
@@ -39,7 +39,7 @@
         <%= image_tag "avatar_border_default.png", class: "absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[100px] h-[100px] max-w-none pointer-events-none", alt: "" %>
       </div>
       <span class="badge badge-primary text-base font-bold px-2">
-        <%= @my_victories %> pts
+        <%= @user_points %> pts
       </span>
     <% end %>
   </div>
