@@ -1,14 +1,29 @@
 <div class="min-h-screen bg-[#12121e] flex flex-col items-center py-12 px-4 text-white">
   <div class="w-full max-w-md">
-    <h1 class="text-4xl font-bold mb-10 lowercase tracking-tight">Nouveau match</h1>
+    <h1 class="font-bold mb-10 lowercase tracking-tight">Nouveau match</h1>
     <%= simple_form_for(@match, html: { class: "space-y-6" }) do |f| %>
-      <%# Type de match %>
+      <%# Type de match — 3 boutons radio stylisés pour éviter les bugs du <select> natif sur mobile %>
       <div class="flex flex-col gap-2">
         <label class="text-gray-300 font-medium">Type de match</label>
-        <%= select_tag :match_type,
-            options_for_select(["1 vs 1", "3 vs 3", "5 vs 5"]),
-            prompt: "Sélectionner le type",
-            class: "select select-bordered w-full bg-white/5 border-white/10 text-white focus:border-primary focus:outline-none h-12" %>
+        <div class="grid grid-cols-3 gap-3">
+
+          <%# Chaque option est un radio button caché derrière un label stylisé en bouton %>
+          <%# Quand on clique sur le label, le radio button correspondant est coché %>
+
+          <% [["1 vs 1", 1], ["3 vs 3", 3], ["5 vs 5", 5]].each do |label_text, value| %>
+            <label style="cursor: pointer;">
+              <%= radio_button_tag :match_type, value, value == 1,
+                    class: "peer hidden" %>
+              <%# Le style change selon si le radio est coché (peer-checked) ou non %>
+              <span class="flex items-center justify-center h-12 rounded-xl border font-bold text-sm transition-all
+                           border-white/10 bg-white/5 text-white/50
+                           peer-checked:border-primary peer-checked:bg-primary/10 peer-checked:text-white">
+                <%= label_text %>
+              </span>
+            </label>
+          <% end %>
+
+        </div>
       </div>
       <%= f.simple_fields_for :meet, @match.meet || @match.build_meet do |m| %>
         <%# La date %>

@@ -1,17 +1,17 @@
 class MeetsController < ApplicationController
   def index
-  # 1. Les rencontres planifiées
-  @upcoming_meets = Meet.includes(:court, :meetable)
-                        .where("date >= ?", Time.current)
-                        .order(:date)
-
-  # 2. Tous les programs de l'user
-  @programs = current_user.programs
-
-  # 3. Les rencontres passées
-  @past_meets = Meet.includes(:court, :meetable)
-                    .where("date < ?", Time.current)
-                    .order(date: :desc)
+    # 1. Les rencontres planifiées
+    @upcoming_meets = Meet.includes(:court, :meetable)
+                          .where("date >= ?", Time.current)
+                          .order(:date)
+  
+    # 2. Tous les programs de l'user
+    @programs = current_user.programs
+  
+    # 3. Les rencontres passées
+    @past_meets = Meet.includes(:court, :meetable)
+                      .where("date < ?", Time.current)
+                      .order(date: :desc)
   end
 
   def show
@@ -32,6 +32,11 @@ class MeetsController < ApplicationController
   def join
    @meet = Meet.find(params[:id])
    @meetable = @meet.meetable
+
+   # Sécurité : on bloque la tentative même si quelqu'un forge une requête manuellement
+   if @meet.date <= Time.current
+     return redirect_to meet_path(@meet), alert: "Cette rencontre a déjà commencé. Vous ne pouvez plus la rejoindre."
+   end
 
     # Cas 1 : Entrainement
     if @meet.meetable_type == "Program"
@@ -73,6 +78,11 @@ class MeetsController < ApplicationController
   def leave
   @meet = Meet.find(params[:id])
   @meetable = @meet.meetable
+
+  # Sécurité : on bloque la tentative même si quelqu'un forge une requête manuellement
+  if @meet.date <= Time.current
+    return redirect_to meet_path(@meet), alert: "Cette rencontre a déjà commencé. Vous ne pouvez plus la quitter."
+  end
 
     # On détermine l'équipe (ou les équipes) dans lesquelles chercher
     if @meet.meetable_type == "Program"

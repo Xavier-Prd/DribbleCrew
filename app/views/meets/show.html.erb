@@ -16,8 +16,8 @@
         </p>
       </div>
 
-      <%# Bouton Rejoindre : Si l'user n'est pas déjà inscrit et n'est pas le créateur %>
-      <% if @program.user != current_user && !@program.team.users.include?(current_user) %>
+      <%# Bouton Rejoindre : Si l'user n'est pas déjà inscrit, n'est pas le créateur, et la session n'est pas encore passée %>
+      <% if @program.user != current_user && !@program.team.users.include?(current_user) && @meet.date > Time.current %>
         <%= button_to "Participer", join_meet_path(@meet), method: :post, style: "background: #f97316; color: white; border: none; padding: 12px 24px; border-radius: 12px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(249, 115, 22, 0.2);" %>
       <% end %>
     </div>
@@ -34,7 +34,7 @@
         <% end %>
 
         <%# Bouton Quitter : Uniquement pour les participants inscrits qui ne sont pas l'org %>
-        <% if @program.team.users.include?(current_user) && @program.user != current_user %>
+        <% if @program.team.users.include?(current_user) && @program.user != current_user && @meet.date > Time.current %>
           <%= button_to leave_meet_path(@meet), method: :post, style: "background: none; border: none; color: #ff4444; font-size: 0.75rem; cursor: pointer; text-decoration: underline; margin-left: 8px;" do %>
             Quitter la session
           <% end %>
@@ -82,7 +82,7 @@
           </ul>
         </div>
 
-        <% if !@match.blue_team.users.include?(current_user) && !@match.red_team.users.include?(current_user) && @match.blue_team.users.count < @match.blue_team.number_player %>
+        <% if !@match.blue_team.users.include?(current_user) && !@match.red_team.users.include?(current_user) && @match.blue_team.users.count < @match.blue_team.number_player && @meet.date > Time.current %>
           <%= button_to "Rejoindre", join_meet_path(@meet, team_id: @match.blue_team_id), method: :post, style: "width: 100%; background: #3b82f6; color: white; border: none; padding: 10px; border-radius: 12px; font-weight: bold; cursor: pointer; transition: 0.2s;" %>
         <% end %>
       </div>
@@ -107,7 +107,7 @@
           </ul>
         </div>
 
-        <% if !@match.red_team.users.include?(current_user) && !@match.blue_team.users.include?(current_user) && @match.red_team.users.count < @match.red_team.number_player %>
+        <% if !@match.red_team.users.include?(current_user) && !@match.blue_team.users.include?(current_user) && @match.red_team.users.count < @match.red_team.number_player && @meet.date > Time.current %>
           <%= button_to "Rejoindre", join_meet_path(@meet, team_id: @match.red_team_id), method: :post, style: "width: 100%; background: #ef4444; color: white; border: none; padding: 10px; border-radius: 12px; font-weight: bold; cursor: pointer;" %>
         <% end %>
       </div>
@@ -267,7 +267,7 @@
     <% end %>
 
     <%# Bouton quitter match %>
-    <% if (@match.blue_team.users.include?(current_user) || @match.red_team.users.include?(current_user)) && @match.user != current_user %>
+    <% if (@match.blue_team.users.include?(current_user) || @match.red_team.users.include?(current_user)) && @match.user != current_user && @meet.date > Time.current %>
       <%= button_to "Quitter le match", leave_meet_path(@meet), method: :post, style: "width: 100%; margin-top: 24px; background: rgba(255,255,255,0.05); color: #ff4444; border: 1px solid rgba(255,68,68,0.3); padding: 14px; border-radius: 15px; font-weight: bold; cursor: pointer;" %>
     <% end %>
 
