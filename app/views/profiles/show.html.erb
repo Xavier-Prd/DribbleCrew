@@ -30,7 +30,7 @@
         </div>
       <% end %>
     </div>
-    <h1 class="text-4xl font-extrabold tracking-tight"><%= @user.username %></h1>
+    <h1 class="font-extrabold tracking-tight"><%= @user.username %></h1>
 
     <%# Compteurs stats %>
     <div class="flex items-center justify-center gap-6 mt-4">
@@ -49,7 +49,7 @@
   <%# Classements %>
   <section class="mt-4">
     <div class="flex items-center justify-between px-6 mb-4">
-      <h2 class="font-bold text-lg">Classement</h2>
+      <h2 class="font-bold">Classement</h2>
       <%= link_to "Voir plus", classements_profile_path(@user), class: "text-base text-white/40" %>
     </div>
     <% if @classements.any? %>
@@ -106,7 +106,7 @@
   <%# Rencontres passées %>
   <section class="mt-8">
     <div class="flex items-center justify-between px-6 mb-4">
-      <h2 class="font-bold text-lg">Rencontres passées</h2>
+      <h2 class="font-bold">Rencontres passées</h2>
       <%= link_to "Voir plus", sessions_profile_path(@user) , class:"text-base text-white/40" %>
     </div>
     <% past_meets = @meets.select { |meet|
