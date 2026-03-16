@@ -2,6 +2,12 @@
 @import "../stylesheets/components/index.css";
 @import "../stylesheets/pages/index.css";
 
+/* Fond semi-transparent derrière les pop-ups <dialog> */
+::backdrop {
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+}
+
 /* Cacher les scrollbars globalement */
 * {
   scrollbar-width: none;       /* Firefox */
