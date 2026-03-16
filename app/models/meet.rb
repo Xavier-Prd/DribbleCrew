@@ -5,5 +5,5 @@ class Meet < ApplicationRecord
   validates :date, :duration, :meetable, presence: true
   validates :duration, inclusion: { in: DURATIONS }
   # Empêche de créer un meet avec une date déjà passée
-  validates :date, comparison: { greater_than: -> { Time.current }, message: "doit être dans le futur" }
+  validates :date, comparison: { greater_than: -> { Time.current }, message: ": La date doit être une date future" }
 end
