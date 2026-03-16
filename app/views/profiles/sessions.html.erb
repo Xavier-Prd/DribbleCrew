@@ -1,0 +1,95 @@
+<div class="min-h-screen pb-24">
+
+  <%# Header %>
+  <div class="px-6 pt-10 pb-6">
+    <%= link_to profile_path(@user), class: "flex items-center gap-2 text-white/40 text-base mb-4" do %>
+      <i class="fa-solid fa-chevron-left text-base"></i> Retour
+    <% end %>
+    <h1 class="text-4xl font-extrabold tracking-tight">Rencontres</h1>
+    <p class="text-white/40 text-base mt-2">Toutes les sessions passées de <span class="text-white font-semibold"><%= @user.username %></span>.</p>
+  </div>
+
+  <% past_meets = @meets.select { |meet|
+      meet.meetable_type == "Program" ||
+      (meet.meetable_type == "Match" && (meet.meetable.red_team.users.include?(@user) || meet.meetable.blue_team.users.include?(@user)))
+    } %>
+
+  <% if past_meets.any? %>
+    <div class="flex flex-col gap-3 px-6">
+      <% past_meets.each do |meet| %>
+        <% if meet.meetable_type == "Match" %>
+          <% match = meet.meetable %>
+          <% blue_s = match.blue_team_score.to_i; red_s = match.red_team_score.to_i %>
+          <% user_on_blue = match.blue_team.users.include?(@user) %>
+          <% user_won  = user_on_blue ? blue_s > red_s : red_s > blue_s %>
+          <% user_lost = user_on_blue ? red_s > blue_s : blue_s > red_s %>
+          <% accent       = user_won ? "#22c55e" : user_lost ? "#ef4444" : "#6b7280" %>
+          <% result_label = user_won ? "Victoire" : user_lost ? "Défaite" : "Égalité" %>
+          <% blue_score_color = blue_s >= red_s ? "rgba(255,255,255,0.95)" : "rgba(255,255,255,0.25)" %>
+          <% red_score_color  = red_s >= blue_s ? "rgba(255,255,255,0.95)" : "rgba(255,255,255,0.25)" %>
+          <% blue_circle_bg = blue_s > red_s ? "rgba(59,130,246,0.25)" : "rgba(255,255,255,0.04)" %>
+          <% red_circle_bg  = red_s > blue_s ? "rgba(239,68,68,0.25)"  : "rgba(255,255,255,0.04)" %>
+        <% else %>
+          <% accent = "#a855f7" %>
+        <% end %>
+
+        <%= link_to meet_path(meet), class: "flex items-center gap-4 rounded-2xl border border-white/8 overflow-hidden bg-white/5" do %>
+          <%# Trait coloré à gauche %>
+          <div class="w-1 self-stretch flex-shrink-0" style="background:<%= accent %>;"></div>
+
+          <%# Contenu %>
+          <div class="flex items-center gap-4 flex-1 min-w-0 py-4 pr-4">
+
+            <% if meet.meetable_type == "Match" %>
+              <%# Cercles scores %>
+              <div class="flex items-center gap-1.5 flex-shrink-0">
+                <div class="flex flex-col items-center gap-0.5">
+                  <div class="w-11 h-11 rounded-full flex items-center justify-center border border-white/10" style="background:<%= blue_circle_bg %>;">
+                    <span class="text-base font-black tabular-nums" style="color:<%= blue_score_color %>;"><%= match.blue_team_score %></span>
+                  </div>
+                  <span class="text-[8px] font-semibold uppercase tracking-wider text-white/25">Bleu</span>
+                </div>
+                <%= image_tag "vs.png", class: "w-7 h-7 object-contain mb-3" %>
+                <div class="flex flex-col items-center gap-0.5">
+                  <div class="w-11 h-11 rounded-full flex items-center justify-center border border-white/10" style="background:<%= red_circle_bg %>;">
+                    <span class="text-base font-black tabular-nums" style="color:<%= red_score_color %>;"><%= match.red_team_score %></span>
+                  </div>
+                  <span class="text-[8px] font-semibold uppercase tracking-wider text-white/25">Rouge</span>
+                </div>
+              </div>
+
+              <%# Infos %>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-bold text-white"><%= result_label %></p>
+                <p class="text-xs text-white/40 truncate mt-0.5"><%= meet.court&.name || "Terrain inconnu" %></p>
+                <p class="text-xs text-white/25 mt-0.5"><%= meet.date.strftime("%-d %b %Y") %> · <%= meet.duration %> min</p>
+              </div>
+
+            <% else %>
+              <%# Rond programme %>
+              <div class="w-11 h-11 rounded-full flex items-center justify-center border border-white/10 flex-shrink-0" style="background:rgba(168,85,247,0.2);">
+                <i class="fa-solid fa-dumbbell text-white/60 text-base"></i>
+              </div>
+
+              <%# Infos %>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-bold text-white truncate"><%= meet.meetable.title %></p>
+                <p class="text-xs text-white/40 truncate mt-0.5"><%= meet.court&.name || "Terrain inconnu" %></p>
+                <p class="text-xs text-white/25 mt-0.5"><%= meet.date.strftime("%-d %b %Y") %> · <%= meet.duration %> min</p>
+              </div>
+
+              <%# Niveau %>
+              <span class="flex-shrink-0 text-[10px] font-semibold text-white/40"><%= meet.meetable.level %></span>
+            <% end %>
+
+          </div>
+        <% end %>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="mx-6 h-40 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center">
+      <p class="text-white/30 text-base">Aucune rencontre passée.</p>
+    </div>
+  <% end %>
+
+</div>
