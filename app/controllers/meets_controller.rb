@@ -34,7 +34,7 @@ class MeetsController < ApplicationController
 
    # Sécurité : on bloque la tentative même si quelqu'un forge une requête manuellement
    if @meet.date <= Time.current
-     return redirect_to meet_path(@meet), alert: "Cette rencontre est déjà terminée."
+     return redirect_to meet_path(@meet), alert: "Cette rencontre a déjà commencé. Vous ne pouvez plus la rejoindre."
    end
 
   # Cas 1 : Entrainement
@@ -80,7 +80,7 @@ class MeetsController < ApplicationController
 
   # Sécurité : on bloque la tentative même si quelqu'un forge une requête manuellement
   if @meet.date <= Time.current
-    return redirect_to meet_path(@meet), alert: "Cette rencontre est déjà terminée."
+    return redirect_to meet_path(@meet), alert: "Cette rencontre a déjà commencé. Vous ne pouvez plus la quitter."
   end
 
     # On détermine l'équipe (ou les équipes) dans lesquelles chercher
