@@ -14,14 +14,6 @@
       <i class="fa-solid fa-chevron-left text-base"></i> Retour
     <% end %>
     <%# Nom + adresse courte %>
-<<<<<<< HEAD
-    <div class="absolute bottom-4 left-4 right-20">
-      <h1 class="font-black text-white leading-tight"><%= @court.name %></h1>
-      <p class="text-base text-gray-300 mt-0.5 flex items-center gap-1">
-        <i class="fa-solid fa-location-dot text-primary text-base"></i>
-        <%= @court.address %>
-      </p>
-=======
     <div class="absolute bottom-4 left-4 right-4"
          data-controller="sort-by-location"
          data-sort-by-location-lat-value="<%= @court.lat %>"
@@ -40,7 +32,6 @@
           <i class="fa-solid fa-location-arrow text-primary text-xs"></i>
         <% end %>
       </div>
->>>>>>> 21361fb469190a7e6440dea138a92f2ef2988c40
     </div>
     <%# Avatar du joueur connecté + ses points sur ce terrain %>
     <%= link_to profile_path(current_user), class: "absolute top-4 right-4 flex flex-col items-center gap-1" do %>
