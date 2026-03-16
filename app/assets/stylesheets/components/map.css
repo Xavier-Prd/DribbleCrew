@@ -166,7 +166,9 @@
 .leaflet-container {
   background: #212131;
 }
-
+.leaflet-popup-content p {
+  margin: 0.25rem 0;
+}
 /* Alignement a droite du texte dans le select de la map */
 #map .select, .select select {
     appearance: none;

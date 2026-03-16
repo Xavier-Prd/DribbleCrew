@@ -10,6 +10,22 @@ class User < ApplicationRecord
   has_many :courts, through: :victories
   validates :gender, inclusion: { in: GENDERS }
   validates :username, presence: true, uniqueness: true
+
+  def total_points
+    victory_points = victories.count * 10
+
+    team_ids = teams.pluck(:id)
+    matches = Match.where(blue_team_id: team_ids).or(Match.where(red_team_id: team_ids))
+    basket_points = matches.sum do |match|
+      if team_ids.include?(match.blue_team_id)
+        match.blue_team_score * 1
+      else
+        match.red_team_score * 1
+      end
+    end
+
+    victory_points + basket_points
+  end
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
   devise :database_authenticatable, :registerable,
