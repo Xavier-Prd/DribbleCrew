@@ -32,6 +32,11 @@ class MeetsController < ApplicationController
    @meet = Meet.find(params[:id])
    @meetable = @meet.meetable
 
+   # Sécurité : on bloque la tentative même si quelqu'un forge une requête manuellement
+   if @meet.date <= Time.current
+     return redirect_to meet_path(@meet), alert: "Cette rencontre est déjà terminée."
+   end
+
   # Cas 1 : Entrainement
     if @meet.meetable_type == "Program"
     # On récupère l'équipe unique du programme
@@ -72,6 +77,11 @@ class MeetsController < ApplicationController
   def leave
   @meet = Meet.find(params[:id])
   @meetable = @meet.meetable
+
+  # Sécurité : on bloque la tentative même si quelqu'un forge une requête manuellement
+  if @meet.date <= Time.current
+    return redirect_to meet_path(@meet), alert: "Cette rencontre est déjà terminée."
+  end
 
     # On détermine l'équipe (ou les équipes) dans lesquelles chercher
     if @meet.meetable_type == "Program"
