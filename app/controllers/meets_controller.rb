@@ -1,6 +1,6 @@
 class MeetsController < ApplicationController
   def index
-    # 1. Les rencontres planifiées
+  # 1. Les rencontres planifiées
   @upcoming_meets = Meet.includes(:court, :meetable)
                         .where("date >= ?", Time.current)
                         .order(:date)
@@ -20,8 +20,9 @@ class MeetsController < ApplicationController
       # Au lieu de rediriger, on récupère le programme pour l'afficher dans la vue du Meet
       @program = @meet.meetable
     else
-    # meetable (polymorphic) est un match donc je récupére l'obet match
-    @match = @meet.meetable
+      # meetable (polymorphic) est un match donc je récupére l'obet match
+      @match = @meet.meetable
+    # @qr_code = RQRCode::QRCode.new(@match.qr_code)
     # il faut que je calcule le nombre de joeur par équipe (équipe rouge et équipe bleu )
     @current_players_count = @match.blue_team.users.count + @match.red_team.users.count
     end
@@ -32,7 +33,7 @@ class MeetsController < ApplicationController
    @meet = Meet.find(params[:id])
    @meetable = @meet.meetable
 
-  # Cas 1 : Entrainement
+    # Cas 1 : Entrainement
     if @meet.meetable_type == "Program"
     # On récupère l'équipe unique du programme
     @team = @meetable.team
@@ -42,24 +43,24 @@ class MeetsController < ApplicationController
         end
 
     UserTeam.create!(user: current_user, team: @team)
-    return redirect_to meet_path(@meet), notice: "Tu as rejoint l'entraînement !"
+    redirect_to meet_path(@meet), notice: "Tu as rejoint l'entraînement !"
 
-  # Cas 2 : Match
+    # Cas 2 : Match
     else
     @match = @meetable
     @team = Team.find(params[:team_id])
 
-    # Empêcher l'organisateur de changer d'équipe
+      # Empêcher l'organisateur de changer d'équipe
       if @match.user == current_user
         return redirect_to meet_path(@meet), alert: "En tant qu'organisateur, tu es déjà chez les Bleus."
       end
 
-    # Empêcher le double enregistrement (Bleu ou Rouge)
+      # Empêcher le double enregistrement (Bleu ou Rouge)
       if @match.blue_team.users.include?(current_user) || @match.red_team.users.include?(current_user)
         return redirect_to meet_path(@meet), alert: "Tu es déjà inscrit à ce match !"
       end
 
-    # Vérification des places
+      # Vérification des places
       if @team.users.count < @team.number_player
       UserTeam.create!(user: current_user, team: @team)
       redirect_to meet_path(@meet), notice: "Tu as rejoint l'équipe avec succès !"

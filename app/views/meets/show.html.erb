@@ -113,6 +113,159 @@
       </div>
     </div>
 
+    <%# ================================================================ %>
+    <%# BLOC QR CODE — EN ATTENTE DE CONFIRMATION PAR L'ÉQUIPE ADVERSE %>
+    <%# Affiché pour tous les joueurs tant que le match n'est pas validé %>
+    <%# ================================================================ %>
+    <% if @match.pending_confirmation? %>
+
+      <div style="margin-top: 24px; background: rgba(249,115,22,0.05); border: 1px solid rgba(249,115,22,0.2); border-radius: 24px; padding: 28px 20px; text-align: center;">
+
+        <%# Badge statut %>
+        <div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(249,115,22,0.15); border: 1px solid rgba(249,115,22,0.3); border-radius: 30px; padding: 6px 16px; margin-bottom: 16px;">
+          <span style="width: 8px; height: 8px; background: #f97316; border-radius: 50%; display: inline-block; animation: pulse 1.5s infinite;"></span>
+          <span style="color: #f97316; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em;">En attente de validation</span>
+        </div>
+
+        <%# Score en attente %>
+        <div style="display: flex; align-items: center; justify-content: center; gap: 20px; margin-bottom: 20px;">
+          <div style="text-align: center;">
+            <div style="font-size: 0.7rem; color: #3b82f6; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px;">Bleus</div>
+            <div style="font-size: 3rem; font-weight: 900; color: #3b82f6; line-height: 1;"><%= @match.blue_team_score %></div>
+          </div>
+          <div style="font-size: 1.5rem; color: rgba(255,255,255,0.15); font-weight: 300;">—</div>
+          <div style="text-align: center;">
+            <div style="font-size: 0.7rem; color: #ef4444; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px;">Rouges</div>
+            <div style="font-size: 3rem; font-weight: 900; color: #ef4444; line-height: 1;"><%= @match.red_team_score %></div>
+          </div>
+        </div>
+
+        <%# Instruction %>
+        <p style="color: rgba(255,255,255,0.45); font-size: 0.82rem; line-height: 1.5; margin: 0 0 24px;">
+          Un joueur de l'équipe adverse doit scanner<br>ce QR code pour confirmer le résultat.
+        </p>
+
+        <%# On génère l'URL de confirmation qui sera encodée dans le QR code %>
+        <%# Le token correspond à la valeur de qr_code stockée en base pour ce match %>
+        <% confirmation_url = confirm_match_url(@match, token: @match.qr_code) %>
+
+        <%# On génère le QR code en SVG avec le gem rqrcode %>
+        <%# module_size : taille de chaque carré du QR code en pixels %>
+        <% qr_svg = RQRCode::QRCode.new(confirmation_url).as_svg(
+              module_size: 4,
+              standalone: true,
+              use_path: true,
+              color: "000",
+              background_color: "fff"
+            ) %>
+
+        <%# Cadre du QR code avec bordure orange et coins arrondis %>
+        <div style="display: inline-block; background: white; padding: 16px; border-radius: 20px; box-shadow: 0 0 0 4px rgba(249,115,22,0.3), 0 20px 40px rgba(0,0,0,0.4);">
+          <%= qr_svg.html_safe %>
+        </div>
+
+      </div>
+
+    <%# ================================================================ %>
+    <%# BLOC RÉSULTAT FINAL — MATCH CONFIRMÉ PAR L'ÉQUIPE ADVERSE %>
+    <%# ================================================================ %>
+    <% elsif @match.confirmed? %>
+
+      <div style="margin-top: 24px; background: rgba(34,197,94,0.05); border: 1px solid rgba(34,197,94,0.25); border-radius: 24px; padding: 28px 20px; text-align: center;">
+
+        <%# Badge résultat officiel %>
+        <div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(34,197,94,0.15); border: 1px solid rgba(34,197,94,0.3); border-radius: 30px; padding: 6px 16px; margin-bottom: 20px;">
+          <i class="fa-solid fa-circle-check" style="color: #22c55e; font-size: 0.75rem;"></i>
+          <span style="color: #22c55e; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em;">Résultat officiel</span>
+        </div>
+
+        <%# Scores finaux côte à côte %>
+        <div style="display: flex; align-items: center; justify-content: center; gap: 24px;">
+          <div style="text-align: center;">
+            <div style="font-size: 0.7rem; color: #3b82f6; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px;">Bleus</div>
+            <div style="font-size: 3.5rem; font-weight: 900; color: #3b82f6; line-height: 1;"><%= @match.blue_team_score %></div>
+          </div>
+          <div style="font-size: 1.5rem; color: rgba(255,255,255,0.15); font-weight: 300;">—</div>
+          <div style="text-align: center;">
+            <div style="font-size: 0.7rem; color: #ef4444; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px;">Rouges</div>
+            <div style="font-size: 3.5rem; font-weight: 900; color: #ef4444; line-height: 1;"><%= @match.red_team_score %></div>
+          </div>
+        </div>
+
+      </div>
+
+    <%# ================================================================ %>
+    <%# BOUTON "TERMINER LE MATCH" + MODAL DE SAISIE DES SCORES %>
+    <%# Affiché uniquement si le match n'a pas encore de scores soumis %>
+    <%# et seulement pour l'organisateur du match %>
+    <%# ================================================================ %>
+    <% elsif @match.user == current_user %>
+
+      <%# Ce bouton ouvre la pop-up (balise <dialog>) via son identifiant HTML %>
+      <button onclick="document.getElementById('finish-match-modal').showModal()"
+              style="width: 100%; margin-top: 24px; background: linear-gradient(135deg, #16a34a, #22c55e); color: white; border: none; padding: 16px; border-radius: 16px; font-weight: 800; cursor: pointer; font-size: 1rem; letter-spacing: 0.03em; box-shadow: 0 4px 20px rgba(34,197,94,0.25);">
+        <i class="fa-solid fa-flag-checkered" style="margin-right: 8px;"></i>
+        Terminer le match
+      </button>
+
+      <%# ============================================================= %>
+      <%# POP-UP (élément <dialog> natif HTML) %>
+      <%# Elle est invisible par défaut et s'ouvre avec .showModal() %>
+      <%# Sur mobile : prend toute la largeur grâce au max-width + width %>
+      <%# ============================================================= %>
+      <dialog id="finish-match-modal" style="background: #12121e; color: white; border: 1px solid rgba(255,255,255,0.08); border-radius: 24px; padding: 28px 24px; max-width: 420px; width: calc(100vw - 32px); box-shadow: 0 24px 60px rgba(0,0,0,0.7); margin: auto;">
+
+        <%# En-tête de la pop-up %>
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px;">
+          <div>
+            <p style="margin: 0 0 2px; font-size: 0.7rem; color: #22c55e; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;">Fin de match</p>
+            <h2 style="margin: 0; font-size: 1.2rem; font-weight: 900;">Saisie du résultat</h2>
+          </div>
+          <%# Croix de fermeture en haut à droite %>
+          <button type="button" onclick="document.getElementById('finish-match-modal').close()"
+                  style="background: rgba(255,255,255,0.06); border: none; color: rgba(255,255,255,0.5); width: 36px; height: 36px; border-radius: 10px; cursor: pointer; font-size: 1rem; display: flex; align-items: center; justify-content: center;">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+
+        <%# Formulaire qui envoie une requête PATCH vers matches#update %>
+        <%# On passe l'URL manuellement car @match existe déjà en base %>
+        <%= simple_form_for @match, url: match_path(@match), method: :patch do |form_builder| %>
+
+          <%# Ligne côte-à-côte : score équipe bleue | tiret | score équipe rouge %>
+          <div style="display: flex; align-items: flex-end; gap: 12px; margin-bottom: 28px;">
+
+            <%# Champ score pour l'équipe bleue %>
+            <div style="flex: 1; text-align: center;">
+              <%= form_builder.label :blue_team_score, "Bleus",
+                    style: "display: block; font-size: 0.7rem; color: #3b82f6; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px;" %>
+              <%= form_builder.input_field :blue_team_score, type: :number, min: 0,
+                    style: "width: 100%; background: rgba(59,130,246,0.08); border: 1.5px solid rgba(59,130,246,0.35); color: white; padding: 14px 8px; border-radius: 16px; font-size: 2rem; font-weight: 900; text-align: center; outline: none;" %>
+            </div>
+
+            <%# Séparateur visuel entre les deux scores %>
+            <div style="color: rgba(255,255,255,0.2); font-size: 1.5rem; font-weight: 300; padding-bottom: 14px;">—</div>
+
+            <%# Champ score pour l'équipe rouge %>
+            <div style="flex: 1; text-align: center;">
+              <%= form_builder.label :red_team_score, "Rouges",
+                    style: "display: block; font-size: 0.7rem; color: #ef4444; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px;" %>
+              <%= form_builder.input_field :red_team_score, type: :number, min: 0,
+                    style: "width: 100%; background: rgba(239,68,68,0.08); border: 1.5px solid rgba(239,68,68,0.35); color: white; padding: 14px 8px; border-radius: 16px; font-size: 2rem; font-weight: 900; text-align: center; outline: none;" %>
+            </div>
+
+          </div>
+
+          <%# Bouton Valider pleine largeur %>
+          <%# Soumet le formulaire → génère le QR code de confirmation %>
+          <%= form_builder.submit "Générer le QR code de validation",
+                style: "width: 100%; background: linear-gradient(135deg, #16a34a, #22c55e); color: white; border: none; padding: 16px; border-radius: 14px; font-weight: 800; cursor: pointer; font-size: 0.95rem; box-shadow: 0 4px 16px rgba(34,197,94,0.2); letter-spacing: 0.02em;" %>
+
+        <% end %>
+      </dialog>
+
+    <% end %>
+
     <%# Bouton quitter match %>
     <% if (@match.blue_team.users.include?(current_user) || @match.red_team.users.include?(current_user)) && @match.user != current_user %>
       <%= button_to "Quitter le match", leave_meet_path(@meet), method: :post, style: "width: 100%; margin-top: 24px; background: rgba(255,255,255,0.05); color: #ff4444; border: 1px solid rgba(255,68,68,0.3); padding: 14px; border-radius: 15px; font-weight: bold; cursor: pointer;" %>
@@ -129,6 +282,14 @@
       <div>
         <span style="display: block; font-size: 0.7rem; color: rgba(255,255,255,0.3); text-transform: uppercase;">Lieu du rendez-vous</span>
         <span style="font-weight: 600; font-size: 0.95rem;"><%= @meet.court.name %></span>
+        <%# Lien qui ouvre Google Maps avec l'itinéraire vers le terrain %>
+        <%= link_to "https://www.google.com/maps/dir/?api=1&destination=#{@meet.court.lat},#{@meet.court.long}",
+                    target: "_blank",
+                    rel: "noopener",
+                    style: "display: inline-flex; align-items: center; gap: 6px; margin-top: 6px; background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.7); font-size: 0.75rem; font-weight: 600; padding: 4px 10px; border-radius: 20px; text-decoration: none;" do %>
+          <i class="fa-solid fa-location-arrow" style="font-size: 0.7rem; color: #f97316;"></i>
+          Y aller
+        <% end %>
       </div>
     </div>
 
