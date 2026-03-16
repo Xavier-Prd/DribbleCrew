@@ -8,7 +8,7 @@ class User < ApplicationRecord
   has_many :user_teams
   has_many :teams, through: :user_teams
   has_many :courts, through: :victories
-  validates :gender, inclusion: { in: GENDERS }
+  # validates :gender, inclusion: { in: GENDERS }
   validates :username, presence: true, uniqueness: true
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
