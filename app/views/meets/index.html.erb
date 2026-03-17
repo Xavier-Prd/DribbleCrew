@@ -1,23 +1,40 @@
-<div class="min-h-screen pb-24">
+<div class="min-h-screen pb-24" data-controller="meet-filter">
 
   <%# Header %>
-  <div class="px-6 pt-10 pb-6">
-    <h1 class="font-extrabold tracking-tight">Rencontres</h1>
-    <p class="text-white/40 text-base mt-2 max-w-xs">Retrouvez vos matchs et vos entraînements planifiés.</p>
+  <div class="px-6 pt-10 pb-6 flex items-start justify-between">
+    <div>
+      <h1 class="font-extrabold tracking-tight">Rencontres</h1>
+      <p class="text-white/40 text-base mt-2 max-w-xs">Retrouvez vos matchs et vos entraînements planifiés.</p>
+    </div>
+    <button data-action="click->meet-filter#openModal"
+            class="relative mt-2 flex items-center gap-2 px-4 py-2 rounded-full border border-white/15 bg-white/5 text-sm font-semibold text-white hover:bg-white/10 transition-colors">
+      <i class="fa-solid fa-sliders text-base"></i>
+      Filtrer
+      <span data-meet-filter-target="filterBadge"
+            class="hidden absolute -top-1 -right-1 w-4 h-4 rounded-full text-[9px] font-black flex items-center justify-center"
+            style="background-color: var(--color-primary);">!</span>
+    </button>
   </div>
 
   <%# 1. MES SESSIONS (Planning Personnel : Créées + Rejointes) %>
-  <section class="mt-4">
+  <section class="mt-4" data-meet-filter-target="section">
     <div class="flex items-center justify-between px-6 mb-4">
       <h2 class="font-bold text-base">Mes sessions</h2>
       <span class="text-xs text-white/40"><%= @my_meets.count %> prévue(s)</span>
     </div>
 
     <% if @my_meets.any? %>
-      <div class="flex gap-4 overflow-x-auto px-6 pb-2 scrollbar-hide">
+      <div class="flex gap-4 overflow-x-auto px-6 pb-2 scrollbar-hide" data-cards-list>
         <% @my_meets.each do |meet| %>
-          <%= link_to meet_path(meet), class: "flex-shrink-0 w-64 h-32 rounded-2xl p-4 flex flex-col justify-between border border-white/10",
-              style: "background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%);" do %>
+          <%= link_to meet_path(meet),
+              class: "flex-shrink-0 w-64 h-32 rounded-2xl p-4 flex flex-col justify-between border border-white/10",
+              style: "background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%);",
+              data: {
+                "meet-filter-target": "card",
+                lat: meet.court.lat,
+                lng: meet.court.long,
+                date: meet.date.to_i
+              } do %>
 
             <div class="flex justify-between items-start">
               <% is_match = meet.meetable_type == "Match" %>
@@ -71,16 +88,25 @@
   </div>
 
   <%# 2. Rencontres à venir (Global) %>
-  <section class="mt-8">
+  <section class="mt-8" data-meet-filter-target="section">
     <div class="flex items-center justify-between px-6 mb-4">
       <h2 class="font-bold">Rencontres à venir</h2>
       <span class="text-base text-white/40">Voir plus</span>
     </div>
 
     <% if @upcoming_meets.any? %>
-      <div class="flex gap-4 overflow-x-auto px-6 pb-2 scrollbar-hide" data-sort-by-location-target="list">
+      <div class="flex gap-4 overflow-x-auto px-6 pb-2 scrollbar-hide"
+           data-meet-filter-target="list"
+           data-cards-list>
         <% @upcoming_meets.each do |meet| %>
-          <%= link_to meet_path(meet), class: "flex-shrink-0 w-44 h-32 rounded-2xl bg-white/5 border border-white/10 p-4 flex flex-col justify-between" do %>
+          <%= link_to meet_path(meet),
+              class: "flex-shrink-0 w-44 h-32 rounded-2xl bg-white/5 border border-white/10 p-4 flex flex-col justify-between",
+              data: {
+                "meet-filter-target": "card",
+                lat: meet.court.lat,
+                lng: meet.court.long,
+                date: meet.date.to_i
+              } do %>
             <% is_match = meet.meetable_type == "Match" %>
             <span class="badge badge-sm text-white font-semibold px-3 w-fit"
                   style="background-color: <%= is_match ? 'var(--color-primary)' : 'var(--color-secondary)' %>;">
@@ -100,16 +126,24 @@
   </section>
 
   <%# 3. Mes programmes perso %>
-  <section class="mt-8">
+  <section class="mt-8" data-meet-filter-target="section">
     <div class="flex items-center justify-between px-6 mb-4">
       <h2 class="font-bold">Mes programmes perso</h2>
       <span class="text-base text-white/40">Voir plus</span>
     </div>
 
     <% if @programs.any? %>
-      <div class="flex gap-4 overflow-x-auto px-6 pb-2 scrollbar-hide">
+      <div class="flex gap-4 overflow-x-auto px-6 pb-2 scrollbar-hide" data-cards-list>
         <% @programs.each do |program| %>
-          <%= link_to program_path(program), class: "flex-shrink-0 w-36 h-36 rounded-2xl bg-white/5 border border-white/10 p-4 flex flex-col justify-between" do %>
+          <% next_meet = program.meets.select { |m| m.date >= Time.current }.min_by(&:date) %>
+          <%= link_to program_path(program),
+              class: "flex-shrink-0 w-36 h-36 rounded-2xl bg-white/5 border border-white/10 p-4 flex flex-col justify-between",
+              data: {
+                "meet-filter-target": "card",
+                lat: next_meet&.court&.lat,
+                lng: next_meet&.court&.long,
+                date: next_meet&.date&.to_i
+              } do %>
             <span class="text-base text-white/40 uppercase tracking-widest"><%= program.level %></span>
             <p class="text-base font-semibold leading-tight line-clamp-2"><%= program.title %></p>
             <div class="flex items-center text-[10px] text-white/60 font-medium">
@@ -122,16 +156,23 @@
   </section>
 
   <%# 4. Rencontres passées %>
-  <section class="mt-8">
+  <section class="mt-8" data-meet-filter-target="section">
     <div class="flex items-center justify-between px-6 mb-4">
       <h2 class="font-bold">Rencontres passées</h2>
       <span class="text-base text-white/40">Voir plus</span>
     </div>
 
     <% if @past_meets.any? %>
-      <div class="flex gap-4 overflow-x-auto px-6 pb-2 scrollbar-hide">
+      <div class="flex gap-4 overflow-x-auto px-6 pb-2 scrollbar-hide" data-cards-list>
         <% @past_meets.each do |meet| %>
-          <%= link_to meet_path(meet), class: "flex-shrink-0 w-44 h-32 rounded-2xl bg-white/5 border border-white/10 p-4 flex flex-col justify-between opacity-50" do %>
+          <%= link_to meet_path(meet),
+              class: "flex-shrink-0 w-44 h-32 rounded-2xl bg-white/5 border border-white/10 p-4 flex flex-col justify-between opacity-50",
+              data: {
+                "meet-filter-target": "card",
+                lat: meet.court.lat,
+                lng: meet.court.long,
+                date: meet.date.to_i
+              } do %>
             <span class="badge badge-sm bg-white/20 text-white/60 font-semibold px-3 w-fit">Terminé</span>
             <div>
               <p class="text-base font-semibold truncate">
@@ -144,5 +185,85 @@
       </div>
     <% end %>
   </section>
+
+  <%# Modal filtres %>
+  <dialog data-meet-filter-target="modal" class="modal modal-bottom">
+    <div class="modal-box rounded-t-3xl rounded-b-none pb-10">
+
+      <div class="flex items-center justify-between mb-6">
+        <h3 class="font-extrabold text-lg">Filtrer</h3>
+        <button data-action="click->meet-filter#resetFilters"
+                class="text-xs text-white/40 hover:text-white/70 transition-colors">
+          Réinitialiser
+        </button>
+      </div>
+
+      <%# Trier par %>
+      <div class="mb-6">
+        <p class="text-xs text-white/40 uppercase tracking-widest font-bold mb-3">Trier par</p>
+        <div class="flex gap-2 flex-wrap">
+          <button data-action="click->meet-filter#selectSort"
+                  data-meet-filter-target="sortBtn"
+                  data-sort="date"
+                  class="btn btn-sm rounded-full btn-primary">
+            <i class="fa-solid fa-calendar-days mr-1"></i> Date
+          </button>
+          <button data-action="click->meet-filter#selectSort"
+                  data-meet-filter-target="sortBtn"
+                  data-sort="proximity"
+                  class="btn btn-sm rounded-full btn-ghost">
+            <i class="fa-solid fa-location-dot mr-1"></i> Proximité
+          </button>
+        </div>
+      </div>
+
+      <%# Distance %>
+      <div class="mb-8">
+        <p class="text-xs text-white/40 uppercase tracking-widest font-bold mb-3">Distance max</p>
+        <div class="flex gap-2 flex-wrap">
+          <button data-action="click->meet-filter#selectRadius"
+                  data-meet-filter-target="radiusBtn"
+                  data-radius="0"
+                  class="btn btn-sm rounded-full btn-primary">
+            Toutes
+          </button>
+          <button data-action="click->meet-filter#selectRadius"
+                  data-meet-filter-target="radiusBtn"
+                  data-radius="500"
+                  class="btn btn-sm rounded-full btn-ghost">
+            500 m
+          </button>
+          <button data-action="click->meet-filter#selectRadius"
+                  data-meet-filter-target="radiusBtn"
+                  data-radius="1000"
+                  class="btn btn-sm rounded-full btn-ghost">
+            1 km
+          </button>
+          <button data-action="click->meet-filter#selectRadius"
+                  data-meet-filter-target="radiusBtn"
+                  data-radius="5000"
+                  class="btn btn-sm rounded-full btn-ghost">
+            5 km
+          </button>
+          <button data-action="click->meet-filter#selectRadius"
+                  data-meet-filter-target="radiusBtn"
+                  data-radius="10000"
+                  class="btn btn-sm rounded-full btn-ghost">
+            10 km
+          </button>
+        </div>
+      </div>
+
+      <button data-action="click->meet-filter#applyFilters"
+              class="btn w-full rounded-full font-bold text-white"
+              style="background-color: var(--color-primary);">
+        Appliquer
+      </button>
+
+    </div>
+    <form method="dialog" class="modal-backdrop">
+      <button>close</button>
+    </form>
+  </dialog>
 
 </div>

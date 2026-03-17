@@ -1,11 +1,11 @@
 class MeetsController < ApplicationController
   def index
-    # 1. Les rencontres planifiées
+  # 1. Les rencontres planifiées
   @upcoming_meets = Meet.includes(:court, :meetable)
                         .where("date >= ?", Time.current)
                         .order(:date)
 
-    #Mes rencontres créées + rejointes
+  # Mes rencontres créées + rejointes
   user_team_ids = current_user.user_teams.pluck(:team_id)
 
   @my_meets = Meet.includes(:court, :meetable)
@@ -18,7 +18,7 @@ class MeetsController < ApplicationController
                   .order(:date)
 
   # 2. Tous les programs de l'user
-  @programs = current_user.programs
+  @programs = current_user.programs.includes(meets: :court)
 
   # 3. Les rencontres passées
   @past_meets = Meet.includes(:court, :meetable)
@@ -35,9 +35,9 @@ class MeetsController < ApplicationController
     else
       # meetable (polymorphic) est un match donc je récupére l'obet match
       @match = @meet.meetable
-    # @qr_code = RQRCode::QRCode.new(@match.qr_code)
-    # il faut que je calcule le nombre de joeur par équipe (équipe rouge et équipe bleu )
-    @current_players_count = @match.blue_team.users.count + @match.red_team.users.count
+      # @qr_code = RQRCode::QRCode.new(@match.qr_code)
+      # il faut que je calcule le nombre de joeur par équipe (équipe rouge et équipe bleu )
+      @current_players_count = @match.blue_team.users.count + @match.red_team.users.count
     end
   end
 
