@@ -35,7 +35,6 @@ class MeetsController < ApplicationController
     else
       # meetable (polymorphic) est un match donc je récupére l'obet match
       @match = @meet.meetable
-    # @qr_code = RQRCode::QRCode.new(@match.qr_code)
     # il faut que je calcule le nombre de joeur par équipe (équipe rouge et équipe bleu )
     @current_players_count = @match.blue_team.users.count + @match.red_team.users.count
     end

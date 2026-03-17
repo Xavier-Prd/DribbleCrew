@@ -12,14 +12,30 @@ class Match < ApplicationRecord
   end
 
   # Savoir si le résultat a été confirmé par l'équipe adverse via QR code
-  # Logique : scores présents ET qr_code effacé (nil) = confirmation faite
+  # Logique : scores réels présents ET qr_code effacé (nil) = confirmation faite
   def confirmed?
     blue_team_score.present? && red_team_score.present? && qr_code.nil?
   end
 
-  # Savoir si le match est en attente de confirmation (scores soumis, QR code pas encore scanné)
+  # Savoir si le match est en attente de confirmation (QR code généré, pas encore scanné)
+  # Les scores ne sont pas encore dans blue_team_score/red_team_score à ce stade
   def pending_confirmation?
-    blue_team_score.present? && red_team_score.present? && qr_code.present?
+    qr_code.present?
+  end
+
+  # Extrait le token de sécurité depuis le payload "token|blue|red"
+  def qr_token
+    qr_code&.split("|")&.first
+  end
+
+  # Extrait le score en attente de l'équipe bleue depuis le payload
+  def pending_blue_score
+    qr_code&.split("|")&.second&.to_i
+  end
+
+  # Extrait le score en attente de l'équipe rouge depuis le payload
+  def pending_red_score
+    qr_code&.split("|")&.third&.to_i
   end
   # Déterminer l'équipe gagnante
   def winner

@@ -131,12 +131,13 @@
         <div style="display: flex; align-items: center; justify-content: center; gap: 20px; margin-bottom: 20px;">
           <div style="text-align: center;">
             <div style="font-size: 0.7rem; color: #3b82f6; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px;">Bleus</div>
-            <div style="font-size: 3rem; font-weight: 900; color: #3b82f6; line-height: 1;"><%= @match.blue_team_score %></div>
+            <%# Les scores affichés ici sont les scores en attente, pas encore confirmés %>
+          <div style="font-size: 3rem; font-weight: 900; color: #3b82f6; line-height: 1;"><%= @match.pending_blue_score %></div>
           </div>
           <div style="font-size: 1.5rem; color: rgba(255,255,255,0.15); font-weight: 300;">—</div>
           <div style="text-align: center;">
             <div style="font-size: 0.7rem; color: #ef4444; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px;">Rouges</div>
-            <div style="font-size: 3rem; font-weight: 900; color: #ef4444; line-height: 1;"><%= @match.red_team_score %></div>
+            <div style="font-size: 3rem; font-weight: 900; color: #ef4444; line-height: 1;"><%= @match.pending_red_score %></div>
           </div>
         </div>
 
@@ -145,12 +146,11 @@
           Un joueur de l'équipe adverse doit scanner<br>ce QR code pour confirmer le résultat.
         </p>
 
-        <%# On génère l'URL de confirmation qui sera encodée dans le QR code %>
-        <%# Le token correspond à la valeur de qr_code stockée en base pour ce match %>
-        <% confirmation_url = confirm_match_url(@match, token: @match.qr_code) %>
+        <%# On génère l'URL de confirmation encodée dans le QR code.
+            qr_token extrait uniquement le token depuis le payload "token|blue|red". %>
+        <% confirmation_url = confirm_match_url(@match, token: @match.qr_token) %>
 
         <%# On génère le QR code en SVG avec le gem rqrcode %>
-        <%# module_size : taille de chaque carré du QR code en pixels %>
         <% qr_svg = RQRCode::QRCode.new(confirmation_url).as_svg(
               module_size: 4,
               standalone: true,
@@ -159,9 +159,23 @@
               background_color: "fff"
             ) %>
 
+        <%# Le SVG généré a des dimensions fixes liées au module_size, sans viewBox.
+            Sans viewBox, changer width/height agrandit la fenêtre mais pas le contenu.
+            On extrait les dimensions originales pour les placer dans le viewBox,
+            puis on force width/height à 220px pour que le contenu se redimensionne. %>
+        <% original_width  = qr_svg.match(/width="(\d+)"/)[1]
+           original_height = qr_svg.match(/height="(\d+)"/)[1]
+           qr_svg_sized = qr_svg
+              .gsub(/width="\d+"/,  'width="220"')
+              .gsub(/height="\d+"/, 'height="220"')
+              .gsub(/<svg /, %(<svg viewBox="0 0 #{original_width} #{original_height}" )) %>
+
         <%# Cadre du QR code avec bordure orange et coins arrondis %>
         <div style="display: inline-block; background: white; padding: 16px; border-radius: 20px; box-shadow: 0 0 0 4px rgba(249,115,22,0.3), 0 20px 40px rgba(0,0,0,0.4);">
-          <%= sanitize qr_svg, tags: %w[svg path rect], attributes: %w[xmlns viewBox width height d fill] %>
+          <%# On utilise raw (et non sanitize) car sanitize passe les attributs SVG en minuscules
+              via Nokogiri, ce qui casse viewBox → viewbox non reconnu par le navigateur.
+              Le SVG est généré entièrement côté serveur par le gem rqrcode, il n'y a pas de risque XSS. %>
+          <%= raw qr_svg_sized %>
         </div>
 
       </div>
