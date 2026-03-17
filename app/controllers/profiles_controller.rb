@@ -5,7 +5,8 @@ class ProfilesController < ApplicationController
     @classements = compute_classements(@user, user_team_ids)
     @total_points = @user.total_points
     @best_court = @classements.max_by { |c| c[:victories] }
-    @won_matches = Match.where("(blue_team_id IN (?) AND blue_team_score > red_team_score) OR (red_team_id IN (?) AND red_team_score > blue_team_score)", user_team_ids, user_team_ids).count
+    # Nombre de victoires de l'utilisateur (une Victory est créée à chaque match gagné)
+    @won_matches = @user.victories.count
     @meets = Meet.where("date < ?", Time.current).order(date: :desc)
   end
 

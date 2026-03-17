@@ -134,7 +134,12 @@
   </div>
   <%# ===================== RENCONTRES À VENIR ===================== %>
   <div class="px-4 mt-6">
-    <h2 class="font-bold text-white mb-3">Rencontres à venir</h2>
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="font-bold text-white">Rencontres à venir</h2>
+      <%= link_to new_match_path(court_id: @court.id), class: "btn btn-primary btn-sm rounded-xl" do %>
+        <i class="fa-solid fa-plus text-xs"></i> Créer un match
+      <% end %>
+    </div>
     <% if @upcoming_meets.any? %>
       <div class="flex flex-col gap-3">
         <% @upcoming_meets.each do |meet| %>

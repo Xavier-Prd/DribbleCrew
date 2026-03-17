@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_16_181241) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_17_131937) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -78,7 +78,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_16_181241) do
   end
 
   create_table "programs", force: :cascade do |t|
-    t.boolean "active"
+    t.boolean "active", default: true
     t.text "content"
     t.datetime "created_at", null: false
     t.text "goal"
@@ -251,7 +251,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_16_181241) do
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
     t.index ["court_id"], name: "index_victories_on_court_id"
-    t.index ["user_id", "court_id"], name: "index_victories_on_user_id_and_court_id", unique: true
     t.index ["user_id"], name: "index_victories_on_user_id"
   end
 
