@@ -15,9 +15,9 @@
     <% end %>
     <%# Nom + adresse courte %>
     <div class="absolute bottom-4 left-4 right-4"
-         data-controller="sort-by-location"
-         data-sort-by-location-lat-value="<%= @court.lat %>"
-         data-sort-by-location-lng-value="<%= @court.long %>">
+         data-controller="meet-filter"
+         data-meet-filter-lat-value="<%= @court.lat %>"
+         data-meet-filter-lng-value="<%= @court.long %>">
       <h1 class="text-3xl font-black text-white leading-tight"><%= @court.name %></h1>
       <div class="flex items-center justify-between mt-0.5">
         <p class="text-base text-gray-300 flex items-center gap-1">
@@ -27,7 +27,7 @@
           <%# Lien vers Google Maps avec la distance calculée par le controller %>
         <%= link_to "https://www.google.com/maps/dir/?api=1&destination=#{@court.lat},#{@court.long}",
               target: "_blank", rel: "noopener",
-              data: { "sort-by-location-target": "distance" },
+              data: { "meet-filter-target": "distance" },
               class: "hidden items-center gap-1 bg-white/15 backdrop-blur-sm text-white text-sm font-semibold px-2.5 py-1 rounded-full" do %>
           <i class="fa-solid fa-location-arrow text-primary text-xs"></i>
         <% end %>
