@@ -22,7 +22,18 @@ export default class extends Controller {
     }
     this.userLatLng = null;
     this.markerLayers = [];
-    this.clusterGroup = L.markerClusterGroup();
+    this.clusterGroup = L.markerClusterGroup({
+      iconCreateFunction(cluster) {
+        const count = cluster.getChildCount();
+        const size = count < 10 ? "small" : count < 100 ? "medium" : "large";
+        return L.divIcon({
+          className: `marker-cluster marker-cluster-${size}`,
+          html: `<div><i class="fa-solid fa-basketball"></i><span>${count}</span></div>`,
+          iconSize: [48, 48],
+          iconAnchor: [24, 24],
+        });
+      },
+    });
     const saved = localStorage.getItem("map_radius");
     if (saved) {
       this.radiusValue = parseInt(saved);

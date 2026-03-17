@@ -43,6 +43,15 @@
         Planifier cette séance
       <% end %>
     </div>
+
+    <%# Bouton supprimer %>
+    <div class="mt-4">
+      <%= button_to deactivate_program_path(@program), method: :patch, class: "flex items-center justify-center gap-3 w-full py-5 rounded-2xl font-bold text-red-400 bg-red-500/10 border border-red-500/20 transition-transform active:scale-95",
+          data: { turbo_confirm: "Supprimer ce programme ?" } do %>
+        <i class="fa-solid fa-trash"></i>
+        Supprimer le programme
+      <% end %>
+    </div>
   </div>
 
 </div>

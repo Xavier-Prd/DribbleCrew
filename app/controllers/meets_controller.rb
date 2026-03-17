@@ -17,8 +17,8 @@ class MeetsController < ApplicationController
                     .distinct
                     .order(:date)
   
-    # 2. Tous les programs de l'user
-    @programs = current_user.programs
+    # 2. Tous les programs actifs de l'user
+    @programs = current_user.programs.where(active: true)
   
     # 3. Les rencontres passées de l'user
     @past_meets = Meet.includes(:court, :meetable)

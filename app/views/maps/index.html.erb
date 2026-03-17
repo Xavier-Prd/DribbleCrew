@@ -8,12 +8,6 @@
     data-map-icon-path-value="<%= asset_path('marker.png') %>"
     data-map-shadow-path-value="<%= asset_path('iconshadow.png') %>"
     data-map-mapbox-token-value="<%= ENV['MAPBOX_TOKEN'] %>">
-
-    <%# Bouton pour recentrer la carte sur la position de l'utilisateur %>
-    <button class="absolute bottom-20 right-4 z-[1000] btn btn-square btn-md bg-base-200/90 border-0" data-action="click->map#recenter">
-      <i class="fa-solid fa-location-crosshairs text-primary"></i>
-    </button>
-
     <%# Sélecteur de périmètre — positionné en overlay sur la carte %>
     <div class="absolute top-4 right-4 z-[1000]">
       <select class="select select-ghost bg-base-200/90 focus:outline-none" data-action="change->map#setRadius" data-map-target="radiusSelect" autocomplete="off">
@@ -24,5 +18,29 @@
         <option value="10000">10 km</option>
       </select>
     </div>
+  </div>
+</div>
+<%# Groupe de boutons flottants — recentrer + créer, empilés en colonne %>
+<div class="fixed bottom-24 right-4 z-[1000] flex flex-col items-end gap-3" style="padding-bottom: env(safe-area-inset-bottom);">
+  <%# Bouton recentrer %>
+  <button class="flex items-center justify-center w-14 h-14 rounded-full bg-base-200/90" data-action="click->map#recenter">
+    <i class="fa-solid fa-location-crosshairs text-primary"></i>
+  </button>
+  <%# Bouton + avec dropdown %>
+  <div class="dropdown dropdown-top dropdown-end">
+    <button tabindex="0" class="flex items-center justify-center w-14 h-14 rounded-full shadow-lg"
+            style="background-color: var(--color-primary); box-shadow: 0 0 20px color-mix(in srgb, var(--color-primary) 50%, transparent);">
+      <i class="fa-solid fa-plus text-white text-xl"></i>
+    </button>
+    <ul tabindex="0" class="dropdown-content menu bg-base-200 rounded-2xl shadow-xl p-2 mb-3 w-52 border border-white/10">
+      <%= link_to new_match_path, class: "flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 transition-colors" do %>
+        <i class="fa-solid fa-shield-halved text-primary w-4 text-center"></i>
+        <span class="text-base font-medium">Créer un match</span>
+      <% end %>
+      <%= link_to new_program_path, class: "flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 transition-colors" do %>
+        <i class="fa-solid fa-dumbbell text-secondary w-4 text-center"></i>
+        <span class="text-base font-medium">Créer un programme</span>
+      <% end %>
+    </ul>
   </div>
 </div>

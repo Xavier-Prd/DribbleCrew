@@ -38,5 +38,8 @@ Rails.application.routes.draw do
   end
   resources :programs, only: [ :index, :show, :new, :create ] do
     resources :meets, only: [ :new, :create ]
+    member do
+      patch :deactivate
+    end
   end
 end
