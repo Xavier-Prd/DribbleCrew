@@ -7,7 +7,8 @@ class ProfilesController < ApplicationController
     @best_court = @classements.max_by { |c| c[:victories] }
     # Nombre de victoires de l'utilisateur (une Victory est créée à chaque match gagné)
     @won_matches = @user.victories.count
-    @meets = Meet.where("date < ?", Time.current).order(date: :desc)
+    # Une session est "passée" uniquement quand date + duration sont écoulées
+    @meets = Meet.where("date + duration * interval '1 minute' < ?", Time.current).order(date: :desc)
   end
 
   def classements
@@ -17,7 +18,8 @@ class ProfilesController < ApplicationController
 
   def sessions
     @user = User.find(params[:id])
-    @meets = Meet.where("date < ?", Time.current).order(date: :desc)
+    # Une session est "passée" uniquement quand date + duration sont écoulées
+    @meets = Meet.where("date + duration * interval '1 minute' < ?", Time.current).order(date: :desc)
   end
 
   def edit
