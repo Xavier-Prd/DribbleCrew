@@ -1,7 +1,7 @@
 class Program < ApplicationRecord
-  LEVELS = [ "Debutant", "Intermediate", "Confirmed", "Expert" ]
+  LEVELS = [ "Débutant", "Intermédiaire", "Confirmé", "Expert" ]
   belongs_to :user
-  belongs_to :team, optional: true #l'équipe qui contient les participants
+  belongs_to :team, optional: true # l'équipe qui contient les participants
   has_many :meets, as: :meetable
   validates :level, inclusion: { in: LEVELS }
   validates :goal, presence: true
