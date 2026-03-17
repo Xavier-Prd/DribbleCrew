@@ -193,9 +193,7 @@ end
   m = Match.create!(
     user: all_users.sample,
     blue_team: Team.create!(number_player: number_players_inteam),
-    red_team: Team.create!(number_player: number_players_inteam),
-    blue_team_score: 0,
-    red_team_score: 0
+    red_team: Team.create!(number_player: number_players_inteam)
   )
   Meet.create!(court: Court.all.sample, date: Faker::Time.between(from: Time.current, to: 15.days.from_now), duration: Meet::DURATIONS.sample, meetable: m)
 end

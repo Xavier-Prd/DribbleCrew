@@ -25,6 +25,8 @@ module DribbleCrew
     # Les dates sont toujours stockées en UTC en base, mais Rails fait la conversion automatiquement
     config.time_zone = "Paris"
     config.active_record.default_timezone = :local
+    # Langue par défaut de l'app — utilisée par le helper l() pour traduire les dates (noms de mois, etc.)
+    config.i18n.default_locale = :fr
     # config.eager_load_paths << Rails.root.join("extras")
   end
 end

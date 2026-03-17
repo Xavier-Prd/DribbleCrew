@@ -114,10 +114,26 @@
   </section>
 
   <%# Rencontres passées %>
-  <section class="mt-8">
-    <div class="flex items-center justify-between px-6 mb-4">
+  <section class="mt-8" data-controller="session-filter">
+    <div class="flex items-center justify-between px-6 mb-3">
       <h2 class="font-bold">Rencontres passées</h2>
       <%= link_to "Voir plus", sessions_profile_path(@user) , class:"text-base text-white/40" %>
+    </div>
+    <%# Boutons de filtre — chaque bouton a :
+        - data-session-filter-target="btn"  : référencé par le controller pour gérer le style actif/inactif
+        - data-filter-type                  : valeur transmise au controller ("all", "Match", "Program")
+        - data-action                       : déclenche session_filter#filter au clic
+        Le bouton "Tous" est actif par défaut (classes text-white + bg-white/10). %>
+    <div class="flex gap-2 px-6 mb-4">
+      <button data-session-filter-target="btn" data-filter-type="all"
+              data-action="click->session-filter#filter"
+              class="text-xs font-bold px-3 py-1 rounded-full text-white bg-white/10 transition">Tous</button>
+      <button data-session-filter-target="btn" data-filter-type="Match"
+              data-action="click->session-filter#filter"
+              class="text-xs font-bold px-3 py-1 rounded-full text-white/40 bg-transparent transition">Match</button>
+      <button data-session-filter-target="btn" data-filter-type="Program"
+              data-action="click->session-filter#filter"
+              class="text-xs font-bold px-3 py-1 rounded-full text-white/40 bg-transparent transition">Programme</button>
     </div>
     <% past_meets = @meets.select { |meet|
         (meet.meetable_type == "Program" && meet.meetable.team.users.include?(@user)) ||
@@ -146,7 +162,12 @@
             <% accent = "#a855f7" %>
             <% card_bg = "background:rgba(15,23,42,0.85);border-color:rgba(168,85,247,0.2);" %>
           <% end %>
-          <%= link_to meet_path(meet), class: "flex-shrink-0 w-76 rounded-2xl border overflow-hidden flex flex-col", style: card_bg do %>
+          <%# data-session-filter-target="card" : référencé par le controller pour afficher/cacher la carte
+              data-type                        : correspond à meetable_type ("Match" ou "Program"),
+                                                 utilisé par le controller pour filtrer %>
+          <%= link_to meet_path(meet), class: "flex-shrink-0 w-76 rounded-2xl border overflow-hidden flex flex-col",
+                                       style: card_bg,
+                                       data: { session_filter_target: "card", type: meet.meetable_type } do %>
             <%# Barre colorée en haut %>
             <div class="h-1 w-full" style="background:linear-gradient(90deg,<%= accent %>,<%= accent %>88);"></div>
 
@@ -158,7 +179,7 @@
                     <i class="fa-solid <%= result_icon %> text-xs" style="color:<%= icon_color %>;"></i>
                     <span class="text-xs font-black uppercase tracking-widest" style="color:<%= result_color %>;"><%= result_label %></span>
                   </div>
-                  <span class="text-[11px] text-white/30 font-medium"><%= meet.date.strftime("%-d %b %Y") %></span>
+                  <span class="text-[11px] text-white/30 font-medium"><%= l(meet.date, format: "%-d %b %Y") %></span>
                 </div>
 
                 <%# Cercles scores %>
@@ -222,7 +243,7 @@
                     <i class="fa-solid fa-dumbbell text-[10px] text-purple-400/80"></i>
                     <span class="text-xs font-black uppercase tracking-widest text-purple-400/80">Programme</span>
                   </div>
-                  <span class="text-[11px] text-white/30 font-medium"><%= meet.date.strftime("%-d %b %Y") %></span>
+                  <span class="text-[11px] text-white/30 font-medium"><%= l(meet.date, format: "%-d %b %Y") %></span>
                 </div>
                 <div class="flex flex-col gap-1 py-2">
                   <span class="text-base font-extrabold text-white leading-snug"><%= meet.meetable.title %></span>
