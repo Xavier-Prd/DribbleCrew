@@ -78,6 +78,7 @@ begin
       court = Court.create!(name: name, address: "#{street}, #{city}", lat: lat, long: lon)
       court.image.attach(io: File.open(playground_images.sample), filename: "court.jpg") if playground_images.any?
       sleep(1.1) # Respecter les limites de l'API Nominatim (1 requête par seconde) pour éviter les blocages d'IP
+      puts "Court created: #{court.name}"
     end
   else raise "OSM Error"
   end
@@ -86,6 +87,7 @@ rescue => e
   50.times do |i|
     c = Court.create!(name: "Terrain Lille ##{i}", address: "Lille", lat: 50.63 + rand(-0.03..0.03), long: 3.06 + rand(-0.03..0.03))
     c.image.attach(io: File.open(playground_images.sample), filename: "court.jpg") if playground_images.any?
+    puts "Court created: #{c.name} ##{i}"
   end
 end
 
@@ -94,7 +96,7 @@ end
 # ==========================================
 puts "\nCreating 100 unique meets..."
 
-# Generer 2 meets de matches FUTURES pour turbo_arnaud & admin (pour avoir des données de match à afficher sur leur profil)
+# Generer 2 meets de matches FUTURES pour turbo_arnaud & admin
 2.times do |i|
   number_players_inteam = [ 1, 3, 5 ].sample
   m = Match.create!(user: all_users.sample, blue_team: Team.create!(number_player: number_players_inteam), red_team: Team.create!(number_player: number_players_inteam), blue_team_score: 0, red_team_score: 0)
@@ -107,18 +109,68 @@ end
   Meet.create!(court: Court.all.sample, date: Time.current + (i + 1).days, duration: 60, meetable: m)
   UserTeam.create!(user: admin, team: m.blue_team)
 end
-# Générer 5 meets de matches PASSés pour turbo_arnaud & admin (pour avoir des données de match à afficher sur son profil)
+# Générer 5 meets de matches PASSés pour turbo_arnaud & admin
 5.times do |i|
   number_players_inteam = [ 1, 3, 5 ].sample
   m = Match.create!(user: all_users.sample, blue_team: Team.create!(number_player: number_players_inteam), red_team: Team.create!(number_player: number_players_inteam), blue_team_score: rand(1..100), red_team_score: rand(1..100))
-  Meet.create!(court: Court.all.sample, date: Time.current + (i - 1).days, duration: 60, meetable: m)
+  meet = Meet.new(court: Court.all.sample, date: Time.current + (i - 1).days, duration: 60, meetable: m)
+  meet.save!(validate: false)
   UserTeam.create!(user: turbo_arnaud, team: m.blue_team)
 end
 5.times do |i|
   number_players_inteam = [ 1, 3, 5 ].sample
   m = Match.create!(user: all_users.sample, blue_team: Team.create!(number_player: number_players_inteam), red_team: Team.create!(number_player: number_players_inteam), blue_team_score: rand(1..100), red_team_score: rand(1..100))
-  Meet.create!(court: Court.all.sample, date: Time.current + (i - 1).days, duration: 60, meetable: m)
+  meet = Meet.new(court: Court.all.sample, date: Time.current + (i - 1).days, duration: 60, meetable: m)
+  meet.save!(validate: false)
   UserTeam.create!(user: admin, team: m.blue_team)
+end
+# Générer 3 meets de program FUTURES pour turbo_arnaud & admin
+3.times do
+  p = Program.create!(
+    user: turbo_arnaud,
+    title: "Workout with Coach #{Faker::Name.last_name}",
+    goal: "Technique",
+    level: Program::LEVELS.sample,
+    active: true,
+    content: { "description" => Faker::Lorem.sentence, "exercises" => [ Faker::Verb.base, Faker::Verb.base, Faker::Verb.base ] }
+  )
+  Meet.create!(court: Court.all.sample, date: Faker::Time.between(from: Time.current, to: 15.days.from_now), duration: 60, meetable: p)
+end
+3.times do
+  p = Program.create!(
+    user: admin,
+    title: "Workout with Coach #{Faker::Name.last_name}",
+    goal: "Technique",
+    level: Program::LEVELS.sample,
+    active: true,
+    content: { "description" => Faker::Lorem.sentence, "exercises" => [ Faker::Verb.base, Faker::Verb.base, Faker::Verb.base ] }
+  )
+  Meet.create!(court: Court.all.sample, date: Faker::Time.between(from: Time.current, to: 15.days.from_now), duration: 60, meetable: p)
+end
+# Générer 3 meets de program PASSéS pour turbo_arnaud & admin
+3.times do
+  p = Program.create!(
+    user: turbo_arnaud,
+    title: "Workout with Coach #{Faker::Name.last_name}",
+    goal: "Technique",
+    level: Program::LEVELS.sample,
+    active: true,
+    content: { "description" => Faker::Lorem.sentence, "exercises" => [ Faker::Verb.base, Faker::Verb.base, Faker::Verb.base ] }
+  )
+  meet = Meet.new(court: Court.all.sample, date: Faker::Time.between(from: 2.days.ago, to: 1.days.ago), duration: 60, meetable: p)
+  meet.save!(validate: false)
+end
+3.times do
+  p = Program.create!(
+    user: admin,
+    title: "Workout with Coach #{Faker::Name.last_name}",
+    goal: "Technique",
+    level: Program::LEVELS.sample,
+    active: true,
+    content: { "description" => Faker::Lorem.sentence, "exercises" => [ Faker::Verb.base, Faker::Verb.base, Faker::Verb.base ] }
+  )
+  meet = Meet.new(court: Court.all.sample, date: Faker::Time.between(from: 2.days.ago, to: 1.days.ago), duration: 60, meetable: p)
+  meet.save!(validate: false)
 end
 
 # 10 meets de matches passés
@@ -128,8 +180,8 @@ end
     user: all_users.sample,
     blue_team: Team.create!(number_player: number_players_inteam),
     red_team: Team.create!(number_player: number_players_inteam),
-    blue_team_score: rand(0..21),
-    red_team_score: rand(0..21)
+    blue_team_score: rand(1..99),
+    red_team_score: rand(1..99)
   )
   meet = Meet.new(court: Court.all.sample, date: Faker::Time.between(from: 2.days.ago, to: 1.days.ago), duration: Meet::DURATIONS.sample, meetable: m)
   meet.save!(validate: false)
