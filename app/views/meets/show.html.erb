@@ -1,94 +1,220 @@
-<div style="background: #12121e; color: white; padding: 24px; font-family: sans-serif; min-height: 100vh;">
+<div class="meet-show">
 
   <%# Header : Bouton Retour %>
-  <%= link_to meets_path, style: "color: rgba(255,255,255,0.4); text-decoration: none; font-size: 0.85rem; display: flex; align-items: center; gap: 8px; margin-bottom: 24px;" do %>
+  <%= link_to meets_path, class: "btn btn-ghost btn-sm gap-2 mb-6 -ml-2 text-white/40" do %>
     <i class="fa-solid fa-arrow-left"></i> Retour aux rencontres
   <% end %>
 
+  <div class="flex flex-col gap-8">
+
   <%# Cas 1 : Entrainement (Program) %>
   <% if @meet.meetable_type == "Program" %>
-    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+    <div class="flex flex-col gap-3">
+      <span class="badge badge-primary badge-outline text-xs font-black uppercase tracking-widest self-start">Session d'entraînement</span>
+      <h2 class="m-0"><%= @program.title %></h2>
+      <%# Participants fusionnés avec badge organisateur %>
       <div>
-        <span style="color: #f97316; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; tracking-widest: 0.1em;">Session d'entraînement</span>
-        <h1 style="font-size: 2rem; margin-top: 8px; font-weight: 800;"><%= @program.title %></h1>
-        <p style="color: rgba(255,255,255,0.4); font-size: 0.9rem; margin-top: 4px;">
-          Organisé par <strong style="color: white;"><%= @program.user.username %></strong>
-        </p>
+        <% participants = ([@program.user] + @program.team.users.to_a).uniq %>
+        <p class="text-white/40 text-xs uppercase mb-3">Participants (<%= participants.count %>)</p>
+        <div class="flex gap-2 flex-wrap items-center">
+          <% participants.each do |user| %>
+            <%= link_to profile_path(user), class: "user-pill text-sm" do %>
+              <% if user.profile_picture.attached? %>
+                <%= image_tag user.profile_picture, class: "w-6 h-6 rounded-full object-cover shrink-0" %>
+              <% else %>
+                <i class="fa-solid fa-circle-user text-primary/80"></i>
+              <% end %>
+              <%= user.username %>
+              <% if user == @program.user %>
+                <span class="badge badge-primary badge-xs">Org.</span>
+              <% end %>
+            <% end %>
+          <% end %>
+        </div>
       </div>
-
-      <%# Bouton Rejoindre : Si l'user n'est pas déjà inscrit, n'est pas le créateur, et la session n'est pas encore passée %>
-      <% if @program.user != current_user && !@program.team.users.include?(current_user) && @meet.date > Time.current %>
-        <%= button_to "Participer", join_meet_path(@meet), method: :post, style: "background: #f97316; color: white; border: none; padding: 12px 24px; border-radius: 12px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(249, 115, 22, 0.2);" %>
-      <% end %>
     </div>
 
-    <%# Liste des Participants %>
-    <div style="margin-top: 24px;">
-      <h3 style="color: rgba(255,255,255,0.4); font-size: 0.75rem; text-transform: uppercase; margin-bottom: 12px;">Participants (<%= @program.team.users.count %>)</h3>
-      <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
-        <% @program.team.users.each do |user| %>
-          <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 6px 12px; border-radius: 20px; display: flex; align-items: center; gap: 8px; font-size: 0.85rem;">
-            <i class="fa-solid fa-circle-user" style="color: #f97316; opacity: 0.8;"></i>
-            <%= user.username %>
+    <%# Infos communes (Lieu et Date) %>
+    <div class="py-6 border-y border-white/5 flex flex-col gap-3">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-white/5 rounded-xl flex items-center justify-center text-white/40 shrink-0">
+          <i class="fa-solid fa-location-dot"></i>
+        </div>
+        <div>
+          <span class="block text-xs text-white/30 uppercase">Lieu du rendez-vous</span>
+          <span class="font-semibold"><%= @meet.court.name %></span>
+        </div>
+        <%# Lien qui ouvre Google Maps avec l'itinéraire vers le terrain %>
+        <%= link_to "https://www.google.com/maps/dir/?api=1&destination=#{@meet.court.lat},#{@meet.court.long}",
+                    target: "_blank",
+                    rel: "noopener",
+                    class: "btn btn-circle btn-md bg-white/15 border-0 text-white backdrop-blur-sm ml-auto shrink-0" do %>
+          <i class="fa-solid fa-location-arrow text-primary"></i>
+        <% end %>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-white/5 rounded-xl flex items-center justify-center text-white/40 shrink-0">
+          <i class="fa-solid fa-calendar-day"></i>
+        </div>
+        <div>
+          <span class="block text-xs text-white/30 uppercase">Date et Heure</span>
+          <span class="font-semibold"><%= @meet.date.strftime("%d %B %Y à %H:%M") %></span>
+        </div>
+      </div>
+    </div>
+
+    <% content = JSON.parse(@program.content.gsub("=>", ":")) %>
+
+    <%# Description %>
+    <div class="bg-white/5 border border-white/10 rounded-2xl p-6">
+      <h2 class="text-white/40 uppercase tracking-widest mb-2">Objectif & Description</h2>
+      <p class="text-md leading-relaxed"><%= content["description"] %></p>
+    </div>
+
+    <%# Exercices %>
+    <div>
+      <h2 class="font-bold mb-4">Exercices du programme</h2>
+      <div class="space-y-4">
+        <% content["exercises"].each_with_index do |exercise, index| %>
+          <div class="bg-white/5 border border-white/10 p-5 rounded-2xl flex items-start gap-4">
+            <span class="flex-shrink-0 w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-base font-bold text-orange-500">
+              <%= index + 1 %>
+            </span>
+            <p class="text-base font-medium leading-relaxed text-white/90"><%= exercise %></p>
           </div>
         <% end %>
-
-        <%# Bouton Quitter : Uniquement pour les participants inscrits qui ne sont pas l'org %>
-        <% if @program.team.users.include?(current_user) && @program.user != current_user && @meet.date > Time.current %>
-          <%= button_to leave_meet_path(@meet), method: :post, style: "background: none; border: none; color: #ff4444; font-size: 0.75rem; cursor: pointer; text-decoration: underline; margin-left: 8px;" do %>
-            Quitter la session
-          <% end %>
-        <% end %>
       </div>
-    </div>
-
-    <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; padding: 24px; margin: 24px 0;">
-      <% content = JSON.parse(@program.content.gsub("=>", ":")) %>
-      <h3 style="color: #f97316; margin-top: 0; font-size: 1.1rem;"><%= content["description"] %></h3>
-
-      <ul style="list-style: none; padding: 0; margin-top: 20px;">
-        <% content["exercises"].each do |exercise| %>
-          <li style="background: rgba(255,255,255,0.05); margin-bottom: 10px; padding: 16px; border-radius: 12px; font-size: 0.95rem; border-left: 3px solid #f97316;">
-            <%= exercise %>
-          </li>
-        <% end %>
-      </ul>
     </div>
 
   <%# Cas 2 : C'est un Match %>
   <% else %>
-    <span style="color: #3b82f6; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; tracking-widest: 0.1em;">Match compétitif</span>
-    <h1 style="font-size: 2rem; margin-top: 8px; font-weight: 800;"><%= @match.blue_team.number_player %> vs <%= @match.red_team.number_player %></h1>
+    <div>
+      <span class="badge badge-secondary badge-outline text-xs font-black uppercase tracking-widest">Match compétitif</span>
+      <h1 class="mt-2"><%= @match.blue_team.number_player %> vs <%= @match.red_team.number_player %></h1>
+    </div>
+    <%# Infos communes (Lieu et Date) %>
+    <div class="py-6 border-y border-white/5 flex flex-col gap-3">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-white/5 rounded-xl flex items-center justify-center text-white/40 shrink-0">
+          <i class="fa-solid fa-location-dot"></i>
+        </div>
+        <div>
+          <span class="block text-xs text-white/30 uppercase">Lieu du rendez-vous</span>
+          <span class="font-semibold"><%= @meet.court.name %></span>
+        </div>
+        <%# Lien qui ouvre Google Maps avec l'itinéraire vers le terrain %>
+        <%= link_to "https://www.google.com/maps/dir/?api=1&destination=#{@meet.court.lat},#{@meet.court.long}",
+                    target: "_blank",
+                    rel: "noopener",
+                    class: "btn btn-circle btn-md bg-white/15 border-0 text-white backdrop-blur-sm ml-auto shrink-0" do %>
+          <i class="fa-solid fa-location-arrow text-primary"></i>
+        <% end %>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-white/5 rounded-xl flex items-center justify-center text-white/40 shrink-0">
+          <i class="fa-solid fa-calendar-day"></i>
+        </div>
+        <div>
+          <span class="block text-xs text-white/30 uppercase">Date et Heure</span>
+          <span class="font-semibold"><%= @meet.date.strftime("%d %B %Y à %H:%M") %></span>
+        </div>
+      </div>
+    </div>
 
     <%# ================================================================ %>
-    <%# BLOC QR CODE — affiché EN PREMIER quand en attente de validation %>
+    <%# GRID DES ÉQUIPES — toujours affichée %>
+    <%# ================================================================ %>
+    <div class="grid grid-cols-2 gap-4">
+
+      <%# Colonne équipe bleue %>
+      <div class="meet-show__team meet-show__team--blue">
+        <div>
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-info m-0">TEAM BLEUE</h3>
+            <span class="badge badge-info badge-sm"><%= @match.blue_team.users.count %>/<%= @match.blue_team.number_player %></span>
+          </div>
+          <ul class="list-none p-0 mb-5 space-y-2">
+            <% @match.blue_team.users.each do |user| %>
+              <li class="text-sm flex items-center gap-2">
+                <% if user.profile_picture.attached? %>
+                  <%= image_tag user.profile_picture, class: "w-6 h-6 rounded-full object-cover shrink-0" %>
+                <% else %>
+                  <i class="fa-solid fa-circle-user text-white/30"></i>
+                <% end %>
+                <%= user.username %>
+                <% if user == @match.user %><span class="text-[10px] opacity-50">(Org.)</span><% end %>
+              </li>
+            <% end %>
+            <% (@match.blue_team.number_player - @match.blue_team.users.count).times do %>
+              <li class="text-sm text-white/15"><i>Libre...</i></li>
+            <% end %>
+          </ul>
+        </div>
+        <% if !@match.blue_team.users.include?(current_user) && !@match.red_team.users.include?(current_user) && @match.blue_team.users.count < @match.blue_team.number_player && @meet.date > Time.current %>
+          <%= button_to "Rejoindre", join_meet_path(@meet, team_id: @match.blue_team_id), method: :post, class: "btn btn-info w-full" %>
+        <% end %>
+      </div>
+
+      <%# Colonne équipe rouge %>
+      <div class="meet-show__team meet-show__team--red">
+        <div>
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-error m-0">TEAM ROUGE</h3>
+            <span class="badge badge-error badge-sm"><%= @match.red_team.users.count %>/<%= @match.red_team.number_player %></span>
+          </div>
+          <ul class="list-none p-0 mb-5 space-y-2">
+            <% @match.red_team.users.each do |user| %>
+              <li class="text-sm flex items-center gap-2">
+                <% if user.profile_picture.attached? %>
+                  <%= image_tag user.profile_picture, class: "w-6 h-6 rounded-full object-cover shrink-0" %>
+                <% else %>
+                  <i class="fa-solid fa-circle-user text-white/30"></i>
+                <% end %>
+                <%= user.username %>
+              </li>
+            <% end %>
+            <% (@match.red_team.number_player - @match.red_team.users.count).times do %>
+              <li class="text-sm text-white/15"><i>Libre...</i></li>
+            <% end %>
+          </ul>
+        </div>
+        <% if !@match.red_team.users.include?(current_user) && !@match.blue_team.users.include?(current_user) && @match.red_team.users.count < @match.red_team.number_player && @meet.date > Time.current %>
+          <%= button_to "Rejoindre", join_meet_path(@meet, team_id: @match.red_team_id), method: :post, class: "btn btn-error w-full" %>
+        <% end %>
+      </div>
+    </div>
+
+    <%# ================================================================ %>
+    <%# BLOC QR CODE — EN ATTENTE DE CONFIRMATION PAR L'ÉQUIPE ADVERSE %>
     <%# ================================================================ %>
     <% if @match.pending_confirmation? %>
 
-      <div style="margin-top: 24px; background: rgba(249,115,22,0.05); border: 1px solid rgba(249,115,22,0.2); border-radius: 24px; padding: 28px 20px; text-align: center;">
+      <div class="meet-show__qr-block">
 
         <%# Badge statut %>
-        <div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(249,115,22,0.15); border: 1px solid rgba(249,115,22,0.3); border-radius: 30px; padding: 6px 16px; margin-bottom: 16px;">
-          <span style="width: 8px; height: 8px; background: #f97316; border-radius: 50%; display: inline-block; animation: pulse 1.5s infinite;"></span>
-          <span style="color: #f97316; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em;">En attente de validation</span>
+        <div class="badge badge-warning gap-2 py-3 px-4 mb-4">
+          <span class="meet-show__status-dot"></span>
+          <span class="text-xs font-black uppercase tracking-widest">En attente de validation</span>
         </div>
 
         <%# Score en attente %>
-        <div style="display: flex; align-items: center; justify-content: center; gap: 20px; margin-bottom: 20px;">
-          <div style="text-align: center;">
-            <div style="font-size: 0.7rem; color: #3b82f6; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px;">Bleus</div>
+        <div class="flex items-center justify-center gap-5 mb-5">
+          <div class="text-center">
+            <div class="text-xs text-info font-bold uppercase tracking-widest mb-1">Bleus</div>
             <%# Les scores affichés ici sont les scores en attente, pas encore confirmés %>
-          <div style="font-size: 3rem; font-weight: 900; color: #3b82f6; line-height: 1;"><%= @match.pending_blue_score %></div>
+            <div class="text-5xl font-black leading-none text-info"><%= @match.pending_blue_score %></div>
           </div>
-          <div style="font-size: 1.5rem; color: rgba(255,255,255,0.15); font-weight: 300;">—</div>
-          <div style="text-align: center;">
-            <div style="font-size: 0.7rem; color: #ef4444; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px;">Rouges</div>
-            <div style="font-size: 3rem; font-weight: 900; color: #ef4444; line-height: 1;"><%= @match.pending_red_score %></div>
+          <div class="text-2xl text-white/15 font-light">—</div>
+          <div class="text-center">
+            <div class="text-xs text-error font-bold uppercase tracking-widest mb-1">Rouges</div>
+            <div class="text-5xl font-black leading-none text-error"><%= @match.pending_red_score %></div>
           </div>
         </div>
 
         <%# Instruction %>
-        <p style="color: rgba(255,255,255,0.45); font-size: 0.82rem; line-height: 1.5; margin: 0 0 24px;">
+        <p class="text-white/45 text-sm leading-relaxed mb-6">
           Un joueur de l'équipe adverse doit scanner<br>ce QR code pour confirmer le résultat.
         </p>
 
@@ -117,7 +243,7 @@
               .gsub(/<svg /, %(<svg viewBox="0 0 #{original_width} #{original_height}" )) %>
 
         <%# Cadre du QR code avec bordure orange et coins arrondis %>
-        <div style="display: inline-block; background: white; padding: 16px; border-radius: 20px; box-shadow: 0 0 0 4px rgba(249,115,22,0.3), 0 20px 40px rgba(0,0,0,0.4);">
+        <div class="meet-show__qr-frame">
           <%# On utilise raw (et non sanitize) car sanitize passe les attributs SVG en minuscules
               via Nokogiri, ce qui casse viewBox → viewbox non reconnu par le navigateur.
               Le SVG est généré entièrement côté serveur par le gem rqrcode, il n'y a pas de risque XSS. %>
@@ -129,84 +255,28 @@
     <% end %>
 
     <%# ================================================================ %>
-    <%# GRID DES ÉQUIPES — toujours affichée %>
-    <%# ================================================================ %>
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 24px;">
-
-      <%# Colonne équipe bleue %>
-      <div style="background: rgba(59, 130, 246, 0.05); border: 1px solid rgba(59, 130, 246, 0.2); border-radius: 20px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between;">
-        <div>
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-            <h3 style="color: #3b82f6; margin: 0; font-size: 0.9rem;">TEAM BLEUE</h3>
-            <span style="font-size: 0.75rem; background: rgba(59, 130, 246, 0.2); padding: 2px 8px; border-radius: 10px;"><%= @match.blue_team.users.count %>/<%= @match.blue_team.number_player %></span>
-          </div>
-          <ul style="list-style: none; padding: 0; margin-bottom: 20px;">
-            <% @match.blue_team.users.each do |user| %>
-              <li style="font-size: 0.9rem; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
-                <i class="fa-solid fa-circle-user" style="color: rgba(255,255,255,0.3);"></i>
-                <%= user.username %> <% if user == @match.user %><span style="font-size: 10px; opacity: 0.5;">(Org.)</span><% end %>
-              </li>
-            <% end %>
-            <% (@match.blue_team.number_player - @match.blue_team.users.count).times do %>
-               <li style="font-size: 0.9rem; margin-bottom: 8px; color: rgba(255,255,255,0.15);"><i>Libre...</i></li>
-            <% end %>
-          </ul>
-        </div>
-
-        <% if !@match.blue_team.users.include?(current_user) && !@match.red_team.users.include?(current_user) && @match.blue_team.users.count < @match.blue_team.number_player && @meet.date > Time.current %>
-          <%= button_to "Rejoindre", join_meet_path(@meet, team_id: @match.blue_team_id), method: :post, style: "width: 100%; background: #3b82f6; color: white; border: none; padding: 10px; border-radius: 12px; font-weight: bold; cursor: pointer; transition: 0.2s;" %>
-        <% end %>
-      </div>
-
-      <%# Colonne équipe rouge %>
-      <div style="background: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 20px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between;">
-        <div>
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-            <h3 style="color: #ef4444; margin: 0; font-size: 0.9rem;">TEAM ROUGE</h3>
-            <span style="font-size: 0.75rem; background: rgba(239, 68, 68, 0.2); padding: 2px 8px; border-radius: 10px;"><%= @match.red_team.users.count %>/<%= @match.red_team.number_player %></span>
-          </div>
-          <ul style="list-style: none; padding: 0; margin-bottom: 20px;">
-            <% @match.red_team.users.each do |user| %>
-              <li style="font-size: 0.9rem; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
-                <i class="fa-solid fa-circle-user" style="color: rgba(255,255,255,0.3);"></i>
-                <%= user.username %>
-              </li>
-            <% end %>
-            <% (@match.red_team.number_player - @match.red_team.users.count).times do %>
-               <li style="font-size: 0.9rem; margin-bottom: 8px; color: rgba(255,255,255,0.15);"><i>Libre...</i></li>
-            <% end %>
-          </ul>
-        </div>
-
-        <% if !@match.red_team.users.include?(current_user) && !@match.blue_team.users.include?(current_user) && @match.red_team.users.count < @match.red_team.number_player && @meet.date > Time.current %>
-          <%= button_to "Rejoindre", join_meet_path(@meet, team_id: @match.red_team_id), method: :post, style: "width: 100%; background: #ef4444; color: white; border: none; padding: 10px; border-radius: 12px; font-weight: bold; cursor: pointer;" %>
-        <% end %>
-      </div>
-    </div>
-
-    <%# ================================================================ %>
     <%# BLOC RÉSULTAT FINAL — affiché EN DESSOUS des équipes %>
     <%# ================================================================ %>
     <% if @match.confirmed? %>
 
-      <div style="margin-top: 24px; background: rgba(34,197,94,0.05); border: 1px solid rgba(34,197,94,0.25); border-radius: 24px; padding: 28px 20px; text-align: center;">
+      <div class="meet-show__result-block">
 
         <%# Badge résultat officiel %>
-        <div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(34,197,94,0.15); border: 1px solid rgba(34,197,94,0.3); border-radius: 30px; padding: 6px 16px; margin-bottom: 20px;">
-          <i class="fa-solid fa-circle-check" style="color: #22c55e; font-size: 0.75rem;"></i>
-          <span style="color: #22c55e; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em;">Résultat officiel</span>
+        <div class="badge badge-success gap-2 py-3 px-4 mb-5">
+          <i class="fa-solid fa-circle-check text-xs"></i>
+          <span class="text-xs font-black uppercase tracking-widest">Résultat officiel</span>
         </div>
 
         <%# Scores finaux côte à côte %>
-        <div style="display: flex; align-items: center; justify-content: center; gap: 24px;">
-          <div style="text-align: center;">
-            <div style="font-size: 0.7rem; color: #3b82f6; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px;">Bleus</div>
-            <div style="font-size: 3.5rem; font-weight: 900; color: #3b82f6; line-height: 1;"><%= @match.blue_team_score %></div>
+        <div class="flex items-center justify-center gap-6">
+          <div class="text-center">
+            <div class="text-xs text-info font-bold uppercase tracking-widest mb-1">Bleus</div>
+            <div class="text-6xl font-black leading-none text-info"><%= @match.blue_team_score %></div>
           </div>
-          <div style="font-size: 1.5rem; color: rgba(255,255,255,0.15); font-weight: 300;">—</div>
-          <div style="text-align: center;">
-            <div style="font-size: 0.7rem; color: #ef4444; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px;">Rouges</div>
-            <div style="font-size: 3.5rem; font-weight: 900; color: #ef4444; line-height: 1;"><%= @match.red_team_score %></div>
+          <div class="text-2xl text-white/15 font-light">—</div>
+          <div class="text-center">
+            <div class="text-xs text-error font-bold uppercase tracking-widest mb-1">Rouges</div>
+            <div class="text-6xl font-black leading-none text-error"><%= @match.red_team_score %></div>
           </div>
         </div>
 
@@ -214,38 +284,29 @@
 
     <%# ================================================================ %>
     <%# BOUTON "TERMINER LE MATCH" + MODAL DE SAISIE DES SCORES %>
-    <%# Affiché uniquement si le match n'a pas encore de scores soumis %>
-    <%# et seulement pour l'organisateur du match %>
     <%# ================================================================ %>
     <% elsif @match.user == current_user && @match.finished? %>
 
       <%# Ce bouton ouvre la pop-up (balise <dialog>) via son identifiant HTML %>
-
-        <% unless  @match.pending_confirmation? %>
-      <button onclick="document.getElementById('finish-match-modal').showModal()"
-              style="width: 100%; margin-top: 24px; background: linear-gradient(135deg, #16a34a, #22c55e); color: white; border: none; padding: 16px; border-radius: 16px; font-weight: 800; cursor: pointer; font-size: 1rem; letter-spacing: 0.03em; box-shadow: 0 4px 20px rgba(34,197,94,0.25);">
-        <i class="fa-solid fa-flag-checkered" style="margin-right: 8px;"></i>
+      <button onclick="document.getElementById('finish-match-modal').showModal()" class="btn btn-success w-full">
+        <i class="fa-solid fa-flag-checkered"></i>
         Terminer le match
       </button>
-        <% end %>
-
 
       <%# ============================================================= %>
       <%# POP-UP (élément <dialog> natif HTML) %>
       <%# Elle est invisible par défaut et s'ouvre avec .showModal() %>
-      <%# Sur mobile : prend toute la largeur grâce au max-width + width %>
       <%# ============================================================= %>
-      <dialog id="finish-match-modal" style="background: #12121e; color: white; border: 1px solid rgba(255,255,255,0.08); border-radius: 24px; padding: 28px 24px; max-width: 420px; width: calc(100vw - 32px); box-shadow: 0 24px 60px rgba(0,0,0,0.7); margin: auto;">
+      <dialog id="finish-match-modal" class="meet-show__modal">
 
         <%# En-tête de la pop-up %>
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px;">
+        <div class="flex items-center justify-between mb-6">
           <div>
-            <p style="margin: 0 0 2px; font-size: 0.7rem; color: #22c55e; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;">Fin de match</p>
-            <h2 style="margin: 0; font-size: 1.2rem; font-weight: 900;">Saisie du résultat</h2>
+            <p class="text-success text-xs font-bold uppercase tracking-widest m-0">Fin de match</p>
+            <h2 class="m-0">Saisie du résultat</h2>
           </div>
           <%# Croix de fermeture en haut à droite %>
-          <button type="button" onclick="document.getElementById('finish-match-modal').close()"
-                  style="background: rgba(255,255,255,0.06); border: none; color: rgba(255,255,255,0.5); width: 36px; height: 36px; border-radius: 10px; cursor: pointer; font-size: 1rem; display: flex; align-items: center; justify-content: center;">
+          <button type="button" onclick="document.getElementById('finish-match-modal').close()" class="btn btn-ghost btn-sm btn-square">
             <i class="fa-solid fa-xmark"></i>
           </button>
         </div>
@@ -255,33 +316,28 @@
         <%= simple_form_for @match, url: match_path(@match), method: :patch do |form_builder| %>
 
           <%# Ligne côte-à-côte : score équipe bleue | tiret | score équipe rouge %>
-          <div style="display: flex; align-items: flex-end; gap: 12px; margin-bottom: 28px;">
+          <div class="flex items-end gap-3 mb-7">
 
             <%# Champ score pour l'équipe bleue %>
-            <div style="flex: 1; text-align: center;">
-              <%= form_builder.label :blue_team_score, "Bleus",
-                    style: "display: block; font-size: 0.7rem; color: #3b82f6; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px;" %>
-              <%= form_builder.input_field :blue_team_score, type: :number, min: 0,
-                    style: "width: 100%; background: rgba(59,130,246,0.08); border: 1.5px solid rgba(59,130,246,0.35); color: white; padding: 14px 8px; border-radius: 16px; font-size: 2rem; font-weight: 900; text-align: center; outline: none;" %>
+            <div class="flex-1 text-center">
+              <%= form_builder.label :blue_team_score, "Bleus", class: "block text-xs text-info font-bold uppercase tracking-widest mb-2.5" %>
+              <%= form_builder.input_field :blue_team_score, type: :number, min: 0, class: "meet-show__score-input meet-show__score-input--blue" %>
             </div>
 
             <%# Séparateur visuel entre les deux scores %>
-            <div style="color: rgba(255,255,255,0.2); font-size: 1.5rem; font-weight: 300; padding-bottom: 14px;">—</div>
+            <div class="text-white/20 text-2xl font-light pb-3.5">—</div>
 
             <%# Champ score pour l'équipe rouge %>
-            <div style="flex: 1; text-align: center;">
-              <%= form_builder.label :red_team_score, "Rouges",
-                    style: "display: block; font-size: 0.7rem; color: #ef4444; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px;" %>
-              <%= form_builder.input_field :red_team_score, type: :number, min: 0,
-                    style: "width: 100%; background: rgba(239,68,68,0.08); border: 1.5px solid rgba(239,68,68,0.35); color: white; padding: 14px 8px; border-radius: 16px; font-size: 2rem; font-weight: 900; text-align: center; outline: none;" %>
+            <div class="flex-1 text-center">
+              <%= form_builder.label :red_team_score, "Rouges", class: "block text-xs text-error font-bold uppercase tracking-widest mb-2.5" %>
+              <%= form_builder.input_field :red_team_score, type: :number, min: 0, class: "meet-show__score-input meet-show__score-input--red" %>
             </div>
 
           </div>
 
           <%# Bouton Valider pleine largeur %>
           <%# Soumet le formulaire → génère le QR code de confirmation %>
-          <%= form_builder.submit "Générer le QR code de validation",
-                style: "width: 100%; background: linear-gradient(135deg, #16a34a, #22c55e); color: white; border: none; padding: 16px; border-radius: 14px; font-weight: 800; cursor: pointer; font-size: 0.95rem; box-shadow: 0 4px 16px rgba(34,197,94,0.2); letter-spacing: 0.02em;" %>
+          <%= form_builder.submit "Générer le QR code de validation", class: "btn btn-success w-full" %>
 
         <% end %>
       </dialog>
@@ -290,40 +346,27 @@
 
     <%# Bouton quitter match %>
     <% if (@match.blue_team.users.include?(current_user) || @match.red_team.users.include?(current_user)) && @match.user != current_user && @meet.date > Time.current %>
-      <%= button_to "Quitter le match", leave_meet_path(@meet), method: :post, style: "width: 100%; margin-top: 24px; background: rgba(255,255,255,0.05); color: #ff4444; border: 1px solid rgba(255,68,68,0.3); padding: 14px; border-radius: 15px; font-weight: bold; cursor: pointer;" %>
+      <%= button_to "Quitter le match", leave_meet_path(@meet), method: :post, class: "btn btn-ghost w-full text-error border border-error/30" %>
     <% end %>
 
   <% end %>
 
-  <%# Infos communes (Lieu et Date) %>
-  <div style="margin-top: 32px; padding-top: 24px; border-top: 1px solid rgba(255,255,255,0.05); display: flex; flex-direction: column; gap: 12px;">
-    <div style="display: flex; align-items: center; gap: 12px;">
-      <div style="width: 40px; height: 40px; background: rgba(255,255,255,0.05); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
-        <i class="fa-solid fa-location-dot" style="color: rgba(255,255,255,0.4);"></i>
+
+  </div><%# fin flex flex-col gap-8 %>
+
+  <%# Boutons flottants en bas de page %>
+  <% if @meet.meetable_type == "Program" && @meet.date > Time.current %>
+    <% if @program.user != current_user && !@program.team.users.include?(current_user) %>
+      <div class="meet-show__floating-btn">
+        <%= button_to "Participer", join_meet_path(@meet), method: :post, class: "btn btn-primary w-full" %>
       </div>
-      <div>
-        <span style="display: block; font-size: 0.7rem; color: rgba(255,255,255,0.3); text-transform: uppercase;">Lieu du rendez-vous</span>
-        <span style="font-weight: 600; font-size: 0.95rem;"><%= @meet.court.name %></span>
-        <%# Lien qui ouvre Google Maps avec l'itinéraire vers le terrain %>
-        <%= link_to "https://www.google.com/maps/dir/?api=1&destination=#{@meet.court.lat},#{@meet.court.long}",
-                    target: "_blank",
-                    rel: "noopener",
-                    style: "display: inline-flex; align-items: center; gap: 6px; margin-top: 6px; background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.7); font-size: 0.75rem; font-weight: 600; padding: 4px 10px; border-radius: 20px; text-decoration: none;" do %>
-          <i class="fa-solid fa-location-arrow" style="font-size: 0.7rem; color: #f97316;"></i>
-          Y aller
+    <% elsif @program.team.users.include?(current_user) && @program.user != current_user %>
+      <div class="meet-show__floating-btn">
+        <%= button_to leave_meet_path(@meet), method: :post, class: "btn btn-ghost w-full text-error border border-error/30" do %>
+          Quitter la session
         <% end %>
       </div>
-    </div>
-
-    <div style="display: flex; align-items: center; gap: 12px;">
-      <div style="width: 40px; height: 40px; background: rgba(255,255,255,0.05); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
-        <i class="fa-solid fa-calendar-day" style="color: rgba(255,255,255,0.4);"></i>
-      </div>
-      <div>
-        <span style="display: block; font-size: 0.7rem; color: rgba(255,255,255,0.3); text-transform: uppercase;">Date et Heure</span>
-        <span style="font-weight: 600; font-size: 0.95rem;"><%= l(@meet.date, format: "%d %B %Y à %H:%M") %></span>
-      </div>
-    </div>
-  </div>
+    <% end %>
+  <% end %>
 
 </div>

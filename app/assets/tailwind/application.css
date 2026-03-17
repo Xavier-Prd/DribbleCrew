@@ -3,6 +3,10 @@
 @import "../stylesheets/components/index.css";
 @import "../stylesheets/pages/index.css";
 
+:root {
+  --navbar-h: calc(4rem + env(safe-area-inset-bottom));
+}
+
 h1, h2, h3 {
   font-family: "Squada One", sans-serif;
 }

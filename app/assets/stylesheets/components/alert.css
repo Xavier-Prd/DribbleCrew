@@ -2,4 +2,9 @@
 .alert {
   padding-block: 0.50rem;
   padding-inline: 0.75rem;
+  bottom: var(--navbar-h);
+  position: fixed;
+  margin: 16px 24px;
+  left: 0;
+  right: 0;
 }
