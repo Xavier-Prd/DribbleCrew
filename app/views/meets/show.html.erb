@@ -321,7 +321,7 @@
       </div>
       <div>
         <span style="display: block; font-size: 0.7rem; color: rgba(255,255,255,0.3); text-transform: uppercase;">Date et Heure</span>
-        <span style="font-weight: 600; font-size: 0.95rem;"><%= @meet.date.strftime("%d %B %Y à %H:%M") %></span>
+        <span style="font-weight: 600; font-size: 0.95rem;"><%= l(@meet.date, format: "%d %B %Y à %H:%M") %></span>
       </div>
     </div>
   </div>
