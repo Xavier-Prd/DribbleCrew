@@ -1,8 +1,7 @@
 class MatchesController < ApplicationController
   def new
-  @match = Match.new
-  # pour créer un objet meet vide associé à match
-  @match.build_meet
+    @match = Match.new
+    @match.build_meet(court_id: params[:court_id])
   end
 
   # Action appelée quand l'organisateur valide le formulaire "Terminer le match".
