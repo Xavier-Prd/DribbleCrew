@@ -94,21 +94,36 @@ end
 # ==========================================
 puts "\nCreating 100 unique meets..."
 
-number_players_inteam = [ 1, 3, 5 ].sample
-# Generer 5 meets de matches for turbo_arnaud et 5 meets de matches pour admin (pour avoir des données de match à afficher sur leur profil)
-5.times do |i|
-  m = Match.create!(user: all_users.sample, blue_team: Team.create!(number_player: number_players_inteam), red_team: Team.create!(number_player: number_players_inteam), blue_team_score: rand(1..100), red_team_score: rand(1..100))
+# Generer 2 meets de matches FUTURES pour turbo_arnaud & admin (pour avoir des données de match à afficher sur leur profil)
+2.times do |i|
+  number_players_inteam = [ 1, 3, 5 ].sample
+  m = Match.create!(user: all_users.sample, blue_team: Team.create!(number_player: number_players_inteam), red_team: Team.create!(number_player: number_players_inteam), blue_team_score: 0, red_team_score: 0)
   Meet.create!(court: Court.all.sample, date: Time.current + (i + 1).days, duration: 60, meetable: m)
   UserTeam.create!(user: turbo_arnaud, team: m.blue_team)
 end
-5.times do |i|
-  m = Match.create!(user: all_users.sample, blue_team: Team.create!(number_player: number_players_inteam), red_team: Team.create!(number_player: number_players_inteam), blue_team_score: rand(1..100), red_team_score: rand(1..100))
+2.times do |i|
+  number_players_inteam = [ 1, 3, 5 ].sample
+  m = Match.create!(user: all_users.sample, blue_team: Team.create!(number_player: number_players_inteam), red_team: Team.create!(number_player: number_players_inteam), blue_team_score: 0, red_team_score: 0)
   Meet.create!(court: Court.all.sample, date: Time.current + (i + 1).days, duration: 60, meetable: m)
+  UserTeam.create!(user: admin, team: m.blue_team)
+end
+# Générer 5 meets de matches PASSés pour turbo_arnaud & admin (pour avoir des données de match à afficher sur son profil)
+5.times do |i|
+  number_players_inteam = [ 1, 3, 5 ].sample
+  m = Match.create!(user: all_users.sample, blue_team: Team.create!(number_player: number_players_inteam), red_team: Team.create!(number_player: number_players_inteam), blue_team_score: rand(1..100), red_team_score: rand(1..100))
+  Meet.create!(court: Court.all.sample, date: Time.current + (i - 1).days, duration: 60, meetable: m)
+  UserTeam.create!(user: turbo_arnaud, team: m.blue_team)
+end
+5.times do |i|
+  number_players_inteam = [ 1, 3, 5 ].sample
+  m = Match.create!(user: all_users.sample, blue_team: Team.create!(number_player: number_players_inteam), red_team: Team.create!(number_player: number_players_inteam), blue_team_score: rand(1..100), red_team_score: rand(1..100))
+  Meet.create!(court: Court.all.sample, date: Time.current + (i - 1).days, duration: 60, meetable: m)
   UserTeam.create!(user: admin, team: m.blue_team)
 end
 
 # 10 meets de matches passés
 10.times do
+  number_players_inteam = [ 1, 3, 5 ].sample
   m = Match.create!(
     user: all_users.sample,
     blue_team: Team.create!(number_player: number_players_inteam),
@@ -122,6 +137,7 @@ end
 
 # 50 meets de matches futures
 50.times do
+  number_players_inteam = [ 1, 3, 5 ].sample
   m = Match.create!(
     user: all_users.sample,
     blue_team: Team.create!(number_player: number_players_inteam),
