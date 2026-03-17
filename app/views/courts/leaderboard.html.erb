@@ -24,18 +24,17 @@
             <%= index + 1 %>
           </span>
 
-          <%= link_to profile_path(user), class: "flex items-center gap-3 flex-1 min-w-0" do %>
-            <div class="w-10 h-10 rounded-full overflow-hidden shrink-0">
-              <% if user.profile_picture.attached? %>
-                <%= image_tag user.profile_picture, class: "w-full h-full object-cover" %>
-              <% else %>
-                <div class="w-full h-full bg-base-300 flex items-center justify-center">
-                  <i class="fa-solid fa-user text-gray-500 text-base"></i>
-                </div>
-              <% end %>
-            </div>
-            <span class="text-white font-semibold truncate"><%= user.username %></span>
+          <%= link_to profile_path(user), class: "w-10 h-10 rounded-full overflow-hidden shrink-0" do %>
+            <% if user.profile_picture.attached? %>
+              <%= image_tag user.profile_picture, class: "w-full h-full object-cover" %>
+            <% else %>
+              <div class="w-full h-full bg-base-300 flex items-center justify-center">
+                <i class="fa-solid fa-user text-gray-500 text-base"></i>
+              </div>
+            <% end %>
           <% end %>
+
+          <span class="text-white font-semibold flex-1 truncate"><%= user.username %></span>
 
           <span class="badge badge-warning font-bold text-base shrink-0">
             <%= @victory_counts[user.id] || 0 %> pts
