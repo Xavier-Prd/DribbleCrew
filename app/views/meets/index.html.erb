@@ -56,7 +56,7 @@
                 <p class="text-[10px] text-white/40 truncate"><%= meet.court.name %></p>
               </div>
               <p class="text-xs font-bold mt-1" style="color: var(--color-primary);">
-                <%= meet.date.strftime("%d %B") %>
+                <%= l(meet.date, format: "%d %B") %>
               </p>
             </div>
           <% end %>
@@ -117,7 +117,7 @@
                 <%= is_match ? "#{meet.meetable.blue_team.number_player} vs #{meet.meetable.red_team.number_player}" : meet.meetable.title %>
               </p>
               <p class="text-[10px] text-white/40">📍 <%= meet.court.name %></p>
-              <p class="text-base text-white/40 mt-1"><%= meet.date.strftime("%d %b · %Hh%M") %></p>
+              <p class="text-base text-white/40 mt-1"><%= l(meet.date, format: "%d %b · %Hh%M") %></p>
             </div>
           <% end %>
         <% end %>
@@ -178,7 +178,7 @@
               <p class="text-base font-semibold truncate">
                 <%= meet.meetable_type == "Match" ? "Match" : meet.meetable.title %>
               </p>
-              <p class="text-base text-white/40 mt-1"><%= meet.date.strftime("%d %b %Y") %></p>
+              <p class="text-base text-white/40 mt-1"><%= l(meet.date, format: "%d %b %Y") %></p>
             </div>
           <% end %>
         <% end %>

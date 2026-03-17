@@ -93,7 +93,7 @@
               <div class="flex-1 min-w-0">
                 <p class="text-sm font-bold text-white"><%= result_label %></p>
                 <p class="text-xs text-white/40 truncate mt-0.5"><%= meet.court&.name || "Terrain inconnu" %></p>
-                <p class="text-xs text-white/25 mt-0.5"><%= meet.date.strftime("%-d %b %Y") %> · <%= meet.duration %> min</p>
+                <p class="text-xs text-white/25 mt-0.5"><%= l(meet.date, format: "%-d %b %Y") %> · <%= meet.duration %> min</p>
               </div>
 
             <% else %>
@@ -106,7 +106,7 @@
               <div class="flex-1 min-w-0">
                 <p class="text-sm font-bold text-white truncate"><%= meet.meetable.title %></p>
                 <p class="text-xs text-white/40 truncate mt-0.5"><%= meet.court&.name || "Terrain inconnu" %></p>
-                <p class="text-xs text-white/25 mt-0.5"><%= meet.date.strftime("%-d %b %Y") %> · <%= meet.duration %> min</p>
+                <p class="text-xs text-white/25 mt-0.5"><%= l(meet.date, format: "%-d %b %Y") %> · <%= meet.duration %> min</p>
               </div>
 
               <%# Niveau %>
