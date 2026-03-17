@@ -1,23 +1,33 @@
 <div class="min-h-screen pb-24" data-controller="toggle">
 
   <%# Header %>
-  <%# Menu engrenage %>
-  <div class="px-4 pt-4 pb-2 flex items-start justify-end">
-    <div class="relative flex-shrink-0 mt-1 ">
-      <button type="button" data-action="toggle#toggle" class="flex items-center justify-center w-10 h-10 rounded-full bg-white/5">
-        <i class="fa-solid fa-gear text-xl text-white/70 transition-transform duration-300" data-toggle-target="gear"></i>
-      </button>
-      <div data-toggle-target="form" class="hidden absolute right-0 top-12 z-10 min-w-48 rounded-xl bg-base-200 border border-white/10 overflow-hidden">
-        <%= link_to edit_profile_path(@user), class: "flex items-center gap-2 px-4 py-2.5 text-base font-medium hover:bg-base-300 transition-colors" do %>
-          <i class="fa-solid fa-pen-to-square text-primary"></i> Modifier mon profil
-        <% end %>
-        <div class="border-t border-white/10"></div>
-        <%= button_to destroy_user_session_path, method: :delete, class: "flex items-center gap-2 px-4 py-2.5 text-base font-medium text-error hover:bg-base-300 transition-colors w-full text-left" do %>
-          <i class="fa-solid fa-right-from-bracket"></i> Se déconnecter
-        <% end %>
+  <%# Le menu engrenage (modifier profil + déconnexion) n'est affiché
+      que si l'utilisateur connecté consulte son propre profil.
+      Sur le profil d'un autre utilisateur, ce bloc est masqué. %>
+  <% if current_user == @user %>
+    <div class="px-4 pt-4 pb-2 flex items-start justify-end">
+      <div class="relative flex-shrink-0 mt-1">
+        <%# Bouton d'ouverture du menu — le controller Stimulus "toggle" gère l'affichage %>
+        <button type="button" data-action="toggle#toggle" class="flex items-center justify-center w-10 h-10 rounded-full bg-white/5">
+          <i class="fa-solid fa-gear text-xl text-white/70 transition-transform duration-300" data-toggle-target="gear"></i>
+        </button>
+
+        <%# Menu déroulant avec les actions propres au profil connecté %>
+        <div data-toggle-target="form" class="hidden absolute right-0 top-12 z-10 min-w-48 rounded-xl bg-base-200 border border-white/10 overflow-hidden">
+          <%= link_to edit_profile_path(@user), class: "flex items-center gap-2 px-4 py-2.5 text-base font-medium hover:bg-base-300 transition-colors" do %>
+            <i class="fa-solid fa-pen-to-square text-primary"></i> Modifier mon profil
+          <% end %>
+          <div class="border-t border-white/10"></div>
+          <%= button_to destroy_user_session_path, method: :delete, class: "flex items-center gap-2 px-4 py-2.5 text-base font-medium text-error hover:bg-base-300 transition-colors w-full text-left" do %>
+            <i class="fa-solid fa-right-from-bracket"></i> Se déconnecter
+          <% end %>
+        </div>
       </div>
     </div>
-  </div>
+  <% else %>
+    <%# Espace réservé pour conserver le même écart en haut que sur son propre profil %>
+    <div class="pt-4 pb-2 h-14"></div>
+  <% end %>
 
   <%# Avatar %>
   <div class="flex flex-col items-center gap-3 pb-6">
