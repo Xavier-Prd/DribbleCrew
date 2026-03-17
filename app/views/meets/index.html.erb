@@ -106,7 +106,10 @@
                   <span class="text-[11px] text-white/30 font-medium"><%= meet.duration %> min</span>
                 </div>
               </div>
-            <% end %>
+              <p class="text-xs font-bold mt-1" style="color: var(--color-primary);">
+                <%= l(meet.date, format: "%d %B") %>
+              </p>
+            </div>
           <% end %>
         <% end %>
       </div>
@@ -143,6 +146,26 @@
     <% if @upcoming_meets.any? %>
       <div class="flex gap-4 overflow-x-auto px-6 pb-2 scrollbar-hide" data-meet-filter-target="list" data-cards-list>
         <% @upcoming_meets.each do |meet| %>
+          <%= link_to meet_path(meet),
+              class: "flex-shrink-0 w-44 h-32 rounded-2xl bg-white/5 border border-white/10 p-4 flex flex-col justify-between",
+              data: {
+                "meet-filter-target": "card",
+                lat: meet.court.lat,
+                lng: meet.court.long,
+                date: meet.date.to_i
+              } do %>
+            <% is_match = meet.meetable_type == "Match" %>
+            <span class="badge badge-sm text-white font-semibold px-3 w-fit"
+                  style="background-color: <%= is_match ? 'var(--color-primary)' : 'var(--color-secondary)' %>;">
+              <%= is_match ? "Match" : "Entraînement" %>
+            </span>
+            <div>
+              <p class="text-base font-semibold truncate">
+                <%= is_match ? "#{meet.meetable.blue_team.number_player} vs #{meet.meetable.red_team.number_player}" : meet.meetable.title %>
+              </p>
+              <p class="text-[10px] text-white/40">📍 <%= meet.court.name %></p>
+              <p class="text-base text-white/40 mt-1"><%= l(meet.date, format: "%d %b · %Hh%M") %></p>
+            </div>
           <% if meet.meetable_type == "Match" %>
             <% match = meet.meetable %>
             <% accent = "var(--color-primary)" %>
@@ -271,6 +294,21 @@
     <% if @past_meets.any? %>
       <div class="flex gap-4 overflow-x-auto px-6 pb-2 scrollbar-hide" data-cards-list>
         <% @past_meets.each do |meet| %>
+          <%= link_to meet_path(meet),
+              class: "flex-shrink-0 w-44 h-32 rounded-2xl bg-white/5 border border-white/10 p-4 flex flex-col justify-between opacity-50",
+              data: {
+                "meet-filter-target": "card",
+                lat: meet.court.lat,
+                lng: meet.court.long,
+                date: meet.date.to_i
+              } do %>
+            <span class="badge badge-sm bg-white/20 text-white/60 font-semibold px-3 w-fit">Terminé</span>
+            <div>
+              <p class="text-base font-semibold truncate">
+                <%= meet.meetable_type == "Match" ? "Match" : meet.meetable.title %>
+              </p>
+              <p class="text-base text-white/40 mt-1"><%= l(meet.date, format: "%d %b %Y") %></p>
+            </div>
           <% if meet.meetable_type == "Match" %>
             <% match = meet.meetable %>
             <% blue_s = match.blue_team_score.to_i; red_s = match.red_team_score.to_i %>
