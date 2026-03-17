@@ -18,27 +18,32 @@
                           when 3 then "avatar_border_third.png"
                           else        "avatar_border_default.png"
                           end %>
-        <%= link_to court_path(classement[:court]), class: "flex items-center gap-4 bg-white/5 border border-white/10 rounded-2xl p-4" do %>
-          <%# Image terrain %>
-          <div class="w-16 h-16 rounded-xl overflow-hidden flex-shrink-0">
-            <% if classement[:court].image.attached? %>
-              <%= image_tag classement[:court].image, class: "w-full h-full object-cover" %>
-            <% else %>
-              <div class="w-full h-full bg-base-200 flex items-center justify-center">
-                <i class="fa-solid fa-basketball text-white/20 text-xl"></i>
-              </div>
-            <% end %>
-          </div>
+        <%# Conteneur de la ligne — pas de link_to global car l'avatar et le terrain ont des destinations différentes %>
+        <div class="flex items-center gap-4 bg-white/5 border border-white/10 rounded-2xl p-4">
 
-          <%# Infos %>
-          <div class="flex-1 min-w-0">
-            <p class="text-base font-bold truncate"><%= classement[:court].name %></p>
-            <p class="text-base text-white/40 truncate mt-0.5"><%= classement[:court].address %></p>
-            <p class="text-base text-primary font-semibold mt-1"><%= classement[:points] %> pts <span class="text-white/30 font-normal">(<%= classement[:victories] %> victoire<%= classement[:victories] > 1 ? "s" : "" %>)</span></p>
-          </div>
+          <%# Lien vers le terrain : image + infos %>
+          <%= link_to court_path(classement[:court]), class: "flex items-center gap-4 flex-1 min-w-0" do %>
+            <%# Image terrain %>
+            <div class="w-16 h-16 rounded-xl overflow-hidden flex-shrink-0">
+              <% if classement[:court].image.attached? %>
+                <%= image_tag classement[:court].image, class: "w-full h-full object-cover" %>
+              <% else %>
+                <div class="w-full h-full bg-base-200 flex items-center justify-center">
+                  <i class="fa-solid fa-basketball text-white/20 text-xl"></i>
+                </div>
+              <% end %>
+            </div>
 
-          <%# Avatar + bordure + rang %>
-          <div class="flex flex-col items-center gap-1 flex-shrink-0">
+            <%# Infos terrain %>
+            <div class="flex-1 min-w-0">
+              <p class="text-base font-bold truncate"><%= classement[:court].name %></p>
+              <p class="text-base text-white/40 truncate mt-0.5"><%= classement[:court].address %></p>
+              <p class="text-base text-primary font-semibold mt-1"><%= classement[:points] %> pts <span class="text-white/30 font-normal">(<%= classement[:victories] %> victoire<%= classement[:victories] > 1 ? "s" : "" %>)</span></p>
+            </div>
+          <% end %>
+
+          <%# Lien vers le profil : avatar + bordure + rang %>
+          <%= link_to profile_path(@user), class: "flex flex-col items-center gap-1 flex-shrink-0" do %>
             <div class="relative w-11 h-11">
               <div class="w-full h-full rounded-full overflow-hidden">
                 <% if @user.profile_picture.attached? %>
@@ -52,8 +57,9 @@
               <%= image_tag border_image, class: "absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[100px] h-[100px] max-w-none pointer-events-none", alt: "" %>
             </div>
             <span class="text-base font-black text-white/60">#<%= classement[:rank] %></span>
-          </div>
-        <% end %>
+          <% end %>
+
+        </div>
       <% end %>
     </div>
   <% else %>
