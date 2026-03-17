@@ -8,7 +8,7 @@
     <% end %>
 
     <span class="text-base text-orange-500 uppercase tracking-widest font-bold"><%= @program.level %></span>
-    <h1 class="font-extrabold tracking-tight mt-2"><%= @program.title %></h1>
+    <h2 class="font-extrabold tracking-tight mt-2"><%= @program.title %></h2>
   </div>
 
   <%# Contenu du programme %>
@@ -17,8 +17,8 @@
 
     <%# Description %>
     <div class="bg-white/5 border border-white/10 rounded-2xl p-6 mb-8">
-      <h2 class="text-white/40 uppercase tracking-widest mb-2 font-bold">Objectif & Description</h2>
-      <p class="text-lg font-semibold leading-tight"><%= content["description"] %></p>
+      <h3 class="text-white/40 uppercase tracking-widest mb-2 font-bold">Objectif & Description</h3>
+      <p class="text-md leading-relaxed"><%= content["description"] %></p>
     </div>
 
     <%# Liste des exercices %>
@@ -37,10 +37,10 @@
     </div>
 
     <%# Bouton pour envoyer vers un rencontre %>
-    <div class="mt-10">
-      <%= link_to new_program_meet_path(@program), class: "flex items-center justify-center gap-3 w-full py-5 rounded-2xl font-bold text-white transition-transform active:scale-95 shadow-lg", style: "background-color: var(--color-primary);" do %>
+    <div class="meet-show__floating-btn">
+      <%= link_to new_program_meet_path(@program), class: "btn btn-primary w-full" do %>
         <i class="fa-solid fa-calendar-plus"></i>
-        Planifier cette séance
+        Planifier une séance collective
       <% end %>
     </div>
   </div>
