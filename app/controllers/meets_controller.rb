@@ -1,30 +1,29 @@
 class MeetsController < ApplicationController
   def index
-  # 1. Les rencontres planifiées
-  @upcoming_meets = Meet.includes(:court, :meetable)
-                        .where("date >= ?", Time.current)
-                        .order(:date)
-
-  # Mes rencontres créées + rejointes
-  user_team_ids = current_user.user_teams.pluck(:team_id)
-
-  @my_meets = Meet.includes(:court, :meetable)
-                  .where("date >= ?", Time.current)
-                  .joins("LEFT JOIN matches ON meets.meetable_id = matches.id AND meets.meetable_type = 'Match'")
-                  .joins("LEFT JOIN programs ON meets.meetable_id = programs.id AND meets.meetable_type = 'Program'")
-                  .where("matches.user_id = ? OR programs.user_id = ? OR matches.blue_team_id IN (?) OR matches.red_team_id IN (?) OR programs.team_id IN (?)",
-                         current_user.id, current_user.id, user_team_ids, user_team_ids, user_team_ids)
-                  .distinct
-                  .order(:date)
-
-  # 2. Tous les programs de l'user
-  @programs = current_user.programs.includes(meets: :court)
-
-  # 3. Les rencontres passées
-  @past_meets = Meet.includes(:court, :meetable)
-                    .where("date < ?", Time.current)
-                    .order(date: :desc)
-
+    # 1. Les rencontres planifiées
+    @upcoming_meets = Meet.includes(:court, :meetable)
+                          .where("date >= ?", Time.current)
+                          .order(:date)
+  
+    # Mes rencontres créées + rejointes
+    user_team_ids = current_user.user_teams.pluck(:team_id)
+  
+    @my_meets = Meet.includes(:court, :meetable)
+                    .where("date >= ?", Time.current)
+                    .joins("LEFT JOIN matches ON meets.meetable_id = matches.id AND meets.meetable_type = 'Match'")
+                    .joins("LEFT JOIN programs ON meets.meetable_id = programs.id AND meets.meetable_type = 'Program'")
+                    .where("matches.user_id = ? OR programs.user_id = ? OR matches.blue_team_id IN (?) OR matches.red_team_id IN (?) OR programs.team_id IN (?)",
+                           current_user.id, current_user.id, user_team_ids, user_team_ids, user_team_ids)
+                    .distinct
+                    .order(:date)
+  
+    # 2. Tous les programs de l'user
+    @programs = current_user.programs
+  
+    # 3. Les rencontres passées
+    @past_meets = Meet.includes(:court, :meetable)
+                      .where("date < ?", Time.current)
+                      .order(date: :desc)
   end
 
   def show
@@ -35,7 +34,6 @@ class MeetsController < ApplicationController
     else
       # meetable (polymorphic) est un match donc je récupére l'obet match
       @match = @meet.meetable
-      # @qr_code = RQRCode::QRCode.new(@match.qr_code)
       # il faut que je calcule le nombre de joeur par équipe (équipe rouge et équipe bleu )
       @current_players_count = @match.blue_team.users.count + @match.red_team.users.count
     end
@@ -65,8 +63,8 @@ class MeetsController < ApplicationController
 
     # Cas 2 : Match
     else
-    @match = @meetable
-    @team = Team.find(params[:team_id])
+      @match = @meetable
+      @team = Team.find(params[:team_id])
 
       # Empêcher l'organisateur de changer d'équipe
       if @match.user == current_user
@@ -89,13 +87,13 @@ class MeetsController < ApplicationController
   end
 
   def leave
-  @meet = Meet.find(params[:id])
-  @meetable = @meet.meetable
-
-  # Sécurité : on bloque la tentative même si quelqu'un forge une requête manuellement
-  if @meet.date <= Time.current
-    return redirect_to meet_path(@meet), alert: "Cette rencontre a déjà commencé. Vous ne pouvez plus la quitter."
-  end
+    @meet = Meet.find(params[:id])
+    @meetable = @meet.meetable
+  
+    # Sécurité : on bloque la tentative même si quelqu'un forge une requête manuellement
+    if @meet.date <= Time.current
+      return redirect_to meet_path(@meet), alert: "Cette rencontre a déjà commencé. Vous ne pouvez plus la quitter."
+    end
 
     # On détermine l'équipe (ou les équipes) dans lesquelles chercher
     if @meet.meetable_type == "Program"

@@ -64,7 +64,7 @@
     </div>
     <% if @classements.any? %>
       <div class="flex gap-4 overflow-x-auto px-6 pb-2 scrollbar-hide">
-        <% @classements.each do |classement| %>
+        <% @classements.first(10).each do |classement| %>
           <% card_border_image = case classement[:rank]
                                   when 1 then "avatar_border_king.png"
                                   when 2 then "avatar_border_second.png"
@@ -125,7 +125,7 @@
       } %>
     <% if past_meets.any? %>
       <div class="flex gap-4 overflow-x-auto px-6 pb-2 scrollbar-hide">
-        <% past_meets.each do |meet| %>
+        <% past_meets.first(10).each do |meet| %>
           <% if meet.meetable_type == "Match" %>
             <% match = meet.meetable %>
             <% blue_s = match.blue_team_score.to_i; red_s = match.red_team_score.to_i %>
@@ -163,25 +163,56 @@
 
                 <%# Cercles scores %>
                 <div class="flex items-center justify-center gap-2 py-1">
+
+                  <%# Bulle équipe bleue %>
+                  <%# mb-3 réserve l'espace pour la photo qui déborde en bas %>
                   <div class="flex flex-col items-center gap-1.5">
                     <% blue_circle = blue_s > red_s ? "background:radial-gradient(circle at 35% 35%,rgba(96,165,250,0.35),rgba(59,130,246,0.1));border:1.5px solid rgba(96,165,250,0.7);box-shadow:0 0 16px rgba(59,130,246,0.4);"
                                                     : "background:rgba(255,255,255,0.04);border:1.5px solid rgba(255,255,255,0.1);" %>
-                    <div class="w-16 h-16 rounded-full flex items-center justify-center" style="<%= blue_circle %>">
-                      <span class="text-2xl font-black tabular-nums" style="color:<%= blue_score_color %>;"><%= match.blue_team_score %></span>
+                    <%# relative pour positionner la photo en absolu par rapport à la bulle %>
+                    <div class="relative w-16 h-16 rounded-full flex items-center justify-center mb-3" style="<%= blue_circle %>">
+                      <span class="text-2xl font-black tabular-nums leading-none" style="color:<%= blue_score_color %>;"><%= match.blue_team_score %></span>
+                      <%# Photo positionnée à moitié dans la bulle, à moitié en dessous %>
+                      <% if user_on_blue %>
+                        <div class="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 w-7 h-7 rounded-full overflow-hidden border-2 border-white/20">
+                          <% if @user.profile_picture.attached? %>
+                            <%= image_tag @user.profile_picture, class: "w-full h-full object-cover" %>
+                          <% else %>
+                            <div class="w-full h-full bg-base-300 flex items-center justify-center">
+                              <i class="fa-solid fa-user text-[8px] text-white/40"></i>
+                            </div>
+                          <% end %>
+                        </div>
+                      <% end %>
                     </div>
                     <span class="text-[9px] font-bold uppercase tracking-widest" style="color:<%= blue_s > red_s ? 'rgba(96,165,250,0.7)' : 'rgba(255,255,255,0.2)' %>;">Bleu</span>
                   </div>
 
                   <%= image_tag "vs.png", class: "w-12 h-12 object-contain mb-5" %>
 
+                  <%# Bulle équipe rouge %>
                   <div class="flex flex-col items-center gap-1.5">
                     <% red_circle = red_s > blue_s ? "background:radial-gradient(circle at 35% 35%,rgba(248,113,113,0.35),rgba(239,68,68,0.1));border:1.5px solid rgba(248,113,113,0.7);box-shadow:0 0 16px rgba(239,68,68,0.4);"
                                                    : "background:rgba(255,255,255,0.04);border:1.5px solid rgba(255,255,255,0.1);" %>
-                    <div class="w-16 h-16 rounded-full flex items-center justify-center" style="<%= red_circle %>">
-                      <span class="text-2xl font-black tabular-nums" style="color:<%= red_score_color %>;"><%= match.red_team_score %></span>
+                    <%# relative pour positionner la photo en absolu par rapport à la bulle %>
+                    <div class="relative w-16 h-16 rounded-full flex items-center justify-center mb-3" style="<%= red_circle %>">
+                      <span class="text-2xl font-black tabular-nums leading-none" style="color:<%= red_score_color %>;"><%= match.red_team_score %></span>
+                      <%# Photo positionnée à moitié dans la bulle, à moitié en dessous %>
+                      <% unless user_on_blue %>
+                        <div class="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 w-7 h-7 rounded-full overflow-hidden border-2 border-white/20">
+                          <% if @user.profile_picture.attached? %>
+                            <%= image_tag @user.profile_picture, class: "w-full h-full object-cover" %>
+                          <% else %>
+                            <div class="w-full h-full bg-base-300 flex items-center justify-center">
+                              <i class="fa-solid fa-user text-[8px] text-white/40"></i>
+                            </div>
+                          <% end %>
+                        </div>
+                      <% end %>
                     </div>
                     <span class="text-[9px] font-bold uppercase tracking-widest" style="color:<%= red_s > blue_s ? 'rgba(248,113,113,0.7)' : 'rgba(255,255,255,0.2)' %>;">Rouge</span>
                   </div>
+
                 </div>
 
               <% else %>
