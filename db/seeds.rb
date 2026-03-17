@@ -113,14 +113,14 @@ end
 5.times do |i|
   number_players_inteam = [ 1, 3, 5 ].sample
   m = Match.create!(user: all_users.sample, blue_team: Team.create!(number_player: number_players_inteam), red_team: Team.create!(number_player: number_players_inteam), blue_team_score: rand(1..100), red_team_score: rand(1..100))
-  meet = Meet.new(court: Court.all.sample, date: Time.current + (i - 1).days, duration: 60, meetable: m)
+  meet = Meet.new(court: Court.all.sample, date: Faker::Time.between(from: 2.days.ago, to: 1.days.ago), duration: 60, meetable: m)
   meet.save!(validate: false)
   UserTeam.create!(user: turbo_arnaud, team: m.blue_team)
 end
 5.times do |i|
   number_players_inteam = [ 1, 3, 5 ].sample
   m = Match.create!(user: all_users.sample, blue_team: Team.create!(number_player: number_players_inteam), red_team: Team.create!(number_player: number_players_inteam), blue_team_score: rand(1..100), red_team_score: rand(1..100))
-  meet = Meet.new(court: Court.all.sample, date: Time.current + (i - 1).days, duration: 60, meetable: m)
+  meet = Meet.new(court: Court.all.sample, date: Faker::Time.between(from: 2.days.ago, to: 1.days.ago), duration: 60, meetable: m)
   meet.save!(validate: false)
   UserTeam.create!(user: admin, team: m.blue_team)
 end
