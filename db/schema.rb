@@ -78,7 +78,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_17_131937) do
   end
 
   create_table "programs", force: :cascade do |t|
-    t.boolean "active"
+    t.boolean "active", default: true
     t.text "content"
     t.datetime "created_at", null: false
     t.text "goal"

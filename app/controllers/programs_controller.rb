@@ -40,13 +40,19 @@ Commencez votre réponse par : {
 "
 
   def index
-    @programs = current_user.programs
+    @programs = current_user.programs.where(active: true)
     @upcoming_meets = current_user.program_meets.where("date >= ?", Time.current).order(:date)
     @past_meets = current_user.program_meets.where("date < ?", Time.current).order(date: :desc)
   end
 
   def show
     @program = Program.find(params[:id])
+  end
+
+  def deactivate
+    @program = Program.find(params[:id])
+    @program.update!(active: false)
+    redirect_to meets_path, notice: "Le programme a été supprimé."
   end
 
   def new
