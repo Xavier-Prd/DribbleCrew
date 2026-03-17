@@ -138,7 +138,9 @@
     <% if @upcoming_meets.any? %>
       <div class="flex flex-col gap-3">
         <% @upcoming_meets.each do |meet| %>
-          <div class="bg-base-200 rounded-2xl p-4 relative">
+          <%# On transforme la div en lien cliquable %>
+          <%= link_to meet_path(meet), class: "bg-base-200 rounded-2xl p-4 relative block active:scale-[0.98] transition-transform hover:bg-base-100" do %>
+
             <div class="absolute top-3 right-3">
               <% if meet.meetable_type == "Match" %>
                 <span class="badge badge-secondary text-white text-base font-bold">Match</span>
@@ -146,36 +148,50 @@
                 <span class="badge badge-success text-white text-base font-bold">Entrainement</span>
               <% end %>
             </div>
+
             <div class="flex items-center gap-2 mb-2 pr-24">
               <i class="fa-solid fa-calendar-days text-primary text-base shrink-0"></i>
               <span class="text-white text-base font-semibold">
                 <%= meet.date.strftime("%d %b %Y à %H:%M") %>
               </span>
             </div>
+
             <div class="flex items-center gap-2 mb-2">
               <i class="fa-solid fa-clock text-primary text-base shrink-0"></i>
               <span class="text-gray-300 text-base"><%= meet.duration %> min</span>
             </div>
+
             <div class="flex items-center gap-2">
               <% if meet.meetable_type == "Match" %>
                 <i class="fa-solid fa-shield-halved text-secondary text-base shrink-0"></i>
                 <span class="text-gray-300 text-base font-medium">
-                  Equipe Bleu <span class="text-gray-500 mx-1">vs</span> Equipe Rouge
+                  <%= meet.meetable.blue_team.number_player %> vs <%= meet.meetable.red_team.number_player %>
                 </span>
               <% else %>
-                <div class="flex items-center gap-2 mb-1">
-                  <i class="fa-solid fa-bullseye text-success text-base shrink-0"></i>
-                  <span class="text-gray-300 text-base"><%= meet.meetable.goal %></span>
+                <div class="flex flex-col gap-1">
+                  <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-bullseye text-success text-base shrink-0"></i>
+                    <span class="text-gray-300 text-base"><%= meet.meetable.title %></span>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-signal text-success text-base shrink-0"></i>
+                    <span class="text-gray-300 text-base">Niveau : <%= meet.meetable.level %></span>
+                  </div>
                 </div>
-                <i class="fa-solid fa-signal text-success text-base shrink-0"></i>
-                <span class="text-gray-300 text-base">Niveau : <%= meet.meetable.level %></span>
               <% end %>
             </div>
-          </div>
+
+            <%# Petit indicateur visuel pour montrer que c'est cliquable %>
+            <div class="mt-3 pt-3 border-t border-white/5 flex justify-end">
+              <span class="text-[10px] uppercase font-bold text-primary flex items-center gap-1">
+                Voir détails <i class="fa-solid fa-chevron-right"></i>
+              </span>
+            </div>
+
+          <% end %>
         <% end %>
       </div>
     <% else %>
       <p class="text-gray-400 text-center py-6 text-base">Aucune rencontre à venir</p>
     <% end %>
   </div>
-</div>

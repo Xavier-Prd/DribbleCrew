@@ -3,38 +3,17 @@ require 'net/http'
 require 'json'
 require 'uri'
 
-# Destroy all existing records to avoid duplication when running seeds multiple times
-puts "Destroying existing records..."
-Meet.destroy_all
-Match.destroy_all
-Program.destroy_all
-UserTeam.destroy_all
-Victory.destroy_all
-Court.destroy_all
-Team.destroy_all
-User.destroy_all
+puts "Cleaning database..."
+[Meet, Match, Program, UserTeam, Victory, Court, Team, User].each(&:destroy_all)
 
-# ---- USERS ----
-puts "Starting users seed"
-User.create!(
-  username: "admin",
-  email: "admin@test.com",
-  password: "password",
-  age: 30,
-  gender: "Homme",
-  height: 180,
-  weight: 75
-)
-
-User.create!(
-  username: "turbo_arnaud",
-  email: "pierre@test.com",
-  password: "password",
-  age: 30,
-  gender: "Homme",
-  height: 180,
-  weight: 75
-)
+# ==========================================
+# 1. USERS (Total: 24)
+# ==========================================
+puts "Creating users..."
+me = User.create!(username: "turbo_arnaud", email: "pierre@test.com", password: "password", age: 30, gender: "Homme", height: 180, weight: 75)
+User.create!(username: "admin", email: "admin@test.com", password: "password", age: 35, gender: "Homme", height: 185, weight: 80)
+User.create!(username: "coach_reda", email: "reda@test.com", password: "password", age: 28, gender: "Homme", height: 190, weight: 85)
+User.create!(username: "expert_tom", email: "tom@test.com", password: "password", age: 24, gender: "Homme", height: 175, weight: 70)
 
 fake_avatar_images = Dir[Rails.root.join("app/assets/images/fake_avatar/*")]
 20.times do
@@ -78,129 +57,98 @@ puts "Starting Matches seed"
     blue_team_score: rand(0..10)
   )
 end
+all_users = User.where.not(id: me.id)
 
-puts "#{Match.count} matches created"
-
-# ---- COURTS from OpenStreetMap ----
-puts "Starting Courts seed via OpenStreetMap"
-
-# On cible les terrains de basketball dans une zone géographique spécifique (ex: Lille et environs)
-CITIES = [ "Lille", "Lomme", "Lambersart" ]
-
-# On construit une requête Overpass pour récupérer les terrains de basketball dans ces villes
-# Pour chaque ville, génère un bloc de requête qui :
-# - trouve la zone administrative de la ville (.city0, .city1, etc.)
-# - cherche les terrains de basket publics (leisure=pitch, sport=basketball) dans cette zone
-# - exclut les terrains privés (access != private|members|customers)
-city_unions = CITIES.map.with_index do |city, i|
-  <<~AREA
-    area["name"="#{city}"]["boundary"="administrative"]->.city#{i};
-    node["leisure"="pitch"]["sport"="basketball"]["access"!~"private|members|customers"](area.city#{i});
-    way["leisure"="pitch"]["sport"="basketball"]["access"!~"private|members|customers"](area.city#{i});
-  AREA
-end.join("\n")
-
-# On combine les blocs de requête pour créer la requête finale à envoyer à l'API Overpass
-overpass_query = <<~QUERY
-  [out:json][timeout:60];
-  (
-  #{city_unions}
-  );
-  out center;
-QUERY
-
-# On récupère la liste des images de terrains de basket pour les associer aux courts créés
+# ==========================================
+# 2. COURTS (OpenStreetMap avec Fallback 50)
+# ==========================================
+puts "Fetching 50 courts from OpenStreetMap..."
 playground_images = Dir[Rails.root.join("app/assets/images/playgrounds/*")]
+overpass_query = "[out:json][timeout:60];(node['leisure'='pitch']['sport'='basketball'](50.55,2.85,50.75,3.25);way['leisure'='pitch']['sport'='basketball'](50.55,2.85,50.75,3.25););out center;"
 
-uri = URI("https://overpass-api.de/api/interpreter")
-response = Net::HTTP.start(uri.host, uri.port, use_ssl: true) do |http|
-  http.post(uri.path, URI.encode_www_form({ "data" => overpass_query }))
-end
-data = JSON.parse(response.body)
-
-data["elements"].first(50).each do |element|
-  lat = element["lat"] || element.dig("center", "lat")
-  lon = element["lon"] || element.dig("center", "lon")
-
-  # Reverse geocoding via Nominatim
-  nominatim_uri = URI("https://nominatim.openstreetmap.org/reverse?lat=#{lat}&lon=#{lon}&format=json")
-  nominatim_request = Net::HTTP::Get.new(nominatim_uri)
-  nominatim_request["User-Agent"] = "DribbleCrew/1.0"
-  nominatim_response = Net::HTTP.start(nominatim_uri.host, nominatim_uri.port, use_ssl: true) { |http| http.request(nominatim_request) }
-  nominatim_data = JSON.parse(nominatim_response.body)
-
-  # Extract address components
-  street = nominatim_data.dig("address", "road")
-  house_number = nominatim_data.dig("address", "house_number")
-  city = nominatim_data.dig("address", "city") || nominatim_data.dig("address", "town") || nominatim_data.dig("address", "village") || "Lille"
-  # Construct a full(but small) address for the court
-  address = [ house_number, street, city ].compact.join(", ")
-  # Remove common street type prefixes for a cleaner court name
-  street_name = street&.sub(/\A(Rue|Avenue|Boulevard|Allée|Impasse|Place|Chemin|Route|Passage|Parc|Square|Villa|Voie|Résidence)\s+/i, "")
-  name = street_name.present? ? "Terrain #{street_name}" : "Terrain de basketball"
-
-  # Create the court if it doesn't already exist at this location
-  Court.find_or_create_by!(lat: lat, long: lon) do |court|
-    court.name    = name
-    court.address = address
-    image_path = playground_images.sample
-    court.image = { io: File.open(image_path), filename: File.basename(image_path) }
+begin
+  uri = URI("https://overpass-api.de/api/interpreter")
+  response = Net::HTTP.post_form(uri, { "data" => overpass_query })
+  if response.body.start_with?("{")
+    data = JSON.parse(response.body)
+    data["elements"].first(50).each do |element|
+      lat = element["lat"] || element.dig("center", "lat")
+      lon = element["lon"] || element.dig("center", "lon")
+      nom_uri = URI("https://nominatim.openstreetmap.org/reverse?lat=#{lat}&lon=#{lon}&format=json")
+      nom_res = Net::HTTP.start(nom_uri.host, nom_uri.port, use_ssl: true) { |http| http.get(nom_uri.request_uri, {'User-Agent' => 'DribbleCrew/1.0'}) }
+      nom_data = JSON.parse(nom_res.body) rescue {}
+      street = nom_data.dig("address", "road")
+      city = nom_data.dig("address", "city") || nom_data.dig("address", "town") || "Lille"
+      court = Court.create!(name: street.present? ? "Terrain #{street}" : "Terrain Basket", address: "#{street}, #{city}", lat: lat, long: lon)
+      court.image.attach(io: File.open(playground_images.sample), filename: "court.jpg") if playground_images.any?
+      sleep(1.2)
+    end
+  else raise "OSM Error" end
+rescue => e
+  puts "\nOSM error. Fallback to 50 manual courts..."
+  50.times do |i|
+    c = Court.create!(name: "Terrain Lille ##{i}", address: "Lille", lat: 50.63 + rand(-0.03..0.03), long: 3.06 + rand(-0.03..0.03))
+    c.image.attach(io: File.open(playground_images.sample), filename: "court.jpg") if playground_images.any?
   end
-
-  sleep(1) # Respecter le rate limit Nominatim (1 requête/seconde)
 end
 
-puts "#{Court.count} courts created"
+# ==========================================
+# 3. SESSIONS (100 total - Scores fixés à 0)
+# ==========================================
+puts "\nCreating 100 unique sessions..."
 
+# Tes 5 sessions planning
+5.times do |i|
+  m = Match.create!(user: all_users.sample, blue_team: Team.create!(number_player: 3), red_team: Team.create!(number_player: 3), blue_team_score: 0, red_team_score: 0)
+  Meet.create!(court: Court.all.sample, date: Time.current + (i + 1).days, duration: 60, meetable: m)
+  UserTeam.create!(user: me, team: m.blue_team)
+end
 
-# ---- PROGRAMS ----
-puts "Starting Programs seed"
+# 95 sessions aléatoires (50% Matchs / 50% Programs)
+95.times do
+  if [true, false].sample
+    m = Match.create!(
+      user: all_users.sample,
+      blue_team: Team.create!(number_player: 3),
+      red_team: Team.create!(number_player: 3),
+      blue_team_score: rand(0..21),
+      red_team_score: rand(0..21)
+    )
+    Meet.create!(court: Court.all.sample, date: Faker::Time.between(from: 2.days.ago, to: 15.days.from_now), duration: 60, meetable: m)
+  else
+    # On crée un objet Program unique (Hash pour content, pas de .to_json)
+    p = Program.create!(
+      user: all_users.sample,
+      title: "Workout with Coach #{Faker::Name.last_name}",
+      goal: "Technique",
+      level: Program::LEVELS.sample,
+      active: true,
+      content: { "description" => Faker::Lorem.sentence, "exercises" => [Faker::Verb.base, Faker::Verb.base, Faker::Verb.base] }
+    )
+    Meet.create!(court: Court.all.sample, date: Faker::Time.between(from: 2.days.ago, to: 15.days.from_now), duration: 60, meetable: p)
+  end
+end
 
+# ==========================================
+# 4. VICTORIES (10 000)
+# ==========================================
+puts "Inserting 10,000 victories..."
+victories = []
 10.times do
-  Program.create!(
-    team: Team.all.sample,
-    user: User.all.sample,
-    title: Faker::Lorem.sentence(word_count: 3),
-    content: {
-      description: Faker::Lorem.paragraph(sentence_count: 2),
-      exercises: Array.new(3) { Faker::Lorem.word } # tableau de 3 mots aléatoires
-      }.to_json,
-    goal: Faker::Lorem.sentence(word_count: 5),
-    level: Program::LEVELS.sample,
-    active: true
-  )
+  1000.times { victories << { user_id: User.all.sample.id, court_id: Court.all.sample.id, created_at: Time.current, updated_at: Time.current } }
+  Victory.insert_all(victories)
+  victories = []
+  print "."
 end
 
-puts "#{Program.count} programs created"
-
-# ---- MEETS ----
-puts "Starting Meets seed"
-100.times do
-  Meet.create!(
-    court: Court.all.sample,
-    date: Faker::Date.forward(days: 30),
-    duration: Meet::DURATIONS.sample,
-    meetable: [ Program.all.sample, Match.all.sample ].sample
-  )
-end
-puts "#{Meet.count} meets created"
-
-# ---- VICTORIES ----
-puts "Starting Victories seed"
-10000.times do
-  Victory.create!(
-    user: User.all.sample,
-    court: Court.all.sample
-  )
-end
-puts "#{Victory.count} victories created"
-
-# ---- USER-TEAMS ----
-puts "Starting User-Teams seed"
+# ==========================================
+# 5. INSCRIPTIONS ALÉATOIRES (40)
+# ==========================================
+puts "\nAdding 40 random player inscriptions..."
 40.times do
-  UserTeam.create!(
-    user: User.all.sample,
-    team: Team.all.sample
-  )
+  t = Team.where.not(number_player: 99).sample
+  u = all_users.sample
+  UserTeam.create(user: u, team: t) if t && t.users.count < t.number_player && !t.users.include?(u)
 end
-puts "#{UserTeam.count} user-teams created"
+
+puts "\nSeed finished!"

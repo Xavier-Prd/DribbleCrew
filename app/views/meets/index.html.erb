@@ -6,6 +6,52 @@
     <p class="text-white/40 text-base mt-2 max-w-xs">Retrouvez vos matchs et vos entraînements planifiés.</p>
   </div>
 
+  <%# 1. MES SESSIONS (Planning Personnel : Créées + Rejointes) %>
+  <section class="mt-4">
+    <div class="flex items-center justify-between px-6 mb-4">
+      <h2 class="font-bold text-base">Mes sessions</h2>
+      <span class="text-xs text-white/40"><%= @my_meets.count %> prévue(s)</span>
+    </div>
+
+    <% if @my_meets.any? %>
+      <div class="flex gap-4 overflow-x-auto px-6 pb-2 scrollbar-hide">
+        <% @my_meets.each do |meet| %>
+          <%= link_to meet_path(meet), class: "flex-shrink-0 w-64 h-32 rounded-2xl p-4 flex flex-col justify-between border border-white/10",
+              style: "background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%);" do %>
+
+            <div class="flex justify-between items-start">
+              <% is_match = meet.meetable_type == "Match" %>
+              <span class="badge badge-sm text-[10px] font-bold px-2 py-0.5 rounded-lg text-white"
+                    style="background-color: <%= is_match ? 'var(--color-primary)' : 'var(--color-secondary)' %>;">
+                <%= is_match ? "Match" : "Entraînement" %>
+              </span>
+              <div class="text-right">
+                <p class="text-[10px] text-white/40 uppercase font-bold tracking-widest"><%= meet.date.strftime("%H:%M") %></p>
+              </div>
+            </div>
+
+            <div>
+              <p class="text-base font-bold truncate">
+                <%= is_match ? "#{meet.meetable.blue_team.number_player} vs #{meet.meetable.red_team.number_player}" : meet.meetable.title %>
+              </p>
+              <div class="flex items-center gap-2 mt-1">
+                <i class="fa-solid fa-location-dot text-[10px] text-white/20"></i>
+                <p class="text-[10px] text-white/40 truncate"><%= meet.court.name %></p>
+              </div>
+              <p class="text-xs font-bold mt-1" style="color: var(--color-primary);">
+                <%= meet.date.strftime("%d %B") %>
+              </p>
+            </div>
+          <% end %>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="mx-6 p-6 rounded-2xl bg-white/5 border border-dashed border-white/10 flex flex-col items-center justify-center text-center">
+        <p class="text-white/30 text-xs">Vous n'avez aucune session prévue.</p>
+      </div>
+    <% end %>
+  </section>
+
   <%# Bouton + flottant en bas à droite avec dropdown %>
   <div class="fixed bottom-24 right-4 z-50 dropdown dropdown-top dropdown-end" style="padding-bottom: env(safe-area-inset-bottom);">
     <button tabindex="0" class="flex items-center justify-center w-14 h-14 rounded-full shadow-lg"
@@ -24,8 +70,8 @@
     </ul>
   </div>
 
-  <%# 1. Rencontres à venir (partagé) %>
-  <section class="mt-4" data-controller="sort-by-location">
+  <%# 2. Rencontres à venir (Global) %>
+  <section class="mt-8">
     <div class="flex items-center justify-between px-6 mb-4">
       <h2 class="font-bold">Rencontres à venir</h2>
       <span class="text-base text-white/40">Voir plus</span>
@@ -34,15 +80,12 @@
     <% if @upcoming_meets.any? %>
       <div class="flex gap-4 overflow-x-auto px-6 pb-2 scrollbar-hide" data-sort-by-location-target="list">
         <% @upcoming_meets.each do |meet| %>
-          <%= link_to meet_path(meet), class: "flex-shrink-0 w-44 h-32 rounded-2xl bg-white/5 border border-white/10 p-4 flex flex-col justify-between",
-                                       data: { lat: meet.court.lat, lng: meet.court.long } do %>
-
+          <%= link_to meet_path(meet), class: "flex-shrink-0 w-44 h-32 rounded-2xl bg-white/5 border border-white/10 p-4 flex flex-col justify-between" do %>
             <% is_match = meet.meetable_type == "Match" %>
             <span class="badge badge-sm text-white font-semibold px-3 w-fit"
                   style="background-color: <%= is_match ? 'var(--color-primary)' : 'var(--color-secondary)' %>;">
               <%= is_match ? "Match" : "Entraînement" %>
             </span>
-
             <div>
               <p class="text-base font-semibold truncate">
                 <%= is_match ? "#{meet.meetable.blue_team.number_player} vs #{meet.meetable.red_team.number_player}" : meet.meetable.title %>
@@ -53,14 +96,10 @@
           <% end %>
         <% end %>
       </div>
-    <% else %>
-      <div class="mx-6 h-32 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center">
-        <p class="text-white/30 text-base">Aucune rencontre planifiée</p>
-      </div>
     <% end %>
   </section>
 
-  <%# 2. Mes programmes perso %>
+  <%# 3. Mes programmes perso %>
   <section class="mt-8">
     <div class="flex items-center justify-between px-6 mb-4">
       <h2 class="font-bold">Mes programmes perso</h2>
@@ -73,21 +112,16 @@
           <%= link_to program_path(program), class: "flex-shrink-0 w-36 h-36 rounded-2xl bg-white/5 border border-white/10 p-4 flex flex-col justify-between" do %>
             <span class="text-base text-white/40 uppercase tracking-widest"><%= program.level %></span>
             <p class="text-base font-semibold leading-tight line-clamp-2"><%= program.title %></p>
-
             <div class="flex items-center text-[10px] text-white/60 font-medium">
               <i class="fa-solid fa-dumbbell mr-1"></i> Modèle IA
             </div>
           <% end %>
         <% end %>
       </div>
-    <% else %>
-      <div class="mx-6 h-36 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-center px-6">
-        <p class="text-white/30 text-base">Vous n'avez pas encore créé de programme d'entraînement.</p>
-      </div>
     <% end %>
   </section>
 
-  <%# 3. Rencontres passées %>
+  <%# 4. Rencontres passées %>
   <section class="mt-8">
     <div class="flex items-center justify-between px-6 mb-4">
       <h2 class="font-bold">Rencontres passées</h2>
@@ -107,10 +141,6 @@
             </div>
           <% end %>
         <% end %>
-      </div>
-    <% else %>
-      <div class="mx-6 h-32 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center">
-        <p class="text-white/30 text-base">Historique vide</p>
       </div>
     <% end %>
   </section>
