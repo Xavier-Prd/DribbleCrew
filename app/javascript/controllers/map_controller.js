@@ -199,9 +199,10 @@ export default class extends Controller {
     this.radiusCircle = L.circle(this.userLatLng, {
       radius: this.radiusValue,
       color: "rgb(250, 108, 0, 1)",
-      weight: 2,
-      fillOpacity: 0.04,
       opacity: 0.4,
+      weight: 2,
+      fillColor: "rgb(0, 0, 0)",
+      fillOpacity: 0.1,
     }).addTo(this.map);
   }
 
