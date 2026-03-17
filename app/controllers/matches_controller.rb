@@ -40,12 +40,33 @@ class MatchesController < ApplicationController
       return redirect_to meet_path(@match.meet), alert: "Seul un joueur de l'équipe adverse peut valider le match."
     end
 
+    blue_score = @match.pending_blue_score
+    red_score  = @match.pending_red_score
+
     # C'est ici que les scores sont réellement sauvegardés, et qr_code effacé
     @match.update!(
-      blue_team_score: @match.pending_blue_score,
-      red_team_score:  @match.pending_red_score,
+      blue_team_score: blue_score,
+      red_team_score:  red_score,
       qr_code:         nil
     )
+
+    # On détermine l'équipe gagnante (nil en cas d'égalité)
+    winning_team = if blue_score > red_score
+      @match.blue_team
+    elsif red_score > blue_score
+      @match.red_team
+    end
+
+    # On crée une Victory pour chaque joueur de l'équipe gagnante sur ce terrain.
+    # find_or_create_by respecte la contrainte d'unicité user + court
+    # (un joueur déjà victorieux sur ce terrain ne crée pas de doublon).
+    if winning_team.present?
+      court = @match.meet.court
+      winning_team.users.each do |winner|
+        Victory.create!(user: winner, court: court)
+      end
+    end
+
     redirect_to meet_path(@match.meet), notice: "Match validé ! Le résultat est officiel."
   end
 
