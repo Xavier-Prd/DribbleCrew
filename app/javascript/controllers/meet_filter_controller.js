@@ -16,7 +16,6 @@ export default class extends Controller {
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         this._userPosition = pos.coords;
-        if (this.hasListTarget) this.sort(pos.coords.latitude, pos.coords.longitude);
         if (this.hasDistanceTarget) this.showDistance(pos.coords.latitude, pos.coords.longitude);
       },
       () => {}
