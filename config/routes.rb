@@ -18,7 +18,12 @@ Rails.application.routes.draw do
       get "leaderboard"
     end
   end
-  resources :matches, only: [ :new, :create ]
+  resources :matches, only: [ :new, :create, :update ] do
+    member do
+      # URL scannée par le joueur adverse pour confirmer le résultat du match
+      get :confirm
+    end
+  end
   resources :meets, only: [ :show, :index, :destroy ] do
     member do
       post "join"

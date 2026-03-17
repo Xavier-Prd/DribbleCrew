@@ -36,7 +36,7 @@ class CourtsController < ApplicationController
     end
 
     # Paniers × 1 pour les matchs joués sur ce terrain
-    court_matches = Match.joins(:meet).where(meets: { court: @court })
+    court_matches = Match.joins(:meet).where(meets: { court: @court }).includes(blue_team: :users, red_team: :users)
     court_matches.each do |match|
       basket_score = match.blue_team_score
       blue_ids = match.blue_team.users.pluck(:id)

@@ -18,9 +18,9 @@ class User < ApplicationRecord
     matches = Match.where(blue_team_id: team_ids).or(Match.where(red_team_id: team_ids))
     basket_points = matches.sum do |match|
       if team_ids.include?(match.blue_team_id)
-        match.blue_team_score * 1
+        match.blue_team_score.to_i
       else
-        match.red_team_score * 1
+        match.red_team_score.to_i
       end
     end
 

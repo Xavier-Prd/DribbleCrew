@@ -2,6 +2,7 @@
   <div
     id="map"
     class="w-full h-screen z-0 bg-base-200"
+    data-turbo-permanent
     data-controller="map"
     data-map-markers-value="<%= (@markers || []).to_json %>"
     data-map-icon-path-value="<%= asset_path('marker.png') %>"
@@ -15,7 +16,7 @@
 
     <%# Sélecteur de périmètre — positionné en overlay sur la carte %>
     <div class="absolute top-4 right-4 z-[1000]">
-      <select class="select select-ghost bg-base-200/90 focus:outline-none" data-action="change->map#setRadius" autocomplete="off">
+      <select class="select select-ghost bg-base-200/90 focus:outline-none" data-action="change->map#setRadius" data-map-target="radiusSelect" autocomplete="off">
         <option value="500">500 m</option>
         <option value="1000" selected>1 km</option>
         <option value="2000">2 km</option>

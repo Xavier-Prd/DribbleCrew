@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_12_154941) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_16_181241) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -55,6 +55,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_12_154941) do
     t.bigint "blue_team_id", null: false
     t.integer "blue_team_score"
     t.datetime "created_at", null: false
+    t.string "qr_code"
     t.bigint "red_team_id", null: false
     t.integer "red_team_score"
     t.datetime "updated_at", null: false
@@ -223,6 +224,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_12_154941) do
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
     t.index ["team_id"], name: "index_user_teams_on_team_id"
+    t.index ["user_id", "team_id"], name: "index_user_teams_on_user_id_and_team_id", unique: true
     t.index ["user_id"], name: "index_user_teams_on_user_id"
   end
 
@@ -249,6 +251,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_12_154941) do
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
     t.index ["court_id"], name: "index_victories_on_court_id"
+    t.index ["user_id", "court_id"], name: "index_victories_on_user_id_and_court_id", unique: true
     t.index ["user_id"], name: "index_victories_on_user_id"
   end
 

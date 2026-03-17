@@ -17,8 +17,45 @@ User.create!(username: "expert_tom", email: "tom@test.com", password: "password"
 
 fake_avatar_images = Dir[Rails.root.join("app/assets/images/fake_avatar/*")]
 20.times do
-  user = User.create!(username: Faker::Internet.unique.username, email: Faker::Internet.unique.email, password: "password", age: rand(18..50), gender: User::GENDERS.sample)
-  user.profile_picture.attach(io: File.open(fake_avatar_images.sample), filename: "avatar.jpg") if fake_avatar_images.any?
+  user = User.create!(
+    username: Faker::Internet.username,
+    email: Faker::Internet.unique.email,
+    password: "password",
+    age: rand(18..50),
+    gender: User::GENDERS.sample,
+    height: rand(155..200),
+    weight: rand(50..100)
+  )
+  image_path = fake_avatar_images.sample
+  user.profile_picture.attach(io: File.open(image_path), filename: File.basename(image_path))
+end
+
+puts "#{User.count} users created"
+
+# ---- TEAMS ---_
+puts "Starting Teams seed"
+
+10.times do
+  Team.create!(
+    number_player: rand(1..5)
+  )
+end
+puts "#{Team.count} teams created"
+
+# ---- MATCHES ----
+puts "Starting Matches seed"
+
+10.times do
+  red_team = Team.all.sample
+  blue_team = Team.where(number_player: red_team.number_player).where.not(id: red_team.id).sample || Team.where.not(id: red_team.id).sample
+
+  Match.create!(
+    user: User.all.sample,
+    red_team: red_team,
+    blue_team: blue_team,
+    red_team_score: rand(0..10),
+    blue_team_score: rand(0..10)
+  )
 end
 all_users = User.where.not(id: me.id)
 
