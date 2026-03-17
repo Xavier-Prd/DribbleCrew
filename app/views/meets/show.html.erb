@@ -123,6 +123,9 @@
       </div>
     </div>
 
+    <%# ================================================================ %>
+    <%# GRID DES ÉQUIPES — toujours affichée %>
+    <%# ================================================================ %>
     <div class="grid grid-cols-2 gap-4">
 
       <%# Colonne équipe bleue %>
@@ -249,10 +252,12 @@
 
       </div>
 
+    <% end %>
+
     <%# ================================================================ %>
-    <%# BLOC RÉSULTAT FINAL — MATCH CONFIRMÉ PAR L'ÉQUIPE ADVERSE %>
+    <%# BLOC RÉSULTAT FINAL — affiché EN DESSOUS des équipes %>
     <%# ================================================================ %>
-    <% elsif @match.confirmed? %>
+    <% if @match.confirmed? %>
 
       <div class="meet-show__result-block">
 
