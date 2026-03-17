@@ -10,8 +10,8 @@
   </div>
 
   <% past_meets = @meets.select { |meet|
-      meet.meetable_type == "Program" ||
-      (meet.meetable_type == "Match" && (meet.meetable.red_team.users.include?(@user) || meet.meetable.blue_team.users.include?(@user)))
+      (meet.meetable_type == "Program" && meet.meetable.team.users.include?(@user)) ||
+      (meet.meetable_type == "Match"   && (meet.meetable.red_team.users.include?(@user) || meet.meetable.blue_team.users.include?(@user)))
     } %>
 
   <% if past_meets.any? %>
