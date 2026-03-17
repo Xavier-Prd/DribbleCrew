@@ -60,62 +60,8 @@
     <span style="color: #3b82f6; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; tracking-widest: 0.1em;">Match compétitif</span>
     <h1 style="font-size: 2rem; margin-top: 8px; font-weight: 800;"><%= @match.blue_team.number_player %> vs <%= @match.red_team.number_player %></h1>
 
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 24px;">
-
-      <%# Colonne équipe bleue %>
-      <div style="background: rgba(59, 130, 246, 0.05); border: 1px solid rgba(59, 130, 246, 0.2); border-radius: 20px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between;">
-        <div>
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-            <h3 style="color: #3b82f6; margin: 0; font-size: 0.9rem;">TEAM BLEUE</h3>
-            <span style="font-size: 0.75rem; background: rgba(59, 130, 246, 0.2); padding: 2px 8px; border-radius: 10px;"><%= @match.blue_team.users.count %>/<%= @match.blue_team.number_player %></span>
-          </div>
-          <ul style="list-style: none; padding: 0; margin-bottom: 20px;">
-            <% @match.blue_team.users.each do |user| %>
-              <li style="font-size: 0.9rem; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
-                <i class="fa-solid fa-circle-user" style="color: rgba(255,255,255,0.3);"></i>
-                <%= user.username %> <% if user == @match.user %><span style="font-size: 10px; opacity: 0.5;">(Org.)</span><% end %>
-              </li>
-            <% end %>
-            <% (@match.blue_team.number_player - @match.blue_team.users.count).times do %>
-               <li style="font-size: 0.9rem; margin-bottom: 8px; color: rgba(255,255,255,0.15);"><i>Libre...</i></li>
-            <% end %>
-          </ul>
-        </div>
-
-        <% if !@match.blue_team.users.include?(current_user) && !@match.red_team.users.include?(current_user) && @match.blue_team.users.count < @match.blue_team.number_player && @meet.date > Time.current %>
-          <%= button_to "Rejoindre", join_meet_path(@meet, team_id: @match.blue_team_id), method: :post, style: "width: 100%; background: #3b82f6; color: white; border: none; padding: 10px; border-radius: 12px; font-weight: bold; cursor: pointer; transition: 0.2s;" %>
-        <% end %>
-      </div>
-
-      <%# Colonne équipe rouge %>
-      <div style="background: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 20px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between;">
-        <div>
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-            <h3 style="color: #ef4444; margin: 0; font-size: 0.9rem;">TEAM ROUGE</h3>
-            <span style="font-size: 0.75rem; background: rgba(239, 68, 68, 0.2); padding: 2px 8px; border-radius: 10px;"><%= @match.red_team.users.count %>/<%= @match.red_team.number_player %></span>
-          </div>
-          <ul style="list-style: none; padding: 0; margin-bottom: 20px;">
-            <% @match.red_team.users.each do |user| %>
-              <li style="font-size: 0.9rem; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
-                <i class="fa-solid fa-circle-user" style="color: rgba(255,255,255,0.3);"></i>
-                <%= user.username %>
-              </li>
-            <% end %>
-            <% (@match.red_team.number_player - @match.red_team.users.count).times do %>
-               <li style="font-size: 0.9rem; margin-bottom: 8px; color: rgba(255,255,255,0.15);"><i>Libre...</i></li>
-            <% end %>
-          </ul>
-        </div>
-
-        <% if !@match.red_team.users.include?(current_user) && !@match.blue_team.users.include?(current_user) && @match.red_team.users.count < @match.red_team.number_player && @meet.date > Time.current %>
-          <%= button_to "Rejoindre", join_meet_path(@meet, team_id: @match.red_team_id), method: :post, style: "width: 100%; background: #ef4444; color: white; border: none; padding: 10px; border-radius: 12px; font-weight: bold; cursor: pointer;" %>
-        <% end %>
-      </div>
-    </div>
-
     <%# ================================================================ %>
-    <%# BLOC QR CODE — EN ATTENTE DE CONFIRMATION PAR L'ÉQUIPE ADVERSE %>
-    <%# Affiché pour tous les joueurs tant que le match n'est pas validé %>
+    <%# BLOC QR CODE — affiché EN PREMIER quand en attente de validation %>
     <%# ================================================================ %>
     <% if @match.pending_confirmation? %>
 
@@ -180,10 +126,68 @@
 
       </div>
 
+    <% end %>
+
     <%# ================================================================ %>
-    <%# BLOC RÉSULTAT FINAL — MATCH CONFIRMÉ PAR L'ÉQUIPE ADVERSE %>
+    <%# GRID DES ÉQUIPES — toujours affichée %>
     <%# ================================================================ %>
-    <% elsif @match.confirmed? %>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 24px;">
+
+      <%# Colonne équipe bleue %>
+      <div style="background: rgba(59, 130, 246, 0.05); border: 1px solid rgba(59, 130, 246, 0.2); border-radius: 20px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between;">
+        <div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <h3 style="color: #3b82f6; margin: 0; font-size: 0.9rem;">TEAM BLEUE</h3>
+            <span style="font-size: 0.75rem; background: rgba(59, 130, 246, 0.2); padding: 2px 8px; border-radius: 10px;"><%= @match.blue_team.users.count %>/<%= @match.blue_team.number_player %></span>
+          </div>
+          <ul style="list-style: none; padding: 0; margin-bottom: 20px;">
+            <% @match.blue_team.users.each do |user| %>
+              <li style="font-size: 0.9rem; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
+                <i class="fa-solid fa-circle-user" style="color: rgba(255,255,255,0.3);"></i>
+                <%= user.username %> <% if user == @match.user %><span style="font-size: 10px; opacity: 0.5;">(Org.)</span><% end %>
+              </li>
+            <% end %>
+            <% (@match.blue_team.number_player - @match.blue_team.users.count).times do %>
+               <li style="font-size: 0.9rem; margin-bottom: 8px; color: rgba(255,255,255,0.15);"><i>Libre...</i></li>
+            <% end %>
+          </ul>
+        </div>
+
+        <% if !@match.blue_team.users.include?(current_user) && !@match.red_team.users.include?(current_user) && @match.blue_team.users.count < @match.blue_team.number_player && @meet.date > Time.current %>
+          <%= button_to "Rejoindre", join_meet_path(@meet, team_id: @match.blue_team_id), method: :post, style: "width: 100%; background: #3b82f6; color: white; border: none; padding: 10px; border-radius: 12px; font-weight: bold; cursor: pointer; transition: 0.2s;" %>
+        <% end %>
+      </div>
+
+      <%# Colonne équipe rouge %>
+      <div style="background: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 20px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between;">
+        <div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <h3 style="color: #ef4444; margin: 0; font-size: 0.9rem;">TEAM ROUGE</h3>
+            <span style="font-size: 0.75rem; background: rgba(239, 68, 68, 0.2); padding: 2px 8px; border-radius: 10px;"><%= @match.red_team.users.count %>/<%= @match.red_team.number_player %></span>
+          </div>
+          <ul style="list-style: none; padding: 0; margin-bottom: 20px;">
+            <% @match.red_team.users.each do |user| %>
+              <li style="font-size: 0.9rem; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
+                <i class="fa-solid fa-circle-user" style="color: rgba(255,255,255,0.3);"></i>
+                <%= user.username %>
+              </li>
+            <% end %>
+            <% (@match.red_team.number_player - @match.red_team.users.count).times do %>
+               <li style="font-size: 0.9rem; margin-bottom: 8px; color: rgba(255,255,255,0.15);"><i>Libre...</i></li>
+            <% end %>
+          </ul>
+        </div>
+
+        <% if !@match.red_team.users.include?(current_user) && !@match.blue_team.users.include?(current_user) && @match.red_team.users.count < @match.red_team.number_player && @meet.date > Time.current %>
+          <%= button_to "Rejoindre", join_meet_path(@meet, team_id: @match.red_team_id), method: :post, style: "width: 100%; background: #ef4444; color: white; border: none; padding: 10px; border-radius: 12px; font-weight: bold; cursor: pointer;" %>
+        <% end %>
+      </div>
+    </div>
+
+    <%# ================================================================ %>
+    <%# BLOC RÉSULTAT FINAL — affiché EN DESSOUS des équipes %>
+    <%# ================================================================ %>
+    <% if @match.confirmed? %>
 
       <div style="margin-top: 24px; background: rgba(34,197,94,0.05); border: 1px solid rgba(34,197,94,0.25); border-radius: 24px; padding: 28px 20px; text-align: center;">
 
@@ -216,11 +220,15 @@
     <% elsif @match.user == current_user && @match.finished? %>
 
       <%# Ce bouton ouvre la pop-up (balise <dialog>) via son identifiant HTML %>
+
+        <% unless  @match.pending_confirmation? %>
       <button onclick="document.getElementById('finish-match-modal').showModal()"
               style="width: 100%; margin-top: 24px; background: linear-gradient(135deg, #16a34a, #22c55e); color: white; border: none; padding: 16px; border-radius: 16px; font-weight: 800; cursor: pointer; font-size: 1rem; letter-spacing: 0.03em; box-shadow: 0 4px 20px rgba(34,197,94,0.25);">
         <i class="fa-solid fa-flag-checkered" style="margin-right: 8px;"></i>
         Terminer le match
       </button>
+        <% end %>
+
 
       <%# ============================================================= %>
       <%# POP-UP (élément <dialog> natif HTML) %>
