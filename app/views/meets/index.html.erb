@@ -2,7 +2,7 @@
 
   <%# Header %>
   <div class="px-6 pt-10 pb-6">
-    <h1 class="text-4xl font-extrabold tracking-tight">Rencontres</h1>
+    <h1 class="font-extrabold tracking-tight">Rencontres</h1>
     <p class="text-white/40 text-base mt-2 max-w-xs">Retrouvez vos matchs et vos entraînements planifiés.</p>
   </div>
 
@@ -73,12 +73,12 @@
   <%# 2. Rencontres à venir (Global) %>
   <section class="mt-8">
     <div class="flex items-center justify-between px-6 mb-4">
-      <h2 class="font-bold text-base">Rencontres à venir</h2>
+      <h2 class="font-bold">Rencontres à venir</h2>
       <span class="text-base text-white/40">Voir plus</span>
     </div>
 
     <% if @upcoming_meets.any? %>
-      <div class="flex gap-4 overflow-x-auto px-6 pb-2 scrollbar-hide">
+      <div class="flex gap-4 overflow-x-auto px-6 pb-2 scrollbar-hide" data-sort-by-location-target="list">
         <% @upcoming_meets.each do |meet| %>
           <%= link_to meet_path(meet), class: "flex-shrink-0 w-44 h-32 rounded-2xl bg-white/5 border border-white/10 p-4 flex flex-col justify-between" do %>
             <% is_match = meet.meetable_type == "Match" %>
@@ -102,7 +102,7 @@
   <%# 3. Mes programmes perso %>
   <section class="mt-8">
     <div class="flex items-center justify-between px-6 mb-4">
-      <h2 class="font-bold text-base">Mes programmes perso</h2>
+      <h2 class="font-bold">Mes programmes perso</h2>
       <span class="text-base text-white/40">Voir plus</span>
     </div>
 
@@ -124,7 +124,7 @@
   <%# 4. Rencontres passées %>
   <section class="mt-8">
     <div class="flex items-center justify-between px-6 mb-4">
-      <h2 class="font-bold text-base">Rencontres passées</h2>
+      <h2 class="font-bold">Rencontres passées</h2>
       <span class="text-base text-white/40">Voir plus</span>
     </div>
 

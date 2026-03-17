@@ -1,6 +1,29 @@
+@import url("https://fonts.googleapis.com/css2?family=Squada+One&display=swap");
 @import "tailwindcss";
 @import "../stylesheets/components/index.css";
 @import "../stylesheets/pages/index.css";
+
+
+h1, h2, h3 {
+  font-family: "Squada One", sans-serif;
+}
+h1 {
+  font-size: 2.25rem;
+  line-height: 1.3;
+}
+h2 {
+  font-size: 1.5rem;
+  line-height: 1.2;
+}
+h3 {
+  font-size: 1.25rem;
+  line-height: 1.1;
+
+/* Fond semi-transparent derrière les pop-ups <dialog> */
+::backdrop {
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+}
 
 /* Cacher les scrollbars globalement */
 * {

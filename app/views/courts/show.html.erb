@@ -9,21 +9,30 @@
       </div>
     <% end %>
     <div class="absolute inset-0 bg-gradient-to-t from-base-300 via-base-300/50 to-transparent"></div>
-
     <%# Bouton retour %>
     <%= link_to root_path, class: "absolute top-4 left-4 text-white text-base flex items-center gap-1 z-10" do %>
       <i class="fa-solid fa-chevron-left text-base"></i> Retour
     <% end %>
-
     <%# Nom + adresse courte %>
-    <div class="absolute bottom-4 left-4 right-20">
+    <div class="absolute bottom-4 left-4 right-4"
+         data-controller="sort-by-location"
+         data-sort-by-location-lat-value="<%= @court.lat %>"
+         data-sort-by-location-lng-value="<%= @court.long %>">
       <h1 class="text-3xl font-black text-white leading-tight"><%= @court.name %></h1>
-      <p class="text-base text-gray-300 mt-0.5 flex items-center gap-1">
-        <i class="fa-solid fa-location-dot text-primary text-base"></i>
-        <%= @court.address %>
-      </p>
+      <div class="flex items-center justify-between mt-0.5">
+        <p class="text-base text-gray-300 flex items-center gap-1">
+          <i class="fa-solid fa-location-dot text-primary text-base"></i>
+          <%= @court.address %>
+        </p>
+          <%# Lien vers Google Maps avec la distance calculée par le controller %>
+        <%= link_to "https://www.google.com/maps/dir/?api=1&destination=#{@court.lat},#{@court.long}",
+              target: "_blank", rel: "noopener",
+              data: { "sort-by-location-target": "distance" },
+              class: "hidden items-center gap-1 bg-white/15 backdrop-blur-sm text-white text-sm font-semibold px-2.5 py-1 rounded-full" do %>
+          <i class="fa-solid fa-location-arrow text-primary text-xs"></i>
+        <% end %>
+      </div>
     </div>
-
     <%# Avatar du joueur connecté + ses points sur ce terrain %>
     <%= link_to profile_path(current_user), class: "absolute top-4 right-4 flex flex-col items-center gap-1" do %>
       <div class="relative w-11 h-11">
@@ -43,17 +52,15 @@
       </span>
     <% end %>
   </div>
-
   <%# ===================== PODIUM ===================== %>
   <div class="px-4 mt-5">
     <div class="flex items-center justify-between mb-4">
-      <h2 class="text-lg font-bold text-white">Classement</h2>
+      <h2 class="font-bold text-white">Classement</h2>
       <%= link_to "Voir plus", leaderboard_court_path(@court), class: "text-base text-gray-400 hover:text-white transition-colors" %>
     </div>
     <% top3 = @ranked_users.first(3) %>
     <% if top3.any? %>
       <div class="flex items-end justify-center gap-2 h-52">
-
         <%# 2ème place — gauche %>
         <div class="flex flex-col items-center flex-1 <%= top3[1] ? '' : 'invisible' %>">
           <% u2 = top3[1] %>
@@ -76,7 +83,6 @@
             </div>
           <% end %>
         </div>
-
         <%# 1ère place — centre %>
         <div class="flex flex-col items-center flex-1 <%= top3[0] ? '' : 'invisible' %>">
           <% u1 = top3[0] %>
@@ -99,7 +105,6 @@
             </div>
           <% end %>
         </div>
-
         <%# 3ème place — droite %>
         <div class="flex flex-col items-center flex-1 <%= top3[2] ? '' : 'invisible' %>">
           <% u3 = top3[2] %>
@@ -122,16 +127,14 @@
             </div>
           <% end %>
         </div>
-
       </div>
     <% else %>
       <p class="text-gray-400 text-center py-6 text-base">Aucun classement disponible</p>
     <% end %>
   </div>
-
   <%# ===================== RENCONTRES À VENIR ===================== %>
   <div class="px-4 mt-6">
-    <h2 class="text-lg font-bold text-white mb-3">Rencontres à venir</h2>
+    <h2 class="font-bold text-white mb-3">Rencontres à venir</h2>
     <% if @upcoming_meets.any? %>
       <div class="flex flex-col gap-3">
         <% @upcoming_meets.each do |meet| %>
