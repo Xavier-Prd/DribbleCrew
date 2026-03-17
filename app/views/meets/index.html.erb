@@ -3,8 +3,8 @@
   <%# Header %>
   <div class="px-6 pt-10 pb-6 flex items-start justify-between">
     <div>
-      <h1 class="font-extrabold tracking-tight">Rencontres</h1>
-      <p class="text-white/40 text-base mt-2 max-w-xs">Retrouvez vos matchs et vos entraînements planifiés.</p>
+      <h1 class="font-extrabold tracking-tight text-3xl">Rencontres</h1>
+      <p class="text-white/40 text-sm mt-1 max-w-xs">Retrouvez vos matchs et vos entraînements</p>
     </div>
     <button data-action="click->meet-filter#openModal"
             class="relative mt-2 flex items-center gap-2 px-4 py-2 rounded-full border border-white/15 bg-white/5 text-sm font-semibold text-white hover:bg-white/10 transition-colors">
@@ -16,60 +16,108 @@
     </button>
   </div>
 
-  <%# 1. MES SESSIONS (Planning Personnel : Créées + Rejointes) %>
+  <%# 1. Mes sessions %>
   <section class="mt-4" data-meet-filter-target="section">
     <div class="flex items-center justify-between px-6 mb-4">
-      <h2 class="font-bold text-base">Mes sessions</h2>
+      <h2 class="font-bold text-base">Mes rencontres</h2>
       <span class="text-xs text-white/40"><%= @my_meets.count %> prévue(s)</span>
     </div>
 
     <% if @my_meets.any? %>
       <div class="flex gap-4 overflow-x-auto px-6 pb-2 scrollbar-hide" data-cards-list>
         <% @my_meets.each do |meet| %>
-          <%= link_to meet_path(meet),
-              class: "flex-shrink-0 w-64 h-32 rounded-2xl p-4 flex flex-col justify-between border border-white/10",
-              style: "background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%);",
-              data: {
-                "meet-filter-target": "card",
-                lat: meet.court.lat,
-                lng: meet.court.long,
-                date: meet.date.to_i
-              } do %>
-
-            <div class="flex justify-between items-start">
-              <% is_match = meet.meetable_type == "Match" %>
-              <span class="badge badge-sm text-[10px] font-bold px-2 py-0.5 rounded-lg text-white"
-                    style="background-color: <%= is_match ? 'var(--color-primary)' : 'var(--color-secondary)' %>;">
-                <%= is_match ? "Match" : "Entraînement" %>
-              </span>
-              <div class="text-right">
-                <p class="text-[10px] text-white/40 uppercase font-bold tracking-widest"><%= meet.date.strftime("%H:%M") %></p>
+          <% if meet.meetable_type == "Match" %>
+            <% match = meet.meetable %>
+            <% accent = "var(--color-primary)" %>
+            <%= link_to meet_path(meet), class: "flex-shrink-0 w-76 rounded-2xl border overflow-hidden flex flex-col", style: "background:rgba(15,23,42,0.85); border-color:rgba(255,255,255,0.08);", data: { "meet-filter-target": "card", lat: meet.court.lat, lng: meet.court.long, date: meet.date.to_i } do %>
+              <div class="h-1 w-full" style="background:linear-gradient(90deg, <%= accent %>, <%= accent %>88);"></div>
+              <div class="px-4 pt-3 pb-4 flex flex-col gap-3">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-1.5">
+                    <i class="fa-solid fa-trophy text-[10px]" style="color:#fbbf24;"></i>
+                    <span class="text-xs font-black uppercase tracking-widest" style="color:var(--color-primary);">Match à venir</span>
+                  </div>
+                  <span class="text-[11px] text-white/30 font-medium"><%= meet.date.strftime("%H:%M") %></span>
+                </div>
+                <div class="flex items-center justify-center gap-2 py-1">
+                  <div class="flex flex-col items-center gap-1.5">
+                    <div class="relative w-16 h-16 rounded-full flex items-center justify-center mb-3" style="background:rgba(255,255,255,0.04);border:1.5px solid rgba(255,255,255,0.12);">
+                      <span class="text-2xl font-black tabular-nums leading-none text-white/90"><%= match.blue_team.number_player %></span>
+                      <% if match.blue_team.users.include?(current_user) %>
+                        <div class="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 w-7 h-7 rounded-full overflow-hidden border-2 border-white/20 bg-base-300">
+                          <% if current_user.profile_picture.attached? %>
+                            <%= image_tag current_user.profile_picture, class: "w-full h-full object-cover" %>
+                          <% else %>
+                            <div class="w-full h-full flex items-center justify-center"><i class="fa-solid fa-user text-[8px] text-white/40"></i></div>
+                          <% end %>
+                        </div>
+                      <% end %>
+                    </div>
+                    <span class="text-[9px] font-bold uppercase tracking-widest text-white/20">Bleu</span>
+                  </div>
+                  <%= image_tag "vs.png", class: "w-12 h-12 object-contain mb-5" %>
+                  <div class="flex flex-col items-center gap-1.5">
+                    <div class="relative w-16 h-16 rounded-full flex items-center justify-center mb-3" style="background:rgba(255,255,255,0.04);border:1.5px solid rgba(255,255,255,0.12);">
+                      <span class="text-2xl font-black tabular-nums leading-none text-white/90"><%= match.red_team.number_player %></span>
+                      <% if match.red_team.users.include?(current_user) %>
+                        <div class="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 w-7 h-7 rounded-full overflow-hidden border-2 border-white/20 bg-base-300">
+                          <% if current_user.profile_picture.attached? %>
+                            <%= image_tag current_user.profile_picture, class: "w-full h-full object-cover" %>
+                          <% else %>
+                            <div class="w-full h-full flex items-center justify-center"><i class="fa-solid fa-user text-[8px] text-white/40"></i></div>
+                          <% end %>
+                        </div>
+                      <% end %>
+                    </div>
+                    <span class="text-[9px] font-bold uppercase tracking-widest text-white/20">Rouge</span>
+                  </div>
+                </div>
+                <div class="flex items-center justify-between pt-2 border-t border-white/8">
+                  <div class="flex items-center gap-1 text-[12px] text-white/30 truncate min-w-0">
+                    <i class="fa-solid fa-location-dot text-[9px]"></i>
+                    <span class="truncate"><%= meet.court.name %></span>
+                  </div>
+                  <span class="text-[11px] text-white/30 font-medium"><%= meet.date.strftime("%d %b") %></span>
+                </div>
               </div>
-            </div>
-
-            <div>
-              <p class="text-base font-bold truncate">
-                <%= is_match ? "#{meet.meetable.blue_team.number_player} vs #{meet.meetable.red_team.number_player}" : meet.meetable.title %>
-              </p>
-              <div class="flex items-center gap-2 mt-1">
-                <i class="fa-solid fa-location-dot text-[10px] text-white/20"></i>
-                <p class="text-[10px] text-white/40 truncate"><%= meet.court.name %></p>
+            <% end %>
+          <% else %>
+            <%# Style entrainement %>
+            <% accent = "#a855f7" %>
+            <%= link_to meet_path(meet), class: "flex-shrink-0 w-76 rounded-2xl border overflow-hidden flex flex-col", style: "background:rgba(15,23,42,0.85); border-color:rgba(168,85,247,0.2);", data: { "meet-filter-target": "card", lat: meet.court.lat, lng: meet.court.long, date: meet.date.to_i } do %>
+              <div class="h-1 w-full" style="background:linear-gradient(90deg, <%= accent %>, <%= accent %>88);"></div>
+              <div class="px-4 pt-3 pb-4 flex flex-col gap-3">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-1.5">
+                    <i class="fa-solid fa-dumbbell text-[10px] text-purple-400/80"></i>
+                    <span class="text-xs font-black uppercase tracking-widest text-purple-400/80">Entraînement</span>
+                  </div>
+                  <span class="text-[11px] text-white/30 font-medium"><%= meet.date.strftime("%H:%M") %></span>
+                </div>
+                <div class="flex flex-col gap-1 py-2">
+                  <span class="text-base font-extrabold text-white leading-snug"><%= meet.meetable.title %></span>
+                  <span class="inline-flex w-fit text-[12px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full" style="background:rgba(168,85,247,0.2); color:rgba(216,180,254,0.8); border: 1px solid rgba(168,85,247,0.2);"><%= meet.meetable.level %></span>
+                </div>
+                <div class="flex items-center justify-between pt-2 border-t border-white/8">
+                  <div class="flex items-center gap-1 text-[12px] text-white/30 min-w-0">
+                    <i class="fa-solid fa-location-dot text-[9px]"></i>
+                    <span class="truncate"><%= meet.court.name %></span>
+                  </div>
+                  <span class="text-[11px] text-white/30 font-medium"><%= meet.duration %> min</span>
+                </div>
               </div>
-              <p class="text-xs font-bold mt-1" style="color: var(--color-primary);">
-                <%= meet.date.strftime("%d %B") %>
-              </p>
-            </div>
+            <% end %>
           <% end %>
         <% end %>
       </div>
     <% else %>
       <div class="mx-6 p-6 rounded-2xl bg-white/5 border border-dashed border-white/10 flex flex-col items-center justify-center text-center">
-        <p class="text-white/30 text-xs">Vous n'avez aucune session prévue.</p>
+        <p class="text-white/30 text-xs">Vous n'avez aucune rencontre prévue.</p>
       </div>
     <% end %>
   </section>
 
-  <%# Bouton + flottant en bas à droite avec dropdown %>
+  <%# Bouton + flottant %>
   <div class="fixed bottom-24 right-4 z-50 dropdown dropdown-top dropdown-end" style="padding-bottom: env(safe-area-inset-bottom);">
     <button tabindex="0" class="flex items-center justify-center w-14 h-14 rounded-full shadow-lg"
             style="background-color: var(--color-primary); box-shadow: 0 0 20px color-mix(in srgb, var(--color-primary) 50%, transparent);">
@@ -82,7 +130,7 @@
       <% end %>
       <%= link_to new_program_path, class: "flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 transition-colors" do %>
         <i class="fa-solid fa-dumbbell text-secondary w-4 text-center"></i>
-        <span class="text-base font-medium">Créer un programme</span>
+        <span class="text-base font-medium">Créer un entrainement</span>
       <% end %>
     </ul>
   </div>
@@ -90,98 +138,242 @@
   <%# 2. Rencontres à venir (Global) %>
   <section class="mt-8" data-meet-filter-target="section">
     <div class="flex items-center justify-between px-6 mb-4">
-      <h2 class="font-bold">Rencontres à venir</h2>
-      <span class="text-base text-white/40">Voir plus</span>
+      <h2 class="font-bold text-base">Rencontres à venir</h2>
     </div>
-
     <% if @upcoming_meets.any? %>
-      <div class="flex gap-4 overflow-x-auto px-6 pb-2 scrollbar-hide"
-           data-meet-filter-target="list"
-           data-cards-list>
+      <div class="flex gap-4 overflow-x-auto px-6 pb-2 scrollbar-hide" data-meet-filter-target="list" data-cards-list>
         <% @upcoming_meets.each do |meet| %>
-          <%= link_to meet_path(meet),
-              class: "flex-shrink-0 w-44 h-32 rounded-2xl bg-white/5 border border-white/10 p-4 flex flex-col justify-between",
-              data: {
-                "meet-filter-target": "card",
-                lat: meet.court.lat,
-                lng: meet.court.long,
-                date: meet.date.to_i
-              } do %>
-            <% is_match = meet.meetable_type == "Match" %>
-            <span class="badge badge-sm text-white font-semibold px-3 w-fit"
-                  style="background-color: <%= is_match ? 'var(--color-primary)' : 'var(--color-secondary)' %>;">
-              <%= is_match ? "Match" : "Entraînement" %>
-            </span>
-            <div>
-              <p class="text-base font-semibold truncate">
-                <%= is_match ? "#{meet.meetable.blue_team.number_player} vs #{meet.meetable.red_team.number_player}" : meet.meetable.title %>
-              </p>
-              <p class="text-[10px] text-white/40">📍 <%= meet.court.name %></p>
-              <p class="text-base text-white/40 mt-1"><%= meet.date.strftime("%d %b · %Hh%M") %></p>
-            </div>
+          <% if meet.meetable_type == "Match" %>
+            <% match = meet.meetable %>
+            <% accent = "var(--color-primary)" %>
+            <%= link_to meet_path(meet), class: "flex-shrink-0 w-76 rounded-2xl border overflow-hidden flex flex-col", style: "background:rgba(15,23,42,0.85); border-color:rgba(255,255,255,0.08);", data: { "meet-filter-target": "card", lat: meet.court.lat, lng: meet.court.long, date: meet.date.to_i } do %>
+              <div class="h-1 w-full" style="background:linear-gradient(90deg, <%= accent %>, <%= accent %>88);"></div>
+              <div class="px-4 pt-3 pb-4 flex flex-col gap-3">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-1.5">
+                    <i class="fa-solid fa-trophy text-[10px]" style="color:#fbbf24;"></i>
+                    <span class="text-xs font-black uppercase tracking-widest" style="color:var(--color-primary);">Match à venir</span>
+                  </div>
+                  <span class="text-[11px] text-white/30 font-medium"><%= meet.date.strftime("%H:%M") %></span>
+                </div>
+                <div class="flex items-center justify-center gap-2 py-1">
+                  <div class="flex flex-col items-center gap-1.5">
+                    <div class="relative w-16 h-16 rounded-full flex items-center justify-center mb-3" style="background:rgba(255,255,255,0.04);border:1.5px solid rgba(255,255,255,0.12);">
+                      <span class="text-2xl font-black tabular-nums leading-none text-white/90"><%= match.blue_team.number_player %></span>
+                    </div>
+                    <span class="text-[9px] font-bold uppercase tracking-widest text-white/20">Bleu</span>
+                  </div>
+                  <%= image_tag "vs.png", class: "w-12 h-12 object-contain mb-5" %>
+                  <div class="flex flex-col items-center gap-1.5">
+                    <div class="relative w-16 h-16 rounded-full flex items-center justify-center mb-3" style="background:rgba(255,255,255,0.04);border:1.5px solid rgba(255,255,255,0.12);">
+                      <span class="text-2xl font-black tabular-nums leading-none text-white/90"><%= match.red_team.number_player %></span>
+                    </div>
+                    <span class="text-[9px] font-bold uppercase tracking-widest text-white/20">Rouge</span>
+                  </div>
+                </div>
+                <div class="flex items-center justify-between pt-2 border-t border-white/8">
+                  <div class="flex items-center gap-1 text-[12px] text-white/30 truncate min-w-0">
+                    <i class="fa-solid fa-location-dot text-[9px]"></i>
+                    <span class="truncate"><%= meet.court.name %></span>
+                  </div>
+                  <span class="text-[11px] text-white/30 font-medium"><%= meet.date.strftime("%d %b") %></span>
+                </div>
+              </div>
+            <% end %>
+          <% else %>
+            <% accent = "#a855f7" %>
+            <%= link_to meet_path(meet), class: "flex-shrink-0 w-76 rounded-2xl border overflow-hidden flex flex-col", style: "background:rgba(15,23,42,0.85); border-color:rgba(168,85,247,0.2);", data: { "meet-filter-target": "card", lat: meet.court.lat, lng: meet.court.long, date: meet.date.to_i } do %>
+              <div class="h-1 w-full" style="background:linear-gradient(90deg, <%= accent %>, <%= accent %>88);"></div>
+              <div class="px-4 pt-3 pb-4 flex flex-col gap-3">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-1.5">
+                    <i class="fa-solid fa-dumbbell text-[10px] text-purple-400/80"></i>
+                    <span class="text-xs font-black uppercase tracking-widest text-purple-400/80">Entraînement</span>
+                  </div>
+                  <span class="text-[11px] text-white/30 font-medium"><%= meet.date.strftime("%H:%M") %></span>
+                </div>
+                <div class="flex flex-col gap-1 py-2">
+                  <span class="text-base font-extrabold text-white leading-snug"><%= meet.meetable.title %></span>
+                  <span class="inline-flex w-fit text-[12px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full" style="background:rgba(168,85,247,0.2); color:rgba(216,180,254,0.8); border: 1px solid rgba(168,85,247,0.2);"><%= meet.meetable.level %></span>
+                </div>
+                <div class="flex items-center justify-between pt-2 border-t border-white/8">
+                  <div class="flex items-center gap-1 text-[12px] text-white/30 min-w-0">
+                    <i class="fa-solid fa-location-dot text-[9px]"></i>
+                    <span class="truncate"><%= meet.court.name %></span>
+                  </div>
+                  <span class="text-[11px] text-white/30 font-medium"><%= meet.duration %> min</span>
+                </div>
+              </div>
+            <% end %>
           <% end %>
         <% end %>
       </div>
     <% end %>
   </section>
 
-  <%# 3. Mes programmes perso %>
+  <%# 3. Mes entraînements perso %>
   <section class="mt-8" data-meet-filter-target="section">
     <div class="flex items-center justify-between px-6 mb-4">
-      <h2 class="font-bold">Mes programmes perso</h2>
-      <span class="text-base text-white/40">Voir plus</span>
+      <h2 class="font-bold text-base">Mes entraînements perso</h2>
     </div>
-
     <% if @programs.any? %>
       <div class="flex gap-4 overflow-x-auto px-6 pb-2 scrollbar-hide" data-cards-list>
         <% @programs.each do |program| %>
           <% next_meet = program.meets.select { |m| m.date >= Time.current }.min_by(&:date) %>
-          <%= link_to program_path(program),
-              class: "flex-shrink-0 w-36 h-36 rounded-2xl bg-white/5 border border-white/10 p-4 flex flex-col justify-between",
-              data: {
-                "meet-filter-target": "card",
-                lat: next_meet&.court&.lat,
-                lng: next_meet&.court&.long,
-                date: next_meet&.date&.to_i
-              } do %>
-            <span class="text-base text-white/40 uppercase tracking-widest"><%= program.level %></span>
-            <p class="text-base font-semibold leading-tight line-clamp-2"><%= program.title %></p>
-            <div class="flex items-center text-[10px] text-white/60 font-medium">
-              <i class="fa-solid fa-dumbbell mr-1"></i> Modèle IA
+          <%= link_to program_path(program), class: "flex-shrink-0 w-76 rounded-2xl border overflow-hidden flex flex-col", style: "background:rgba(15,23,42,0.85); border-color:rgba(168,85,247,0.2);", data: { "meet-filter-target": "card", lat: next_meet&.court&.lat, lng: next_meet&.court&.long, date: next_meet&.date&.to_i } do %>
+            <div class="h-1 w-full" style="background:linear-gradient(90deg,#a855f7,#a855f788);"></div>
+            <div class="px-4 pt-3 pb-4 flex flex-col gap-3">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-1.5">
+                  <i class="fa-solid fa-dumbbell text-[10px] text-purple-400/80"></i>
+                  <span class="text-xs font-black uppercase tracking-widest text-purple-400/80">Entraînement</span>
+                </div>
+                <span class="inline-flex text-[11px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full" style="background:rgba(168,85,247,0.15); color:rgba(216,180,254,0.7); border:1px solid rgba(168,85,247,0.2);"><%= program.level %></span>
+              </div>
+              <div class="flex flex-col gap-1 py-2">
+                <span class="text-base font-extrabold text-white leading-snug"><%= program.title %></span>
+                <% meets_count = program.meets.count %>
+                <% next_date = next_meet&.date %>
+                <span class="text-[12px] text-white/30">
+                  <%= meets_count %> séance<%= meets_count > 1 ? "s" : "" %>
+                  <% if next_date %>
+                    · prochaine le <%= next_date.strftime("%-d %b") %>
+                  <% end %>
+                </span>
+              </div>
+              <div class="flex items-center justify-between pt-2 border-t border-white/8">
+                <div class="flex items-center gap-2">
+                  <div class="w-5 h-5 rounded-full flex items-center justify-center" style="background:rgba(168,85,247,0.2);"><i class="fa-solid fa-robot text-[8px] text-purple-400"></i></div>
+                  <span class="text-[11px] text-white/30 font-medium">Modèle IA</span>
+                </div>
+                <% if next_meet %>
+                  <span class="text-[11px] font-bold" style="color:rgba(216,180,254,0.7);"><%= next_meet.date.strftime("%d %b · %H:%M") %></span>
+                <% end %>
+              </div>
             </div>
           <% end %>
         <% end %>
+      </div>
+    <% else %>
+      <div class="mx-6 p-8 rounded-3xl bg-white/[0.02] border border-dashed border-white/10 flex flex-col items-center justify-center text-center">
+        <div class="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center mb-4"><i class="fa-solid fa-dumbbell text-white/20 text-xl"></i></div>
+        <p class="text-white/40 text-sm font-medium">Aucun entraînement</p>
+        <%= link_to "Créer maintenant", new_program_path, class: "mt-4 px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-wider text-white", style: "background-color: var(--color-secondary);" %>
       </div>
     <% end %>
   </section>
 
   <%# 4. Rencontres passées %>
-  <section class="mt-8" data-meet-filter-target="section">
+  <section class="mt-8 mb-10" data-meet-filter-target="section">
     <div class="flex items-center justify-between px-6 mb-4">
-      <h2 class="font-bold">Rencontres passées</h2>
-      <span class="text-base text-white/40">Voir plus</span>
+      <h2 class="font-bold text-base">Rencontres passées</h2>
     </div>
-
     <% if @past_meets.any? %>
       <div class="flex gap-4 overflow-x-auto px-6 pb-2 scrollbar-hide" data-cards-list>
         <% @past_meets.each do |meet| %>
-          <%= link_to meet_path(meet),
-              class: "flex-shrink-0 w-44 h-32 rounded-2xl bg-white/5 border border-white/10 p-4 flex flex-col justify-between opacity-50",
-              data: {
-                "meet-filter-target": "card",
-                lat: meet.court.lat,
-                lng: meet.court.long,
-                date: meet.date.to_i
-              } do %>
-            <span class="badge badge-sm bg-white/20 text-white/60 font-semibold px-3 w-fit">Terminé</span>
-            <div>
-              <p class="text-base font-semibold truncate">
-                <%= meet.meetable_type == "Match" ? "Match" : meet.meetable.title %>
-              </p>
-              <p class="text-base text-white/40 mt-1"><%= meet.date.strftime("%d %b %Y") %></p>
-            </div>
+          <% if meet.meetable_type == "Match" %>
+            <% match = meet.meetable %>
+            <% blue_s = match.blue_team_score.to_i; red_s = match.red_team_score.to_i %>
+            <% user_on_blue = match.blue_team.users.include?(current_user) %>
+            <% user_won  = user_on_blue ? blue_s > red_s : red_s > blue_s %>
+            <% user_lost = user_on_blue ? red_s > blue_s : blue_s > red_s %>
+            <% accent      = user_won ? "#22c55e" : user_lost ? "#ef4444" : "#6b7280" %>
+            <% result_label = user_won ? "Victoire" : user_lost ? "Défaite" : "Égalité" %>
+            <% result_color = user_won ? "#86efac" : user_lost ? "#fca5a5" : "rgba(255,255,255,0.4)" %>
+            <% result_icon  = user_won ? "fa-trophy" : user_lost ? "fa-circle-xmark" : "fa-handshake" %>
+            <% icon_color   = user_won ? "#fbbf24" : user_lost ? "#fca5a5" : "rgba(255,255,255,0.3)" %>
+            <% blue_score_color = blue_s >= red_s ? "rgba(255,255,255,0.95)" : "rgba(255,255,255,0.25)" %>
+            <% red_score_color  = red_s >= blue_s ? "rgba(255,255,255,0.95)" : "rgba(255,255,255,0.25)" %>
+            <% card_bg = user_won  ? "background:rgba(15,23,42,0.85);border-color:rgba(34,197,94,0.2);"
+                       : user_lost ? "background:rgba(15,23,42,0.85);border-color:rgba(239,68,68,0.2);"
+                       :             "background:rgba(15,23,42,0.85);border-color:rgba(255,255,255,0.08);" %>
+            <%= link_to meet_path(meet), class: "flex-shrink-0 w-76 rounded-2xl border overflow-hidden flex flex-col", style: card_bg, data: { "meet-filter-target": "card", lat: meet.court.lat, lng: meet.court.long, date: meet.date.to_i } do %>
+              <div class="h-1 w-full" style="background:linear-gradient(90deg,<%= accent %>,<%= accent %>88);"></div>
+              <div class="px-4 pt-3 pb-4 flex flex-col gap-3">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-1.5">
+                    <i class="fa-solid <%= result_icon %> text-xs" style="color:<%= icon_color %>;"></i>
+                    <span class="text-xs font-black uppercase tracking-widest" style="color:<%= result_color %>;"><%= result_label %></span>
+                  </div>
+                  <span class="text-[11px] text-white/30 font-medium"><%= meet.date.strftime("%-d %b %Y") %></span>
+                </div>
+                <div class="flex items-center justify-center gap-2 py-1">
+                  <div class="flex flex-col items-center gap-1.5">
+                    <% blue_circle = blue_s > red_s ? "background:radial-gradient(circle at 35% 35%,rgba(96,165,250,0.35),rgba(59,130,246,0.1));border:1.5px solid rgba(96,165,250,0.7);box-shadow:0 0 16px rgba(59,130,246,0.4);"
+                                                    : "background:rgba(255,255,255,0.04);border:1.5px solid rgba(255,255,255,0.1);" %>
+                    <div class="relative w-16 h-16 rounded-full flex items-center justify-center mb-3" style="<%= blue_circle %>">
+                      <span class="text-2xl font-black tabular-nums leading-none" style="color:<%= blue_score_color %>;"><%= match.blue_team_score %></span>
+                      <% if user_on_blue %>
+                        <div class="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 w-7 h-7 rounded-full overflow-hidden border-2 border-white/20">
+                          <% if current_user.profile_picture.attached? %>
+                            <%= image_tag current_user.profile_picture, class: "w-full h-full object-cover" %>
+                          <% else %>
+                            <div class="w-full h-full bg-base-300 flex items-center justify-center"><i class="fa-solid fa-user text-[8px] text-white/40"></i></div>
+                          <% end %>
+                        </div>
+                      <% end %>
+                    </div>
+                    <span class="text-[9px] font-bold uppercase tracking-widest" style="color:<%= blue_s > red_s ? 'rgba(96,165,250,0.7)' : 'rgba(255,255,255,0.2)' %>;">Bleu</span>
+                  </div>
+                  <%= image_tag "vs.png", class: "w-12 h-12 object-contain mb-5" %>
+                  <div class="flex flex-col items-center gap-1.5">
+                    <% red_circle = red_s > blue_s ? "background:radial-gradient(circle at 35% 35%,rgba(248,113,113,0.35),rgba(239,68,68,0.1));border:1.5px solid rgba(248,113,113,0.7);box-shadow:0 0 16px rgba(239,68,68,0.4);"
+                                                   : "background:rgba(255,255,255,0.04);border:1.5px solid rgba(255,255,255,0.1);" %>
+                    <div class="relative w-16 h-16 rounded-full flex items-center justify-center mb-3" style="<%= red_circle %>">
+                      <span class="text-2xl font-black tabular-nums leading-none" style="color:<%= red_score_color %>;"><%= match.red_team_score %></span>
+                      <% unless user_on_blue %>
+                        <div class="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 w-7 h-7 rounded-full overflow-hidden border-2 border-white/20">
+                          <% if current_user.profile_picture.attached? %>
+                            <%= image_tag current_user.profile_picture, class: "w-full h-full object-cover" %>
+                          <% else %>
+                            <div class="w-full h-full bg-base-300 flex items-center justify-center"><i class="fa-solid fa-user text-[8px] text-white/40"></i></div>
+                          <% end %>
+                        </div>
+                      <% end %>
+                    </div>
+                    <span class="text-[9px] font-bold uppercase tracking-widest" style="color:<%= red_s > blue_s ? 'rgba(248,113,113,0.7)' : 'rgba(255,255,255,0.2)' %>;">Rouge</span>
+                  </div>
+                </div>
+                <div class="flex items-center justify-between pt-2 border-t border-white/8">
+                  <div class="flex items-center gap-1 text-[12px] text-white/30 min-w-0">
+                    <i class="fa-solid fa-location-dot flex-shrink-0 text-[9px]"></i>
+                    <span class="truncate"><%= meet.court&.name || "Terrain inconnu" %></span>
+                  </div>
+                  <span class="text-[11px] text-white/30 font-medium flex-shrink-0 ml-2"><%= meet.duration %> min</span>
+                </div>
+              </div>
+            <% end %>
+          <% else %>
+            <% accent = "#a855f7" %>
+            <%= link_to meet_path(meet), class: "flex-shrink-0 w-76 rounded-2xl border overflow-hidden flex flex-col", style: "background:rgba(15,23,42,0.85); border-color:rgba(168,85,247,0.2);", data: { "meet-filter-target": "card", lat: meet.court.lat, lng: meet.court.long, date: meet.date.to_i } do %>
+              <div class="h-1 w-full" style="background:linear-gradient(90deg, <%= accent %>, <%= accent %>88);"></div>
+              <div class="px-4 pt-3 pb-4 flex flex-col gap-3">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-1.5">
+                    <i class="fa-solid fa-dumbbell text-[10px] text-purple-400/80"></i>
+                    <span class="text-xs font-black uppercase tracking-widest text-purple-400/80">Entraînement</span>
+                  </div>
+                  <span class="text-[11px] text-white/30 font-medium"><%= meet.date.strftime("%-d %b %Y") %></span>
+                </div>
+                <div class="flex flex-col gap-1 py-2">
+                  <span class="text-base font-extrabold text-white leading-snug"><%= meet.meetable.title %></span>
+                  <span class="inline-flex w-fit text-[12px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full" style="background:rgba(168,85,247,0.2);color:rgba(216,180,254,0.8);border: 1px solid rgba(168,85,247,0.2);"><%= meet.meetable.level %></span>
+                </div>
+                <div class="flex items-center justify-between pt-2 border-t border-white/8">
+                  <div class="flex items-center gap-1 text-[12px] text-white/30 min-w-0">
+                    <i class="fa-solid fa-location-dot flex-shrink-0 text-[9px]"></i>
+                    <span class="truncate"><%= meet.court&.name || "Terrain inconnu" %></span>
+                  </div>
+                  <span class="text-[11px] text-white/30 font-medium flex-shrink-0 ml-2"><%= meet.duration %> min</span>
+                </div>
+              </div>
+            <% end %>
           <% end %>
         <% end %>
+      </div>
+      <% else %>
+      <div class="mx-6 p-6 rounded-2xl bg-white/5 border border-dashed border-white/10 flex flex-col items-center justify-center text-center">
+        <p class="text-white/30 text-xs">Vous n'avez aucune rencontre passée.</p>
       </div>
     <% end %>
   </section>
@@ -189,81 +381,29 @@
   <%# Modal filtres %>
   <dialog data-meet-filter-target="modal" class="modal modal-bottom">
     <div class="modal-box rounded-t-3xl rounded-b-none pb-10">
-
       <div class="flex items-center justify-between mb-6">
         <h3 class="font-extrabold text-lg">Filtrer</h3>
-        <button data-action="click->meet-filter#resetFilters"
-                class="text-xs text-white/40 hover:text-white/70 transition-colors">
-          Réinitialiser
-        </button>
+        <button data-action="click->meet-filter#resetFilters" class="text-xs text-white/40 hover:text-white/70">Réinitialiser</button>
       </div>
-
-      <%# Trier par %>
       <div class="mb-6">
         <p class="text-xs text-white/40 uppercase tracking-widest font-bold mb-3">Trier par</p>
         <div class="flex gap-2 flex-wrap">
-          <button data-action="click->meet-filter#selectSort"
-                  data-meet-filter-target="sortBtn"
-                  data-sort="date"
-                  class="btn btn-sm rounded-full btn-primary">
-            <i class="fa-solid fa-calendar-days mr-1"></i> Date
-          </button>
-          <button data-action="click->meet-filter#selectSort"
-                  data-meet-filter-target="sortBtn"
-                  data-sort="proximity"
-                  class="btn btn-sm rounded-full btn-ghost">
-            <i class="fa-solid fa-location-dot mr-1"></i> Proximité
-          </button>
+          <button data-action="click->meet-filter#selectSort" data-meet-filter-target="sortBtn" data-sort="date" class="btn btn-sm rounded-full btn-primary">Date</button>
+          <button data-action="click->meet-filter#selectSort" data-meet-filter-target="sortBtn" data-sort="proximity" class="btn btn-sm rounded-full btn-ghost">Proximité</button>
         </div>
       </div>
-
-      <%# Distance %>
       <div class="mb-8">
         <p class="text-xs text-white/40 uppercase tracking-widest font-bold mb-3">Distance max</p>
         <div class="flex gap-2 flex-wrap">
-          <button data-action="click->meet-filter#selectRadius"
-                  data-meet-filter-target="radiusBtn"
-                  data-radius="0"
-                  class="btn btn-sm rounded-full btn-primary">
-            Toutes
-          </button>
-          <button data-action="click->meet-filter#selectRadius"
-                  data-meet-filter-target="radiusBtn"
-                  data-radius="500"
-                  class="btn btn-sm rounded-full btn-ghost">
-            500 m
-          </button>
-          <button data-action="click->meet-filter#selectRadius"
-                  data-meet-filter-target="radiusBtn"
-                  data-radius="1000"
-                  class="btn btn-sm rounded-full btn-ghost">
-            1 km
-          </button>
-          <button data-action="click->meet-filter#selectRadius"
-                  data-meet-filter-target="radiusBtn"
-                  data-radius="5000"
-                  class="btn btn-sm rounded-full btn-ghost">
-            5 km
-          </button>
-          <button data-action="click->meet-filter#selectRadius"
-                  data-meet-filter-target="radiusBtn"
-                  data-radius="10000"
-                  class="btn btn-sm rounded-full btn-ghost">
-            10 km
-          </button>
+          <% [0, 500, 1000, 5000, 10000].each do |r| %>
+            <button data-action="click->meet-filter#selectRadius" data-meet-filter-target="radiusBtn" data-radius="<%= r %>" class="btn btn-sm rounded-full <%= r == 0 ? 'btn-primary' : 'btn-ghost' %>">
+              <%= r == 0 ? 'Toutes' : (r < 1000 ? "#{r}m" : "#{r/1000}km") %>
+            </button>
+          <% end %>
         </div>
       </div>
-
-      <button data-action="click->meet-filter#applyFilters"
-              class="btn w-full rounded-full font-bold text-white"
-              style="background-color: var(--color-primary);">
-        Appliquer
-      </button>
-
+      <button data-action="click->meet-filter#applyFilters" class="btn w-full rounded-full font-bold text-white" style="background-color: var(--color-primary);">Appliquer</button>
     </div>
-    <form method="dialog" class="modal-backdrop">
-      <button>close</button>
-    </form>
+    <form method="dialog" class="modal-backdrop"><button>close</button></form>
   </dialog>
-
 </div>
