@@ -171,6 +171,33 @@
 .leaflet-popup-content h3 {
   margin-bottom: 0.25rem;
 }
+/* Cluster : taille augmentée (+8px vs défaut Leaflet 40/30) */
+.marker-cluster {
+  width: 48px !important;
+  height: 48px !important;
+  margin-left: -24px !important;
+  margin-top: -24px !important;
+}
+.marker-cluster div {
+  width: 38px !important;
+  height: 38px !important;
+  margin: 5px !important;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+}
+.marker-cluster div i {
+  font-size: 14px;
+  line-height: 1;
+}
+.marker-cluster div span {
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+}
+
 /* Alignement a droite du texte dans le select de la map */
 #map .select, .select select {
     appearance: none;
