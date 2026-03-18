@@ -20,7 +20,7 @@
   <%# data-controller="session-filter" active le filtrage Stimulus. %>
   <%# ============================================================ %>
   <% if @in_progress_meets.any? %>
-    <section class="mt-4" data-meet-filter-target="section" data-controller="session-filter">
+    <section class="mt-8" data-meet-filter-target="section" data-controller="session-filter">
       <% in_progress_match_count   = @in_progress_meets.count { |m| m.meetable_type == "Match" } %>
       <% in_progress_program_count = @in_progress_meets.count { |m| m.meetable_type == "Program" } %>
       <div class="flex items-center justify-between px-6 mb-3">
@@ -37,7 +37,7 @@
         </div>
       <% end %>
       <% solo = @in_progress_meets.count == 1 %>
-      <div class="<%= solo ? 'px-6' : 'flex gap-4 overflow-x-auto px-6 pb-2 scrollbar-hide' %>">
+      <div class="<%= solo ? 'px-6' : 'flex gap-4 overflow-x-auto px-6 pb-6 scrollbar-hide' %>">
         <% @in_progress_meets.each do |meet| %>
           <%# Calcul du statut et des couleurs pour cette carte :
               - pending      : QR code généré, en attente de scan → jaune
@@ -56,7 +56,7 @@
                 data-meet-filter-target="card" est utilisé par le filtre global (proximité/date) %>
             <%= link_to meet_path(meet),
                   class: "#{solo ? 'w-full' : 'flex-shrink-0 w-76'} rounded-2xl border overflow-hidden flex flex-col",
-                  style: "background:rgba(15,23,42,0.85); border-color:rgba(255,255,255,0.08);",
+                  style: "background:rgba(15,23,42,0.85); border-color:rgba(255,255,255,0.08);box-shadow:0 4px 24px rgba(0,0,0,0.4);",
                   data: { "meet-filter-target": "card", "session-filter-target": "card",
                           type: "Match", lat: meet.court.lat, lng: meet.court.long, date: meet.date.to_i } do %>
               <%# Trait coloré en haut — couleur = statut du match %>
@@ -97,7 +97,7 @@
                 data-type="live" pour correspondre au filtre "En cours" %>
             <%= link_to meet_path(meet),
                   class: "#{solo ? 'w-full' : 'flex-shrink-0 w-76'} rounded-2xl border overflow-hidden flex flex-col",
-                  style: "background:rgba(15,23,42,0.85); border-color:rgba(255,255,255,0.08);",
+                  style: "background:rgba(15,23,42,0.85); border-color:rgba(255,255,255,0.08);box-shadow:0 4px 24px rgba(0,0,0,0.4);",
                   data: { "meet-filter-target": "card", "session-filter-target": "card",
                           type: "Program", lat: meet.court.lat, lng: meet.court.long, date: meet.date.to_i } do %>
               <div class="px-4 pt-3 pb-4 flex flex-col gap-3 flex-1">
@@ -128,7 +128,7 @@
     </section>
   <% end %>
   <%# 1. Mes rencontres %>
-  <section class="mt-4" data-meet-filter-target="section" data-controller="session-filter">
+  <section class="mt-8" data-meet-filter-target="section" data-controller="session-filter">
     <% my_match_count   = @my_meets.count { |m| m.meetable_type == "Match" } %>
     <% my_program_count = @my_meets.count { |m| m.meetable_type == "Program" } %>
     <div class="flex items-center justify-between px-6 mb-3">
@@ -146,14 +146,14 @@
     <% end %>
     <% if @my_meets.any? %>
       <% solo = @my_meets.count == 1 %>
-      <div class="<%= solo ? 'px-6' : 'flex gap-4 overflow-x-auto px-6 pb-2 scrollbar-hide' %>" data-cards-list>
+      <div class="<%= solo ? 'px-6' : 'flex gap-4 overflow-x-auto px-6 pb-6 scrollbar-hide' %>" data-cards-list>
         <% @my_meets.each do |meet| %>
           <% if meet.meetable_type == "Match" %>
             <% match = meet.meetable %>
             <% cancelled = match.cancelled? %>
             <% accent = cancelled ? "#ef4444" : "var(--color-primary)" %>
             <% border_color = cancelled ? "rgba(239,68,68,0.25)" : "rgba(255,255,255,0.08)" %>
-            <%= link_to meet_path(meet), class: "#{solo ? 'w-full' : 'flex-shrink-0 w-76'} rounded-2xl border overflow-hidden flex flex-col", style: "background:rgba(15,23,42,0.85); border-color:rgba(255,255,255,0.08);", data: { "meet-filter-target": "card", "session-filter-target": "card", type: "Match", lat: meet.court.lat, lng: meet.court.long, date: meet.date.to_i } do %>
+            <%= link_to meet_path(meet), class: "#{solo ? 'w-full' : 'flex-shrink-0 w-76'} rounded-2xl border overflow-hidden flex flex-col", style: "background:rgba(15,23,42,0.85); border-color:rgba(255,255,255,0.08);box-shadow:0 4px 24px rgba(0,0,0,0.4);", data: { "meet-filter-target": "card", "session-filter-target": "card", type: "Match", lat: meet.court.lat, lng: meet.court.long, date: meet.date.to_i } do %>
               <% if cancelled %>
                 <div class="h-1 w-full" style="background:linear-gradient(90deg,#ef4444,#ef444488);"></div>
               <% end %>
@@ -192,7 +192,7 @@
           <% else %>
             <%# Style entrainement %>
             <% accent = "#a855f7" %>
-            <%= link_to meet_path(meet), class: "#{solo ? 'w-full' : 'flex-shrink-0 w-76'} rounded-2xl border overflow-hidden flex flex-col", style: "background:rgba(15,23,42,0.85); border-color:rgba(255,255,255,0.08);", data: { "meet-filter-target": "card", "session-filter-target": "card", type: "Program", lat: meet.court.lat, lng: meet.court.long, date: meet.date.to_i } do %>
+            <%= link_to meet_path(meet), class: "#{solo ? 'w-full' : 'flex-shrink-0 w-76'} rounded-2xl border overflow-hidden flex flex-col", style: "background:rgba(15,23,42,0.85); border-color:rgba(255,255,255,0.08);box-shadow:0 4px 24px rgba(0,0,0,0.4);", data: { "meet-filter-target": "card", "session-filter-target": "card", type: "Program", lat: meet.court.lat, lng: meet.court.long, date: meet.date.to_i } do %>
               <div class="px-4 pt-3 pb-4 flex flex-col gap-3 flex-1">
                 <div class="flex items-center justify-between">
                   <div class="flex items-center gap-1.5">
@@ -259,14 +259,14 @@
     <% end %>
     <% if @upcoming_meets.any? %>
       <% solo = @upcoming_meets.count == 1 %>
-      <div class="<%= solo ? 'px-6' : 'flex gap-4 overflow-x-auto px-6 pb-2 scrollbar-hide' %>" data-meet-filter-target="list" data-cards-list>
+      <div class="<%= solo ? 'px-6' : 'flex gap-4 overflow-x-auto px-6 pb-6 scrollbar-hide' %>" data-meet-filter-target="list" data-cards-list>
         <% @upcoming_meets.each do |meet| %>
           <% if meet.meetable_type == "Match" %>
             <% match = meet.meetable %>
             <% cancelled = match.cancelled? %>
             <% accent = cancelled ? "#ef4444" : "var(--color-primary)" %>
             <% border_color = cancelled ? "rgba(239,68,68,0.25)" : "rgba(255,255,255,0.08)" %>
-            <%= link_to meet_path(meet), class: "#{solo ? 'w-full' : 'flex-shrink-0 w-76'} rounded-2xl border overflow-hidden flex flex-col", style: "background:rgba(15,23,42,0.85); border-color:rgba(255,255,255,0.08);", data: { "meet-filter-target": "card", "session-filter-target": "card", type: "Match", lat: meet.court.lat, lng: meet.court.long, date: meet.date.to_i } do %>
+            <%= link_to meet_path(meet), class: "#{solo ? 'w-full' : 'flex-shrink-0 w-76'} rounded-2xl border overflow-hidden flex flex-col", style: "background:rgba(15,23,42,0.85); border-color:rgba(255,255,255,0.08);box-shadow:0 4px 24px rgba(0,0,0,0.4);", data: { "meet-filter-target": "card", "session-filter-target": "card", type: "Match", lat: meet.court.lat, lng: meet.court.long, date: meet.date.to_i } do %>
               <% if cancelled %>
                 <div class="h-1 w-full" style="background:linear-gradient(90deg,#ef4444,#ef444488);"></div>
               <% end %>
@@ -304,7 +304,7 @@
             <% end %>
           <% else %>
             <% accent = "#a855f7" %>
-            <%= link_to meet_path(meet), class: "#{solo ? 'w-full' : 'flex-shrink-0 w-76'} rounded-2xl border overflow-hidden flex flex-col", style: "background:rgba(15,23,42,0.85); border-color:rgba(255,255,255,0.08);", data: { "meet-filter-target": "card", "session-filter-target": "card", type: "Program", lat: meet.court.lat, lng: meet.court.long, date: meet.date.to_i } do %>
+            <%= link_to meet_path(meet), class: "#{solo ? 'w-full' : 'flex-shrink-0 w-76'} rounded-2xl border overflow-hidden flex flex-col", style: "background:rgba(15,23,42,0.85); border-color:rgba(255,255,255,0.08);box-shadow:0 4px 24px rgba(0,0,0,0.4);", data: { "meet-filter-target": "card", "session-filter-target": "card", type: "Program", lat: meet.court.lat, lng: meet.court.long, date: meet.date.to_i } do %>
               <div class="px-4 pt-3 pb-4 flex flex-col gap-3 flex-1">
                 <div class="flex items-center justify-between">
                   <div class="flex items-center gap-1.5">
@@ -337,10 +337,10 @@
       <h2 class="font-bold text-base">Mes programmes d'entraînement</h2>
     </div>
     <% if @programs.any? %>
-      <div class="flex gap-4 overflow-x-auto px-6 pb-2 scrollbar-hide" data-cards-list>
+      <div class="flex gap-4 overflow-x-auto px-6 pb-6 scrollbar-hide" data-cards-list>
         <% @programs.each do |program| %>
           <% next_meet = program.meets.select { |m| m.date >= Time.current }.min_by(&:date) %>
-          <%= link_to program_path(program), class: "flex-shrink-0 w-76 rounded-2xl border overflow-hidden flex flex-col", style: "background:rgba(15,23,42,0.85); border-color:rgba(255,255,255,0.08);", data: { "meet-filter-target": "card", lat: next_meet&.court&.lat, lng: next_meet&.court&.long, date: next_meet&.date&.to_i } do %>
+          <%= link_to program_path(program), class: "flex-shrink-0 w-76 rounded-2xl border overflow-hidden flex flex-col", style: "background:rgba(15,23,42,0.85); border-color:rgba(255,255,255,0.08);box-shadow:0 4px 24px rgba(0,0,0,0.4);", data: { "meet-filter-target": "card", lat: next_meet&.court&.lat, lng: next_meet&.court&.long, date: next_meet&.date&.to_i } do %>
             <div class="px-4 pt-3 pb-4 flex flex-col gap-3 flex-1">
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-1.5">
