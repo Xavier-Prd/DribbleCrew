@@ -7,7 +7,21 @@ class MeetsController < ApplicationController
   
     # Mes rencontres créées + rejointes
     user_team_ids = current_user.user_teams.pluck(:team_id)
-  
+
+    # Rencontres en cours : meet démarré (date < now) ET
+    #   - encore dans la fenêtre horaire (date + durée > now), OU
+    #   - match non confirmé (qr_code != 'confirmed' ou nil — score pas encore validé)
+    @in_progress_meets = Meet.includes(:court, :meetable)
+                             .where("meets.date < ?", Time.current)
+                             .joins("LEFT JOIN matches ON meets.meetable_id = matches.id AND meets.meetable_type = 'Match'")
+                             .joins("LEFT JOIN programs ON meets.meetable_id = programs.id AND meets.meetable_type = 'Program'")
+                             .where("matches.user_id = ? OR programs.user_id = ? OR matches.blue_team_id IN (?) OR matches.red_team_id IN (?) OR programs.team_id IN (?)",
+                                    current_user.id, current_user.id, user_team_ids, user_team_ids, user_team_ids)
+                             .where("(meets.date + meets.duration * interval '1 minute' > ?) OR (meets.meetable_type = 'Match' AND (matches.qr_code IS NULL OR matches.qr_code != 'confirmed'))",
+                                    Time.current)
+                             .distinct
+                             .order(:date)
+
     @my_meets = Meet.includes(:court, :meetable)
                     .where("date >= ?", Time.current)
                     .joins("LEFT JOIN matches ON meets.meetable_id = matches.id AND meets.meetable_type = 'Match'")
@@ -16,17 +30,22 @@ class MeetsController < ApplicationController
                            current_user.id, current_user.id, user_team_ids, user_team_ids, user_team_ids)
                     .distinct
                     .order(:date)
-  
+
     # 2. Tous les programs actifs de l'user
     @programs = current_user.programs.where(active: true)
-  
-    # 3. Les rencontres passées de l'user
+
+    # 3. Les rencontres passées de l'user :
+    #    - date passée
+    #    - hors fenêtre horaire (date + durée <= now)
+    #    - pour les matchs : confirmés uniquement
     @past_meets = Meet.includes(:court, :meetable)
-                      .where("date < ?", Time.current)
+                      .where("meets.date < ?", Time.current)
                       .joins("LEFT JOIN matches ON meets.meetable_id = matches.id AND meets.meetable_type = 'Match'")
                       .joins("LEFT JOIN programs ON meets.meetable_id = programs.id AND meets.meetable_type = 'Program'")
                       .where("matches.user_id = ? OR programs.user_id = ? OR matches.blue_team_id IN (?) OR matches.red_team_id IN (?) OR programs.team_id IN (?)",
                              current_user.id, current_user.id, user_team_ids, user_team_ids, user_team_ids)
+                      .where("meets.date + meets.duration * interval '1 minute' <= ?", Time.current)
+                      .where("meets.meetable_type = 'Program' OR matches.qr_code = 'confirmed'")
                       .distinct
                       .order(date: :desc)
   end
