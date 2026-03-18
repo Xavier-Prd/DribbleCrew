@@ -63,9 +63,9 @@ class ProfilesController < ApplicationController
         else
           match.red_team_score.to_i
         end
-      end
+      end * 0.25
 
-      { court: court, victories: victories_count, points: (victories_count * 10) + basket_points, rank: rank }
+      { court: court, victories: victories_count, points: ((victories_count * 25) + basket_points).round, rank: rank }
     end.sort_by { |c| c[:rank] }
   end
 end

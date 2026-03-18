@@ -12,7 +12,7 @@ class User < ApplicationRecord
   validates :username, presence: true, uniqueness: true
 
   def total_points
-    victory_points = victories.count * 10
+    victory_points = victories.count * 25
 
     team_ids = teams.pluck(:id)
     matches = Match.where(blue_team_id: team_ids).or(Match.where(red_team_id: team_ids))
@@ -22,9 +22,9 @@ class User < ApplicationRecord
       else
         match.red_team_score.to_i
       end
-    end
+    end * 0.25
 
-    victory_points + basket_points
+    (victory_points + basket_points).round
   end
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
