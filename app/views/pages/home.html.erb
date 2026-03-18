@@ -1,4 +1,24 @@
-<div>
-  <h1 class="font-bold">Pages#home</h1>
-  <p>Find me in app/views/pages/home.html.erb</p>
+<div class="min-h-screen flex flex-col items-center justify-between px-8 pt-8 pb-16" style="background-color: var(--color-base-100);">
+  <%# Logo %>
+  <div class="flex-1 flex items-center justify-center w-full">
+    <%= image_tag "home.png", alt: "Dribble Crew", class: "w-72 object-contain" %>
+  </div>
+  <%# Texte + boutons %>
+  <div class="w-full flex flex-col gap-12">
+    <div class="flex flex-col gap-4">
+      <div>
+        <h1 class="font-extrabold text-white line-height:1;" style="font-size:60px; line-height: 1;">Dribble Crew</h1>
+        <p class="font-bold text-white" style="font-size:28px; opacity: 0.6;">Roi du terrain</p>
+      </div>
+      <p class="text-white/50 text-base mt-1 leading-relaxed">Défie les légendes de ton quartier et impose ton règne sur chaque city-stade de la ville.</p>
+    </div>
+    <div class="flex items-center gap-6">
+      <%= link_to new_user_session_path, class: "flex-1 flex items-center justify-center h-14 rounded-2xl font-bold text-base text-white", style: "background-color: var(--color-primary);" do %>
+        Connexion
+      <% end %>
+      <%= link_to new_user_registration_path, class: "text-base font-semibold text-white/70" do %>
+        Inscription
+      <% end %>
+    </div>
+  </div>
 </div>
