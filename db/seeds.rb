@@ -4,7 +4,7 @@ require 'json'
 require 'uri'
 
 puts "Cleaning database..."
-[ Meet, Match, Program, UserTeam, Victory, Court, Team, User ].each(&:destroy_all)
+[ Meet, Match, Program, UserTeam, Victory, Team, User ].each(&:destroy_all)
 
 # ==========================================
 # 1. USERS (Total: 24)
@@ -56,40 +56,40 @@ all_users = User.where.not(id: [ turbo_arnaud.id, admin.id, coach_reda.id, exper
 # ==========================================
 # 2. COURTS (OpenStreetMap avec Fallback 50)
 # ==========================================
-puts "Fetching 50 courts from OpenStreetMap..."
-playground_images = Dir[Rails.root.join("app/assets/images/playgrounds/*")]
-overpass_query = "[out:json][timeout:60];(node['leisure'='pitch']['sport'='basketball'](50.55,2.85,50.75,3.25);way['leisure'='pitch']['sport'='basketball'](50.55,2.85,50.75,3.25););out center;"
+# puts "Fetching 50 courts from OpenStreetMap..."
+# playground_images = Dir[Rails.root.join("app/assets/images/playgrounds/*")]
+# overpass_query = "[out:json][timeout:60];(node['leisure'='pitch']['sport'='basketball'](50.55,2.85,50.75,3.25);way['leisure'='pitch']['sport'='basketball'](50.55,2.85,50.75,3.25););out center;"
 
-begin
-  uri = URI("https://overpass-api.de/api/interpreter")
-  response = Net::HTTP.post_form(uri, { "data" => overpass_query })
-  if response.body.start_with?("{")
-    data = JSON.parse(response.body)
-    data["elements"].first(50).each_with_index do |element, i|
-      lat = element["lat"] || element.dig("center", "lat")
-      lon = element["lon"] || element.dig("center", "lon")
-      nom_uri = URI("https://nominatim.openstreetmap.org/reverse?lat=#{lat}&lon=#{lon}&format=json")
-      nom_res = Net::HTTP.start(nom_uri.host, nom_uri.port, use_ssl: true) { |http| http.get(nom_uri.request_uri, { 'User-Agent' => 'DribbleCrew/1.0' }) }
-      nom_data = JSON.parse(nom_res.body) rescue {}
-      street = nom_data.dig("address", "road")
-      city = nom_data.dig("address", "city") || nom_data.dig("address", "town") || "Lille"
-      base_name = street.present? ? "Terrain #{street}" : "Terrain Basket ##{i}"
-      name = Court.exists?(name: base_name) ? "#{base_name} ##{i}" : base_name
-      court = Court.create!(name: name, address: "#{street}, #{city}", lat: lat, long: lon)
-      court.image.attach(io: File.open(playground_images.sample), filename: "court.jpg") if playground_images.any?
-      sleep(1.1) # Respecter les limites de l'API Nominatim (1 requête par seconde) pour éviter les blocages d'IP
-      puts "Court created: #{court.name}"
-    end
-  else raise "OSM Error"
-  end
-rescue => e
-  puts "\nOSM error. Fallback to 50 manual courts..."
-  50.times do |i|
-    c = Court.create!(name: "Terrain Lille ##{i}", address: "Lille", lat: 50.63 + rand(-0.03..0.03), long: 3.06 + rand(-0.03..0.03))
-    c.image.attach(io: File.open(playground_images.sample), filename: "court.jpg") if playground_images.any?
-    puts "Court created: #{c.name} ##{i}"
-  end
-end
+# begin
+#   uri = URI("https://overpass-api.de/api/interpreter")
+#   response = Net::HTTP.post_form(uri, { "data" => overpass_query })
+#   if response.body.start_with?("{")
+#     data = JSON.parse(response.body)
+#     data["elements"].first(50).each_with_index do |element, i|
+#       lat = element["lat"] || element.dig("center", "lat")
+#       lon = element["lon"] || element.dig("center", "lon")
+#       nom_uri = URI("https://nominatim.openstreetmap.org/reverse?lat=#{lat}&lon=#{lon}&format=json")
+#       nom_res = Net::HTTP.start(nom_uri.host, nom_uri.port, use_ssl: true) { |http| http.get(nom_uri.request_uri, { 'User-Agent' => 'DribbleCrew/1.0' }) }
+#       nom_data = JSON.parse(nom_res.body) rescue {}
+#       street = nom_data.dig("address", "road")
+#       city = nom_data.dig("address", "city") || nom_data.dig("address", "town") || "Lille"
+#       base_name = street.present? ? "Terrain #{street}" : "Terrain Basket ##{i}"
+#       name = Court.exists?(name: base_name) ? "#{base_name} ##{i}" : base_name
+#       court = Court.create!(name: name, address: "#{street}, #{city}", lat: lat, long: lon)
+#       court.image.attach(io: File.open(playground_images.sample), filename: "court.jpg") if playground_images.any?
+#       sleep(1.1) # Respecter les limites de l'API Nominatim (1 requête par seconde) pour éviter les blocages d'IP
+#       puts "Court created: #{court.name}"
+#     end
+#   else raise "OSM Error"
+#   end
+# rescue => e
+#   puts "\nOSM error. Fallback to 50 manual courts..."
+#   50.times do |i|
+#     c = Court.create!(name: "Terrain Lille ##{i}", address: "Lille", lat: 50.63 + rand(-0.03..0.03), long: 3.06 + rand(-0.03..0.03))
+#     c.image.attach(io: File.open(playground_images.sample), filename: "court.jpg") if playground_images.any?
+#     puts "Court created: #{c.name} ##{i}"
+#   end
+# end
 
 # ==========================================
 # 3. MEETS (100 total - Scores fixés à 0)
@@ -99,27 +99,27 @@ puts "\nCreating 100 unique meets..."
 # Generer 2 meets de matches FUTURES pour turbo_arnaud & admin
 2.times do |i|
   number_players_inteam = [ 1, 2, 3, 4, 5 ].sample
-  m = Match.create!(user: all_users.sample, blue_team: Team.create!(number_player: number_players_inteam), red_team: Team.create!(number_player: number_players_inteam), blue_team_score: 0, red_team_score: 0)
+  m = Match.create!(user: all_users.sample, match_type: number_players_inteam, blue_team: Team.create!(number_player: number_players_inteam), red_team: Team.create!(number_player: number_players_inteam), blue_team_score: 0, red_team_score: 0)
   Meet.create!(court: Court.all.sample, date: Time.current + (i + 1).days, duration: 60, meetable: m)
   UserTeam.create!(user: turbo_arnaud, team: m.blue_team)
 end
 2.times do |i|
   number_players_inteam = [ 1, 2, 3, 4, 5 ].sample
-  m = Match.create!(user: all_users.sample, blue_team: Team.create!(number_player: number_players_inteam), red_team: Team.create!(number_player: number_players_inteam), blue_team_score: 0, red_team_score: 0)
+  m = Match.create!(user: all_users.sample, match_type: number_players_inteam, blue_team: Team.create!(number_player: number_players_inteam), red_team: Team.create!(number_player: number_players_inteam), blue_team_score: 0, red_team_score: 0)
   Meet.create!(court: Court.all.sample, date: Time.current + (i + 1).days, duration: 60, meetable: m)
   UserTeam.create!(user: admin, team: m.blue_team)
 end
 # Générer 5 meets de matches PASSés pour turbo_arnaud & admin
 5.times do |i|
   number_players_inteam = [ 1, 2, 3, 4, 5 ].sample
-  m = Match.create!(user: all_users.sample, blue_team: Team.create!(number_player: number_players_inteam), red_team: Team.create!(number_player: number_players_inteam), blue_team_score: rand(1..100), red_team_score: rand(1..100))
+  m = Match.create!(user: all_users.sample, match_type: number_players_inteam, blue_team: Team.create!(number_player: number_players_inteam), red_team: Team.create!(number_player: number_players_inteam), blue_team_score: rand(1..100), red_team_score: rand(1..100))
   meet = Meet.new(court: Court.all.sample, date: Faker::Time.between(from: 2.days.ago, to: 1.days.ago), duration: 60, meetable: m)
   meet.save!(validate: false)
   UserTeam.create!(user: turbo_arnaud, team: m.blue_team)
 end
 5.times do |i|
   number_players_inteam = [ 1, 2, 3, 4, 5 ].sample
-  m = Match.create!(user: all_users.sample, blue_team: Team.create!(number_player: number_players_inteam), red_team: Team.create!(number_player: number_players_inteam), blue_team_score: rand(1..100), red_team_score: rand(1..100))
+  m = Match.create!(user: all_users.sample, match_type: number_players_inteam, blue_team: Team.create!(number_player: number_players_inteam), red_team: Team.create!(number_player: number_players_inteam), blue_team_score: rand(1..100), red_team_score: rand(1..100))
   meet = Meet.new(court: Court.all.sample, date: Faker::Time.between(from: 2.days.ago, to: 1.days.ago), duration: 60, meetable: m)
   meet.save!(validate: false)
   UserTeam.create!(user: admin, team: m.blue_team)
@@ -178,6 +178,7 @@ end
   number_players_inteam = [ 1, 2, 3, 4, 5 ].sample
   m = Match.create!(
     user: all_users.sample,
+    match_type: number_players_inteam,
     blue_team: Team.create!(number_player: number_players_inteam),
     red_team: Team.create!(number_player: number_players_inteam),
     blue_team_score: rand(1..99),
@@ -192,6 +193,7 @@ end
   number_players_inteam = [ 1, 2, 3, 4, 5 ].sample
   m = Match.create!(
     user: all_users.sample,
+    match_type: number_players_inteam,
     blue_team: Team.create!(number_player: number_players_inteam),
     red_team: Team.create!(number_player: number_players_inteam)
   )
