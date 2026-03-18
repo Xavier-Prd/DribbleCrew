@@ -21,13 +21,17 @@ class CourtsController < ApplicationController
   end
 
   def ranked_users
-    User.joins(:victories)
-        .where(victories: { court_id: @court.id })
-        .group("users.id")
-        .order("COUNT(victories.id) DESC")
+    points = court_points_per_user
+    user_ids = points.keys
+    return User.none if user_ids.empty?
+
+    users = User.where(id: user_ids).index_by(&:id)
+    user_ids.sort_by { |id| -points[id] }.map { |id| users[id] }
   end
 
   def court_points_per_user
+    return @court_points_per_user if @court_points_per_user
+
     points = {}
 
     # Victoires × 25
@@ -45,6 +49,6 @@ class CourtsController < ApplicationController
       red_ids.each { |uid| points[uid] = ((points[uid] || 0) + match.red_team_score * 0.25).round }
     end
 
-    points
+    @court_points_per_user = points
   end
 end
