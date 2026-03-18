@@ -16,6 +16,139 @@
     </button>
   </div>
 
+  <%# ============================================================ %>
+  <%# SECTION "EN COURS" — affichée uniquement si au moins un meet %>
+  <%# est actif ou en attente d'action pour l'utilisateur courant. %>
+  <%# data-controller="session-filter" active le filtrage Stimulus. %>
+  <%# ============================================================ %>
+  <% if @in_progress_meets.any? %>
+    <section class="mt-4" data-meet-filter-target="section">
+
+      <%# En-tête : point clignotant + titre + compteur %>
+      <div class="flex items-center gap-2 px-6 mb-4">
+        <span class="w-2 h-2 rounded-full bg-warning animate-pulse"></span>
+        <h2 class="font-bold text-base">En cours</h2>
+        <span class="text-xs text-warning/60"><%= @in_progress_meets.count %> session(s)</span>
+      </div>
+
+      <div class="flex gap-4 overflow-x-auto px-6 pb-2 scrollbar-hide">
+        <% @in_progress_meets.each do |meet| %>
+
+          <%# Calcul du statut et des couleurs pour cette carte :
+              - pending      : QR code généré, en attente de scan → jaune
+              - waiting_score: durée écoulée, aucun score saisi   → rouge
+              - live         : dans la fenêtre horaire active      → vert
+              card_status est écrit dans data-type pour que le filtre Stimulus puisse cibler la carte. %>
+          <% pending       = meet.meetable_type == "Match" && meet.meetable.pending_confirmation? %>
+          <% waiting_score = meet.meetable_type == "Match" && meet.meetable.qr_code.nil? && (meet.date + meet.duration.minutes) <= Time.current %>
+          <% live_color       = pending ? "#f59e0b" : "#22c55e" %>
+          <% live_border      = pending ? "rgba(245,158,11,0.3)" : "rgba(34,197,94,0.3)" %>
+          <% live_label_color = pending ? "rgba(251,191,36,0.8)" : "rgba(134,239,172,0.8)" %>
+          <% card_status      = pending ? "pending" : waiting_score ? "waiting_score" : "live" %>
+
+          <% if meet.meetable_type == "Match" %>
+            <% match = meet.meetable %>
+
+            <%# Carte match — data-type=card_status permet le filtrage par le session-filter controller
+                data-meet-filter-target="card" est utilisé par le filtre global (proximité/date) %>
+            <%= link_to meet_path(meet),
+                  class: "flex-shrink-0 w-76 rounded-2xl border overflow-hidden flex flex-col",
+                  style: "background:rgba(15,23,42,0.85); border-color:#{live_border};",
+                  data: { "meet-filter-target": "card", "session-filter-target": "card",
+                          type: card_status, lat: meet.court.lat, lng: meet.court.long, date: meet.date.to_i } do %>
+
+              <%# Trait coloré en haut — couleur = statut du match %>
+              <div class="h-1 w-full" style="background:linear-gradient(90deg,<%= live_color %>,<%= live_color %>88);"></div>
+
+              <div class="px-4 pt-3 pb-4 flex flex-col gap-3">
+
+                <%# Ligne statut + heure %>
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-1.5">
+                    <span class="w-1.5 h-1.5 rounded-full animate-pulse" style="background:<%= live_color %>;"></span>
+                    <span class="text-xs font-black uppercase tracking-widest" style="color:<%= live_label_color %>;">
+                      <%= pending ? "En attente de validation" : "En cours" %>
+                    </span>
+                  </div>
+                  <span class="text-[11px] text-white/30 font-medium"><%= meet.date.strftime("%H:%M") %></span>
+                </div>
+
+                <%# Scores des équipes (nombre de joueurs) %>
+                <div class="flex-1 flex items-center justify-center gap-2 py-3 px-3 rounded-2xl" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);">
+                  <div class="flex flex-col items-center gap-1.5">
+                    <span class="text-3xl font-black tabular-nums leading-none text-white/90 mb-3"><%= match.blue_team.number_player %></span>
+                    <span class="text-[9px] font-bold uppercase tracking-widest text-white/20">Bleu</span>
+                  </div>
+                  <%= image_tag "vs.png", class: "w-12 h-12 object-contain mb-5" %>
+                  <div class="flex flex-col items-center gap-1.5">
+                    <span class="text-3xl font-black tabular-nums leading-none text-white/90 mb-3"><%= match.red_team.number_player %></span>
+                    <span class="text-[9px] font-bold uppercase tracking-widest text-white/20">Rouge</span>
+                  </div>
+                </div>
+
+                <%# Pied de carte : terrain + durée %>
+                <div class="flex items-center justify-between pt-2 border-t border-white/8">
+                  <div class="flex items-center gap-1 text-[12px] text-white/30 truncate min-w-0">
+                    <i class="fa-solid fa-location-dot text-[9px]"></i>
+                    <span class="truncate"><%= meet.court.name %></span>
+                  </div>
+                  <span class="text-[11px] text-white/30 font-medium shrink-0 ml-2"><%= meet.duration %> min</span>
+                </div>
+
+              </div>
+            <% end %>
+
+          <% else %>
+
+            <%# Carte programme — toujours vert (aucun statut de validation possible)
+                data-type="live" pour correspondre au filtre "En cours" %>
+            <%= link_to meet_path(meet),
+                  class: "flex-shrink-0 w-76 rounded-2xl border overflow-hidden flex flex-col",
+                  style: "background:rgba(15,23,42,0.85); border-color:#{live_border};",
+                  data: { "meet-filter-target": "card", "session-filter-target": "card",
+                          type: card_status, lat: meet.court.lat, lng: meet.court.long, date: meet.date.to_i } do %>
+
+              <%# Trait coloré en haut %>
+              <div class="h-1 w-full" style="background:linear-gradient(90deg,<%= live_color %>,<%= live_color %>88);"></div>
+
+              <div class="px-4 pt-3 pb-4 flex flex-col gap-3">
+
+                <%# Ligne statut + heure %>
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-1.5">
+                    <span class="w-1.5 h-1.5 rounded-full animate-pulse" style="background:<%= live_color %>;"></span>
+                    <span class="text-xs font-black uppercase tracking-widest" style="color:<%= live_label_color %>;">En cours</span>
+                  </div>
+                  <span class="text-[11px] text-white/30 font-medium"><%= meet.date.strftime("%H:%M") %></span>
+                </div>
+
+                <%# Titre et niveau du programme %>
+                <div class="flex flex-col gap-1 py-2">
+                  <span class="text-base font-extrabold text-white leading-snug"><%= meet.meetable.title %></span>
+                  <span class="inline-flex w-fit text-[12px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full"
+                        style="background:rgba(168,85,247,0.2); color:rgba(216,180,254,0.8); border: 1px solid rgba(168,85,247,0.2);">
+                    <%= meet.meetable.level %>
+                  </span>
+                </div>
+
+                <%# Pied de carte : terrain + durée %>
+                <div class="flex items-center justify-between pt-2 border-t border-white/8">
+                  <div class="flex items-center gap-1 text-[12px] text-white/30 min-w-0">
+                    <i class="fa-solid fa-location-dot text-[9px]"></i>
+                    <span class="truncate"><%= meet.court.name %></span>
+                  </div>
+                  <span class="text-[11px] text-white/30 font-medium"><%= meet.duration %> min</span>
+                </div>
+
+              </div>
+            <% end %>
+
+          <% end %>
+        <% end %>
+      </div>
+    </section>
+  <% end %>
+
   <%# 1. Mes rencontres %>
   <section class="mt-4" data-meet-filter-target="section">
     <div class="flex items-center justify-between px-6 mb-4">
