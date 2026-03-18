@@ -5,18 +5,10 @@
 <p class="text-center text-gray-500 mb-12 mx-6 mt-6">
   Définissez vos objectifs et votre niveau pour recevoir un programme personnalisé par IA.
 </p>
+<div class="mx-6">
 <%= simple_form_for @program do |f| %>
-  <div class="mt-12">
-    <fieldset class="fieldset mx-6">
-      <%= f.label :goal, "Objectif", class:"fieldset-legend" %>
-      <%= f.text_area :goal, rows: 3, class: "textarea textarea-bordered w-full",
-            placeholder: "Exemple: Améliorer mes sauts et ma vitesse." %>
-      <%= f.label :level, "Niveau", class:"fieldset-legend" %>
-      <%= f.select :level, Program::LEVELS, {}, class: "select select-bordered w-full" %>
-    </fieldset>
-  </div>
-  <div class="absolute bottom-22 w-full px-6">
-    <%= f.submit "Créer un programme", class: "btn btn-primary btn-md w-full rounded-box" %>
-  </div>
-
+  <%= f.input :goal, as: :text, required: false, label: "Objectif", placeholder: "Exemple: Améliorer mes sauts et ma vitesse." %>
+  <%= f.input :level, collection: Program::LEVELS, selected:"Débutant", label: "Niveau" %>
+  <%= f.button :submit, "Créer un programme" %>
 <% end %>
+</div>
