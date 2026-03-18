@@ -24,11 +24,9 @@
   <% if @in_progress_meets.any? %>
     <section class="mt-4" data-meet-filter-target="section">
 
-      <%# En-tête : point clignotant + titre + compteur %>
-      <div class="flex items-center gap-2 px-6 mb-4">
-        <span class="w-2 h-2 rounded-full bg-warning animate-pulse"></span>
+      <div class="flex items-center justify-between px-6 mb-4">
         <h2 class="font-bold text-base">En cours</h2>
-        <span class="text-xs text-warning/60"><%= @in_progress_meets.count %> session(s)</span>
+        <span class="text-xs text-white/40"><%= @in_progress_meets.count %> session(s)</span>
       </div>
 
       <div class="flex gap-4 overflow-x-auto px-6 pb-2 scrollbar-hide">
