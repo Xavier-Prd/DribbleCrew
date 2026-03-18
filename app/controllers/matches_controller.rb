@@ -71,11 +71,12 @@ class MatchesController < ApplicationController
   end
 
   def create
-    player_limit = params[:match_type].to_i
-
-    my_team = create_team_for_current_user!(player_limit) # Crée une équipe pour l'utilisateur actuel
-    opponent_team = Team.create!(number_player: player_limit) # Créer l'équipe adverse
+    player_limit = params.dig(:match, :match_type).presence&.to_i
     @match = Match.new(match_params)
+    if !player_limit.nil?
+      my_team = create_team_for_current_user!(player_limit) # Crée une équipe pour l'utilisateur actuel
+      opponent_team = Team.create!(number_player: player_limit) # Créer l'équipe adverse
+    end
     @match.user = current_user
     @match.blue_team = my_team # on attribut toujours l'équipe bleu au créateur du match
     @match.red_team = opponent_team # équipe adverse

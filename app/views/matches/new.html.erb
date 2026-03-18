@@ -1,78 +1,29 @@
-<div class="min-h-screen bg-[#12121e] flex flex-col items-center py-12 px-4 text-white">
-  <div class="w-full max-w-md">
-    <h1 class="font-bold mb-10 lowercase tracking-tight">Nouveau match</h1>
-    <%= simple_form_for(@match, html: { class: "space-y-6" }) do |f| %>
-      <%# Type de match — 3 boutons radio stylisés pour éviter les bugs du <select> natif sur mobile %>
-      <div class="flex flex-col gap-2">
-        <label class="text-gray-300 font-medium">Type de match</label>
-        <div class="grid grid-cols-3 gap-3">
-
-          <%# Chaque option est un radio button caché derrière un label stylisé en bouton %>
-          <%# Quand on clique sur le label, le radio button correspondant est coché %>
-
-          <% [["1 vs 1", 1], ["3 vs 3", 3], ["5 vs 5", 5]].each do |label_text, value| %>
-            <label style="cursor: pointer;">
-              <%= radio_button_tag :match_type, value, value == 1,
-                    class: "peer hidden" %>
-              <%# Le style change selon si le radio est coché (peer-checked) ou non %>
-              <span class="flex items-center justify-center h-12 rounded-xl border font-bold text-sm transition-all
-                           border-white/10 bg-white/5 text-white/50
-                           peer-checked:border-primary peer-checked:bg-primary/10 peer-checked:text-white">
-                <%= label_text %>
-              </span>
-            </label>
-          <% end %>
-
-        </div>
-      </div>
-      <%= f.simple_fields_for :meet, @match.meet || @match.build_meet do |m| %>
-        <%# La date %>
-        <div class="flex flex-col gap-2">
-          <label class="text-gray-300 font-medium">Date</label>
-          <%# Le data picker natif au clique %>
-          <%= m.input :date,
-              as: :string,
-              label: false,
-              wrapper: false,
-              input_html: {
-                type: "datetime-local",
-                class: "input input-bordered w-full bg-white/5 border-white/10 text-white [color-scheme:dark] focus:border-primary focus:outline-none h-12"
-              } %>
-        </div>
-        <%# La durée %>
-        <div class="flex flex-col gap-2">
-          <label class="text-gray-300 font-medium ml-1">Durée du match</label>
-          <%= m.input :duration,
-      collection: [["15 mins", 15], ["30 mins", 30], ["45 mins", 45], ["60 mins", 60], ["90 mins", 90], ["120 mins", 120]],
-      prompt: "Choisir la durée",
-      label: false,
-      wrapper: false,
-      input_html: {
-        class: "select select-bordered w-full bg-white/5 border-white/10 text-white focus:border-primary focus:outline-none h-12"
-      } %>
-        </div>
-        <%# Le terrain %>
-        <div class="flex flex-col gap-2">
-          <label class="text-gray-300 font-medium ml-1">Terrain</label>
-          <%# pour comprendre que chaque "Meet" appartient à un "Court" %>
-          <%= m.association :court,
-      collection: Court.all,
-      label_method: :name,
-      value_method: :id,
-      prompt: "Choisir un terrain",
-      label: false,
-      wrapper: false,
-      input_html: {
-        class: "select select-bordered w-full bg-white/5 border-white/10 text-white focus:border-primary focus:outline-none h-12"
-      } %>
-        </div>
-      <% end %>
-      <div class="pt-6">
-        <%# j'ai forcé la couleur orange car cell-ci ne s'affiché par correctement %>
-        <%= f.submit "Créer un match",
-            class: "btn btn-primary btn-md w-full rounded-box" %>
-      </div>
-
+<h1 class="flex items-center justify-center gap-3 font-bold mt-12 mx-6">
+  Créer un match
+  <i class="fa-solid fa-basketball text-6xl"></i>
+</h1>
+<p class="text-center text-gray-500 mb-12 mx-6 mt-6">
+  Choisissez le type de match, la date, la durée et le terrain.
+</p>
+<div class="mx-6">
+  <%= simple_form_for @match do |f| %>
+    <%= f.input :match_type, as: :radio_buttons, required: false,
+        collection: [["1 vs 1", 1], ["2 vs 2", 2], ["3 vs 3", 3], ["4 vs 4", 4], ["5 vs 5", 5]],
+        label: "Type de match" %>
+    <%= f.simple_fields_for :meet, @match.meet || @match.build_meet do |m| %>
+      <%= m.input :date, as: :string, label: "Date", required: false,
+          input_html: { type: "datetime-local" } %>
+      <%= m.input :duration, required: false,
+          collection: [["15 mins", 15], ["30 mins", 30], ["45 mins", 45], ["60 mins", 60], ["90 mins", 90], ["120 mins", 120]],
+          prompt: "Choisir la durée",
+          label: "Durée du match" %>
+      <%= m.association :court,
+          collection: Court.all,
+          label_method: :name,
+          value_method: :id,
+          prompt: "Choisir un terrain",
+          label: "Terrain" %>
     <% end %>
-  </div>
+    <%= f.button :submit, "Créer un match" %>
+  <% end %>
 </div>
