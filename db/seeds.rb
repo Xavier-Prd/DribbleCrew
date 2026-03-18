@@ -213,9 +213,9 @@ end
 end
 
 # ==========================================
-# 4. VICTORIES (10 000)
+# 4. VICTORIES (1000)
 # ==========================================
-puts "Inserting 10,000 victories..."
+puts "Inserting 1000 victories..."
 victories = []
 10.times do
   100.times { victories << { user_id: User.all.sample.id, court_id: Court.all.sample.id, created_at: Time.current, updated_at: Time.current } }

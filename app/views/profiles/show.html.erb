@@ -36,7 +36,7 @@
         <%= image_tag @user.profile_picture, class: "w-full h-full object-cover" %>
       <% else %>
         <div class="w-full h-full bg-base-300 flex items-center justify-center">
-          <i class="fa-solid fa-user text-4xl text-white/30"></i>
+          <i class="fa-solid fa-user text-4xl text-white/60"></i>
         </div>
       <% end %>
     </div>
@@ -91,7 +91,7 @@
                       <%= image_tag @user.profile_picture, class: "w-full h-full object-cover" %>
                     <% else %>
                       <div class="w-full h-full bg-base-300 flex items-center justify-center">
-                        <i class="fa-solid fa-user text-white/30 text-xl"></i>
+                        <i class="fa-solid fa-user text-white/60 text-xl"></i>
                       </div>
                     <% end %>
                   </div>
@@ -109,7 +109,7 @@
       </div>
     <% else %>
       <div class="mx-6 h-24 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center">
-        <p class="text-white/30 text-base">Aucune victoire pour l'instant.</p>
+        <p class="text-white/60 text-base">Aucune victoire pour l'instant.</p>
       </div>
     <% end %>
   </section>
@@ -120,26 +120,25 @@
       <h2 class="font-bold">Rencontres passées</h2>
       <%= link_to "Voir plus", sessions_profile_path(@user) , class:"text-base text-white/40" %>
     </div>
-    <%# Boutons de filtre — chaque bouton a :
-        - data-session-filter-target="btn"  : référencé par le controller pour gérer le style actif/inactif
-        - data-filter-type                  : valeur transmise au controller ("all", "Match", "Program")
-        - data-action                       : déclenche session_filter#filter au clic
-        Le bouton "Tous" est actif par défaut (classes text-white + bg-white/10). %>
-    <div class="flex gap-2 px-6 mb-4">
-      <button data-session-filter-target="btn" data-filter-type="all"
-              data-action="click->session-filter#filter"
-              class="text-xs font-bold px-3 py-1 rounded-full text-white bg-white/10 transition">Tous</button>
-      <button data-session-filter-target="btn" data-filter-type="Match"
-              data-action="click->session-filter#filter"
-              class="text-xs font-bold px-3 py-1 rounded-full text-white/40 bg-transparent transition">Match</button>
-      <button data-session-filter-target="btn" data-filter-type="Program"
-              data-action="click->session-filter#filter"
-              class="text-xs font-bold px-3 py-1 rounded-full text-white/40 bg-transparent transition">Programme</button>
-    </div>
     <% past_meets = @meets.select { |meet|
-        (meet.meetable_type == "Program" && meet.meetable.team.users.include?(@user)) ||
+        (meet.meetable_type == "Program" && (meet.meetable.user == @user || meet.meetable.team.users.include?(@user))) ||
         (meet.meetable_type == "Match"   && (meet.meetable.red_team.users.include?(@user) || meet.meetable.blue_team.users.include?(@user)))
       } %>
+    <% past_match_count   = past_meets.count { |m| m.meetable_type == "Match" } %>
+    <% past_program_count = past_meets.count { |m| m.meetable_type == "Program" } %>
+    <% if past_match_count > 0 && past_program_count > 0 %>
+      <div class="flex gap-2 px-6 mb-4">
+        <button data-session-filter-target="btn" data-filter-type="all"
+                data-action="click->session-filter#filter"
+                class="text-xs font-bold px-3 py-1 rounded-full text-white bg-white/10 transition">Tous (<%= past_meets.count %>)</button>
+        <button data-session-filter-target="btn" data-filter-type="Match"
+                data-action="click->session-filter#filter"
+                class="text-xs font-bold px-3 py-1 rounded-full text-white/40 bg-transparent transition">Match (<%= past_match_count %>)</button>
+        <button data-session-filter-target="btn" data-filter-type="Program"
+                data-action="click->session-filter#filter"
+                class="text-xs font-bold px-3 py-1 rounded-full text-white/40 bg-transparent transition">Programme (<%= past_program_count %>)</button>
+      </div>
+    <% end %>
     <% if past_meets.any? %>
       <div class="flex gap-4 overflow-x-auto px-6 pb-2 scrollbar-hide">
         <% past_meets.first(10).each do |meet| %>
@@ -149,52 +148,31 @@
             <% user_on_blue = match.blue_team.users.include?(@user) %>
             <% user_won  = user_on_blue ? blue_s > red_s : red_s > blue_s %>
             <% user_lost = user_on_blue ? red_s > blue_s : blue_s > red_s %>
-            <% accent      = user_won ? "#22c55e" : user_lost ? "#ef4444" : "#6b7280" %>
+            <% accent       = user_won ? "#22c55e" : user_lost ? "#ef4444" : "#6b7280" %>
             <% result_label = user_won ? "Victoire" : user_lost ? "Défaite" : "Égalité" %>
             <% result_color = user_won ? "#86efac" : user_lost ? "#fca5a5" : "rgba(255,255,255,0.4)" %>
             <% result_icon  = user_won ? "fa-trophy" : user_lost ? "fa-circle-xmark" : "fa-handshake" %>
             <% icon_color   = user_won ? "#fbbf24" : user_lost ? "#fca5a5" : "rgba(255,255,255,0.3)" %>
             <% blue_score_color = blue_s >= red_s ? "rgba(255,255,255,0.95)" : "rgba(255,255,255,0.25)" %>
             <% red_score_color  = red_s >= blue_s ? "rgba(255,255,255,0.95)" : "rgba(255,255,255,0.25)" %>
-            <% card_bg = user_won  ? "background:rgba(15,23,42,0.85);border-color:rgba(34,197,94,0.2);"
-                       : user_lost ? "background:rgba(15,23,42,0.85);border-color:rgba(239,68,68,0.2);"
-                       :             "background:rgba(15,23,42,0.85);border-color:rgba(255,255,255,0.08);" %>
-          <% else %>
-            <% accent = "#a855f7" %>
-            <% card_bg = "background:rgba(15,23,42,0.85);border-color:rgba(168,85,247,0.2);" %>
-          <% end %>
-          <%# data-session-filter-target="card" : référencé par le controller pour afficher/cacher la carte
-              data-type                        : correspond à meetable_type ("Match" ou "Program"),
-                                                 utilisé par le controller pour filtrer %>
-          <%= link_to meet_path(meet), class: "flex-shrink-0 w-76 rounded-2xl border overflow-hidden flex flex-col",
-                                       style: card_bg,
-                                       data: { session_filter_target: "card", type: meet.meetable_type } do %>
-            <%# Barre colorée en haut %>
-            <div class="h-1 w-full" style="background:linear-gradient(90deg,<%= accent %>,<%= accent %>88);"></div>
-
-            <div class="px-4 pt-3 pb-4 flex flex-col gap-3">
-              <% if meet.meetable_type == "Match" %>
-                <%# Résultat + date %>
-                <div class="flex items-center justify-between">
-                  <div class="flex items-center gap-1.5">
-                    <i class="fa-solid <%= result_icon %> text-xs" style="color:<%= icon_color %>;"></i>
-                    <span class="text-xs font-black uppercase tracking-widest" style="color:<%= result_color %>;"><%= result_label %></span>
-                  </div>
-                  <span class="text-[11px] text-white/30 font-medium"><%= l(meet.date, format: "%-d %b %Y") %></span>
+            <% blue_circle = blue_s > red_s ? "background:radial-gradient(circle at 35% 35%,rgba(96,165,250,0.35),rgba(59,130,246,0.1));border:1.5px solid rgba(96,165,250,0.7);box-shadow:0 0 16px rgba(59,130,246,0.4);"
+                                            : "background:rgba(255,255,255,0.04);border:1.5px solid rgba(255,255,255,0.1);" %>
+            <% red_circle = red_s > blue_s ? "background:radial-gradient(circle at 35% 35%,rgba(248,113,113,0.35),rgba(239,68,68,0.1));border:1.5px solid rgba(248,113,113,0.7);box-shadow:0 0 16px rgba(239,68,68,0.4);"
+                                           : "background:rgba(255,255,255,0.04);border:1.5px solid rgba(255,255,255,0.1);" %>
+            <%= link_to meet_path(meet),
+                  class: "flex-shrink-0 w-76 rounded-2xl border overflow-hidden flex flex-col",
+                  style: "background:rgba(15,23,42,0.85);border-color:rgba(255,255,255,0.08);",
+                  data: { session_filter_target: "card", type: meet.meetable_type } do %>
+              <div class="h-1 w-full" style="background:linear-gradient(90deg,<%= accent %>,<%= accent %>88);"></div>
+              <div class="px-4 pt-3 pb-4 flex flex-col gap-3 flex-1">
+                <div class="flex items-center gap-1.5">
+                  <i class="fa-solid <%= result_icon %> text-xs" style="color:<%= icon_color %>;"></i>
+                  <span class="text-xs font-black uppercase tracking-widest" style="color:<%= result_color %>;"><%= result_label %></span>
                 </div>
-
-                <%# Cercles scores %>
-                <div class="flex items-center justify-center gap-2 py-1">
-
-                  <%# Bulle équipe bleue %>
-                  <%# mb-3 réserve l'espace pour la photo qui déborde en bas %>
+                <div class="flex-1 flex items-center justify-center gap-2 py-3 px-3 rounded-2xl" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);">
                   <div class="flex flex-col items-center gap-1.5">
-                    <% blue_circle = blue_s > red_s ? "background:radial-gradient(circle at 35% 35%,rgba(96,165,250,0.35),rgba(59,130,246,0.1));border:1.5px solid rgba(96,165,250,0.7);box-shadow:0 0 16px rgba(59,130,246,0.4);"
-                                                    : "background:rgba(255,255,255,0.04);border:1.5px solid rgba(255,255,255,0.1);" %>
-                    <%# relative pour positionner la photo en absolu par rapport à la bulle %>
                     <div class="relative w-16 h-16 rounded-full flex items-center justify-center mb-3" style="<%= blue_circle %>">
                       <span class="text-2xl font-black tabular-nums leading-none" style="color:<%= blue_score_color %>;"><%= match.blue_team_score %></span>
-                      <%# Photo positionnée à moitié dans la bulle, à moitié en dessous %>
                       <% if user_on_blue %>
                         <div class="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 w-7 h-7 rounded-full overflow-hidden border-2 border-white/20">
                           <% if @user.profile_picture.attached? %>
@@ -209,17 +187,10 @@
                     </div>
                     <span class="text-[9px] font-bold uppercase tracking-widest" style="color:<%= blue_s > red_s ? 'rgba(96,165,250,0.7)' : 'rgba(255,255,255,0.2)' %>;">Bleu</span>
                   </div>
-
                   <%= image_tag "vs.png", class: "w-12 h-12 object-contain mb-5" %>
-
-                  <%# Bulle équipe rouge %>
                   <div class="flex flex-col items-center gap-1.5">
-                    <% red_circle = red_s > blue_s ? "background:radial-gradient(circle at 35% 35%,rgba(248,113,113,0.35),rgba(239,68,68,0.1));border:1.5px solid rgba(248,113,113,0.7);box-shadow:0 0 16px rgba(239,68,68,0.4);"
-                                                   : "background:rgba(255,255,255,0.04);border:1.5px solid rgba(255,255,255,0.1);" %>
-                    <%# relative pour positionner la photo en absolu par rapport à la bulle %>
                     <div class="relative w-16 h-16 rounded-full flex items-center justify-center mb-3" style="<%= red_circle %>">
                       <span class="text-2xl font-black tabular-nums leading-none" style="color:<%= red_score_color %>;"><%= match.red_team_score %></span>
-                      <%# Photo positionnée à moitié dans la bulle, à moitié en dessous %>
                       <% unless user_on_blue %>
                         <div class="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 w-7 h-7 rounded-full overflow-hidden border-2 border-white/20">
                           <% if @user.profile_picture.attached? %>
@@ -234,39 +205,46 @@
                     </div>
                     <span class="text-[9px] font-bold uppercase tracking-widest" style="color:<%= red_s > blue_s ? 'rgba(248,113,113,0.7)' : 'rgba(255,255,255,0.2)' %>;">Rouge</span>
                   </div>
-
                 </div>
-
-              <% else %>
-                <%# Programme %>
-                <div class="flex items-center justify-between">
-                  <div class="flex items-center gap-1.5">
-                    <i class="fa-solid fa-dumbbell text-[10px] text-purple-400/80"></i>
-                    <span class="text-xs font-black uppercase tracking-widest text-purple-400/80">Programme</span>
+                <div class="flex items-center justify-between pt-2 border-t border-white/8 mt-auto">
+                  <div class="flex items-center gap-1 text-[14px] text-white/60 min-w-0">
+                    <i class="fa-solid fa-location-dot flex-shrink-0 text-[12px]"></i>
+                    <span class="truncate"><%= meet.court&.name || "Terrain inconnu" %></span>
                   </div>
-                  <span class="text-[11px] text-white/30 font-medium"><%= l(meet.date, format: "%-d %b %Y") %></span>
+                  <span class="text-[14px] font-bold flex-shrink-0 ml-2" style="color:rgba(251,146,60,0.85);"><%= l(meet.date, format: "%-d %b · %H:%M") %></span>
                 </div>
-                <div class="flex flex-col gap-1 py-2">
-                  <span class="text-base font-extrabold text-white leading-snug"><%= meet.meetable.title %></span>
-                  <span class="inline-flex w-fit text-[12px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full" style="background:rgba(168,85,247,0.2);color:rgba(216,180,254,0.8);"><%= meet.meetable.level %></span>
-                </div>
-              <% end %>
-
-              <%# Pied : terrain + durée %>
-              <div class="flex items-center justify-between pt-2 border-t border-white/8">
-                <div class="flex items-center gap-1 text-[12px] text-white/30 min-w-0">
-                  <i class="fa-solid fa-location-dot flex-shrink-0 text-[9px]"></i>
-                  <span class="truncate"><%= meet.court&.name || "Terrain inconnu" %></span>
-                </div>
-                <span class="text-[11px] text-white/30 font-medium flex-shrink-0 ml-2"><%= meet.duration %> min</span>
               </div>
-            </div>
+            <% end %>
+          <% else %>
+            <%= link_to meet_path(meet),
+                  class: "flex-shrink-0 w-76 rounded-2xl border overflow-hidden flex flex-col",
+                  style: "background:rgba(15,23,42,0.85);border-color:rgba(255,255,255,0.08);",
+                  data: { session_filter_target: "card", type: meet.meetable_type } do %>
+              <div class="px-4 pt-3 pb-4 flex flex-col gap-3 flex-1">
+                <div class="flex items-center gap-1.5">
+                  <i class="fa-solid fa-dumbbell text-[10px] text-purple-400/80"></i>
+                  <span class="text-xs font-black uppercase tracking-widest text-purple-400/80">Entraînement</span>
+                </div>
+                <div class="flex flex-col gap-2">
+                  <span class="text-base font-extrabold text-white leading-snug line-clamp-2"><%= meet.meetable.title %></span>
+                  <span class="text-[14px] text-white/60 inline-flex items-center gap-1.5"><i class="fa-solid fa-signal text-[12px]"></i> Niveau : <%= meet.meetable.level %></span>
+                  <span class="text-[14px] text-white/60 inline-flex items-center gap-1.5"><i class="fa-regular fa-clock text-[12px]"></i> Temps de la séance : <%= meet.duration %> min</span>
+                </div>
+                <div class="flex items-center justify-between pt-2 border-t border-white/8 mt-auto">
+                  <div class="flex items-center gap-1 text-[14px] text-white/60 min-w-0">
+                    <i class="fa-solid fa-location-dot flex-shrink-0 text-[12px]"></i>
+                    <span class="truncate"><%= meet.court&.name || "Terrain inconnu" %></span>
+                  </div>
+                  <span class="text-[14px] font-bold flex-shrink-0 ml-2" style="color:rgba(216,180,254,0.8);"><%= l(meet.date, format: "%-d %b · %H:%M") %></span>
+                </div>
+              </div>
+            <% end %>
           <% end %>
         <% end %>
       </div>
     <% else %>
       <div class="mx-6 h-32 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center">
-        <p class="text-white/30 text-base">Aucune rencontre passée</p>
+        <p class="text-white/60 text-base">Aucune rencontre passée</p>
       </div>
     <% end %>
   </section>

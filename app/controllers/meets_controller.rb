@@ -1,12 +1,17 @@
 class MeetsController < ApplicationController
   def index
-    # 1. Les rencontres planifiées
-    @upcoming_meets = Meet.includes(:court, :meetable)
-                          .where("date >= ?", Time.current)
-                          .order(:date)
-  
     # Mes rencontres créées + rejointes
     user_team_ids = current_user.user_teams.pluck(:team_id)
+    excluded_ids  = user_team_ids.presence || [-1]
+
+    # 1. Les rencontres planifiées — exclut les matchs où l'user est orga ou participant
+    @upcoming_meets = Meet.includes(:court, :meetable)
+                          .where("date >= ?", Time.current)
+                          .joins("LEFT JOIN matches ON meets.meetable_id = matches.id AND meets.meetable_type = 'Match'")
+                          .where("meets.meetable_type != 'Match' OR matches.cancelled = FALSE")
+                          .where("meets.meetable_type != 'Match' OR (matches.user_id != ? AND matches.blue_team_id NOT IN (?) AND matches.red_team_id NOT IN (?))",
+                                 current_user.id, excluded_ids, excluded_ids)
+                          .order(:date)
 
     # Rencontres en cours : meet démarré (date < now) ET
     #   - encore dans la fenêtre horaire (date + durée > now), OU
@@ -34,20 +39,6 @@ class MeetsController < ApplicationController
     # 2. Tous les programs actifs de l'user
     @programs = current_user.programs.where(active: true)
 
-    # 3. Les rencontres passées de l'user :
-    #    - date passée
-    #    - hors fenêtre horaire (date + durée <= now)
-    #    - pour les matchs : confirmés uniquement
-    @past_meets = Meet.includes(:court, :meetable)
-                      .where("meets.date < ?", Time.current)
-                      .joins("LEFT JOIN matches ON meets.meetable_id = matches.id AND meets.meetable_type = 'Match'")
-                      .joins("LEFT JOIN programs ON meets.meetable_id = programs.id AND meets.meetable_type = 'Program'")
-                      .where("matches.user_id = ? OR programs.user_id = ? OR matches.blue_team_id IN (?) OR matches.red_team_id IN (?) OR programs.team_id IN (?)",
-                             current_user.id, current_user.id, user_team_ids, user_team_ids, user_team_ids)
-                      .where("meets.date + meets.duration * interval '1 minute' <= ?", Time.current)
-                      .where("meets.meetable_type = 'Program' OR matches.qr_code = 'confirmed'")
-                      .distinct
-                      .order(date: :desc)
   end
 
   def show
@@ -115,7 +106,9 @@ class MeetsController < ApplicationController
     @meetable = @meet.meetable
   
     # Sécurité : on bloque la tentative même si quelqu'un forge une requête manuellement
-    if @meet.date <= Time.current
+    # Exception : les matches annulés peuvent toujours être quittés
+    cancelled = @meet.meetable_type == "Match" && @meetable.cancelled?
+    if @meet.date <= Time.current && !cancelled
       return redirect_to meet_path(@meet), alert: "Cette rencontre a déjà commencé. Vous ne pouvez plus la quitter."
     end
 
