@@ -34,7 +34,7 @@
             <div class="flex-1 min-w-0 py-4">
               <p class="text-base font-bold truncate"><%= classement[:court].name %></p>
               <p class="text-base text-white/40 truncate mt-0.5"><%= classement[:court].address %></p>
-              <p class="text-base text-primary font-semibold mt-1"><%= classement[:points] %> pts</p>
+              <p class="text-base text-primary font-semibold mt-1"><%= classement[:points].round %> pts</p>
             </div>
           <% end %>
           <%# Lien vers le profil : avatar + bordure + rang %>

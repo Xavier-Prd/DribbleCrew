@@ -45,7 +45,7 @@
       <%# Compteurs stats %>
       <div class="flex items-center gap-5">
         <div class="flex flex-col gap-0.5">
-          <span class="text-2xl font-black text-primary"><%= @total_points %></span>
+          <span class="text-2xl font-black text-primary"><%= @total_points.round %></span>
           <span class="text-xs text-white/40">pts total</span>
         </div>
         <div class="w-px h-8 bg-white/10"></div>
@@ -102,7 +102,7 @@
             <%# Infos — pt-10 pour laisser la place à l'avatar qui déborde %>
             <div class="px-4 pt-10 pb-3 flex flex-col gap-1 items-center">
               <p class="text-base font-bold truncate"><%= classement[:court].name %></p>
-              <p class="text-base font-semibold text-primary"><%= classement[:points] %> pts</p>
+              <p class="text-base font-semibold text-primary"><%= classement[:points].round %> pts</p>
             </div>
           <% end %>
         <% end %>
