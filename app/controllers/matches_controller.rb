@@ -43,11 +43,11 @@ class MatchesController < ApplicationController
     blue_score = @match.pending_blue_score
     red_score  = @match.pending_red_score
 
-    # C'est ici que les scores sont réellement sauvegardés, et qr_code effacé
+    # C'est ici que les scores sont réellement sauvegardés, et qr_code marqué "confirmed"
     @match.update!(
       blue_team_score: blue_score,
       red_team_score:  red_score,
-      qr_code:         nil
+      qr_code:         "confirmed"
     )
 
     # On détermine l'équipe gagnante (nil en cas d'égalité)
