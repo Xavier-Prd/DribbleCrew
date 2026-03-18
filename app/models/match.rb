@@ -25,7 +25,7 @@ class Match < ApplicationRecord
     qr_code.present? && qr_code != "confirmed"
   end
 
-  # Extrait le token de sécurité depuis le payload "token|blue|red"
+  # Extrait le token de sécurité depuis le payload "token|blue|red|generator_team"
   def qr_token
     qr_code&.split("|")&.first
   end
@@ -38,6 +38,11 @@ class Match < ApplicationRecord
   # Extrait le score en attente de l'équipe rouge depuis le payload
   def pending_red_score
     qr_code&.split("|")&.third&.to_i
+  end
+
+  # Extrait l'équipe du joueur qui a généré le QR code ("blue" ou "red")
+  def pending_generator_team
+    qr_code&.split("|")&.[](3)
   end
   # Déterminer l'équipe gagnante
   def winner

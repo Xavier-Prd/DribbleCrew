@@ -4,19 +4,27 @@ class MatchesController < ApplicationController
     @match.build_meet(court_id: params[:court_id])
   end
 
-  # Action appelée quand l'organisateur valide le formulaire "Terminer le match".
+  # Action appelée quand un participant valide le formulaire "Terminer le match".
   # Les scores ne sont PAS encore sauvegardés dans blue_team_score/red_team_score.
-  # On les encode dans le champ qr_code sous la forme "token|blue|red" :
-  # ils ne seront écrits en base qu'une fois le QR code scanné par l'équipe adverse.
+  # On les encode dans le champ qr_code sous la forme "token|blue|red|generator_team" :
+  # ils ne seront écrits en base qu'une fois le QR code scanné par un joueur de l'équipe adverse.
   def update
     @match = Match.find(params[:id])
+
+    # Vérifie que le current_user est bien un participant du match
+    unless @match.blue_team.users.include?(current_user) || @match.red_team.users.include?(current_user)
+      return redirect_to meet_path(@match.meet), alert: "Vous ne participez pas à ce match."
+    end
 
     blue_score = params[:match][:blue_team_score].to_i
     red_score  = params[:match][:red_team_score].to_i
 
-    # Token aléatoire + scores encodés dans un seul champ pour éviter une migration
+    # Détermine l'équipe du générateur pour que seule l'équipe adverse puisse valider
+    generator_team = @match.blue_team.users.include?(current_user) ? "blue" : "red"
+
+    # Token aléatoire + scores + équipe du générateur encodés dans un seul champ
     confirmation_token = SecureRandom.urlsafe_base64(16)
-    qr_payload = "#{confirmation_token}|#{blue_score}|#{red_score}"
+    qr_payload = "#{confirmation_token}|#{blue_score}|#{red_score}|#{generator_team}"
 
     if @match.update(qr_code: qr_payload)
       redirect_to meet_path(@match.meet), notice: "Scores enregistrés ! Faites scanner le QR code par un joueur de l'équipe adverse."
@@ -35,8 +43,9 @@ class MatchesController < ApplicationController
       return redirect_to meet_path(@match.meet), alert: "QR code invalide ou déjà utilisé."
     end
 
-    # Vérification 2 : seul un joueur de l'équipe rouge peut confirmer
-    unless @match.red_team.users.include?(current_user)
+    # Vérification 2 : seul un joueur de l'équipe ADVERSE du générateur peut confirmer
+    opposing_team = @match.pending_generator_team == "blue" ? @match.red_team : @match.blue_team
+    unless opposing_team.users.include?(current_user)
       return redirect_to meet_path(@match.meet), alert: "Seul un joueur de l'équipe adverse peut valider le match."
     end
 

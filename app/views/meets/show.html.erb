@@ -286,7 +286,7 @@
     <%# ================================================================ %>
     <%# BOUTON "TERMINER LE MATCH" + MODAL DE SAISIE DES SCORES %>
     <%# ================================================================ %>
-    <% elsif @match.user == current_user && @match.finished? && !@match.pending_confirmation? %>
+    <% elsif (@match.blue_team.users.include?(current_user) || @match.red_team.users.include?(current_user)) && @match.finished? && !@match.pending_confirmation? %>
 
       <%# Ce bouton ouvre la pop-up (balise <dialog>) via son identifiant HTML %>
       <button onclick="document.getElementById('finish-match-modal').showModal()" class="btn btn-success w-full">
