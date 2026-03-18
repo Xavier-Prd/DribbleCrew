@@ -15,16 +15,15 @@ class User < ApplicationRecord
     victory_points = victories.count * 25
 
     team_ids = teams.pluck(:id)
-    matches = Match.where(blue_team_id: team_ids).or(Match.where(red_team_id: team_ids))
-    basket_points = matches.sum do |match|
-      if team_ids.include?(match.blue_team_id)
-        match.blue_team_score.to_i
-      else
-        match.red_team_score.to_i
-      end
-    end * 0.25
+    return victory_points if team_ids.empty?
 
-    (victory_points + basket_points).round
+    # Calcul SQL : additionne uniquement le score de l'équipe de l'utilisateur
+    # via CASE plutôt que de charger tous les matchs en mémoire Ruby
+    team_ids_str = team_ids.map(&:to_i).join(",")
+    basket_raw = Match.where("blue_team_id IN (?) OR red_team_id IN (?)", team_ids, team_ids)
+                      .sum("CASE WHEN blue_team_id IN (#{team_ids_str}) THEN COALESCE(blue_team_score, 0) ELSE COALESCE(red_team_score, 0) END")
+
+    (victory_points + basket_raw * 0.25).round
   end
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
