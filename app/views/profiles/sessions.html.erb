@@ -7,6 +7,7 @@
     <h1 class="font-extrabold tracking-tight">Rencontres</h1>
     <p class="text-white/40 text-base mt-2">Toutes les sessions passées de <span class="text-white font-semibold"><%= @user.username %></span>.</p>
   </div>
+<<<<<<< fix
   <% past_meets = @meets.select { |meet|
       (meet.meetable_type == "Program" && (meet.meetable.user == @user || meet.meetable.team.users.include?(@user))) ||
       (meet.meetable_type == "Match"   && (meet.meetable.red_team.users.include?(@user) || meet.meetable.blue_team.users.include?(@user)))
@@ -14,12 +15,25 @@
   <% past_match_count   = past_meets.count { |m| m.meetable_type == "Match" } %>
   <% past_program_count = past_meets.count { |m| m.meetable_type == "Program" } %>
   <% if past_meets.any? %>
+=======
+
+  <%# @past_meets est déjà filtré en SQL dans le contrôleur — pas besoin de refiltrer ici %>
+  <% past_match_count   = @past_meets.count { |meet| meet.meetable_type == "Match" } %>
+  <% past_program_count = @past_meets.count { |meet| meet.meetable_type == "Program" } %>
+
+  <% if @past_meets.any? %>
+
+>>>>>>> master
     <div data-controller="session-filter">
       <% if past_match_count > 0 && past_program_count > 0 %>
         <div class="flex gap-2 px-6 mb-4">
           <button data-session-filter-target="btn" data-filter-type="all"
                   data-action="click->session-filter#filter"
+<<<<<<< fix
             class="text-xs font-bold px-3 py-1 rounded-full text-white bg-white/10 transition">Tous (<%= past_meets.count %>)</button>
+=======
+                  class="text-xs font-bold px-3 py-1 rounded-full text-white bg-white/10 transition">Tous (<%= @past_meets.count %>)</button>
+>>>>>>> master
           <button data-session-filter-target="btn" data-filter-type="Match"
                   data-action="click->session-filter#filter"
             class="text-xs font-bold px-3 py-1 rounded-full text-white/40 bg-transparent transition">Match (<%= past_match_count %>)</button>
@@ -29,11 +43,17 @@
         </div>
       <% end %>
       <div class="flex flex-col gap-3 px-6">
+<<<<<<< fix
         <% past_meets.each do |meet| %>
+=======
+        <% @past_meets.each do |meet| %>
+
+>>>>>>> master
           <% if meet.meetable_type == "Match" %>
             <% match = meet.meetable %>
             <% blue_s = match.blue_team_score.to_i; red_s = match.red_team_score.to_i %>
-            <% user_on_blue = match.blue_team.users.include?(@user) %>
+            <%# On compare les IDs directement — pas besoin de charger match.blue_team.users %>
+            <% user_on_blue = @user_team_ids.include?(match.blue_team_id) %>
             <% user_won  = user_on_blue ? blue_s > red_s : red_s > blue_s %>
             <% user_lost = user_on_blue ? red_s > blue_s : blue_s > red_s %>
             <% accent       = user_won ? "#22c55e" : user_lost ? "#ef4444" : "#6b7280" %>
