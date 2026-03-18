@@ -133,34 +133,12 @@
                 </div>
 
               <% else %>
-                <%# Rond icône pour les programmes d'entraînement %>
-                <div class="w-11 h-11 rounded-full flex items-center justify-center border border-white/10 flex-shrink-0" style="background:rgba(168,85,247,0.2);">
-                  <i class="fa-solid fa-dumbbell text-white/60 text-base"></i>
-                </div>
-
-                <%# Infos texte du programme %>
-                <div class="flex-1 min-w-0">
-                  <p class="text-sm font-bold text-white truncate"><%= meet.meetable.title %></p>
-                  <p class="text-xs text-white/40 truncate mt-0.5"><%= meet.court&.name || "Terrain inconnu" %></p>
-                  <p class="text-xs text-white/25 mt-0.5"><%= meet.date.strftime("%-d %b %Y") %> · <%= meet.duration %> min</p>
-                </div>
-
-              </div>
-
-              <%# Infos %>
-              <div class="flex-1 min-w-0">
-                <p class="text-sm font-bold text-white"><%= result_label %></p>
-                <p class="text-xs text-white/40 truncate mt-0.5"><%= meet.court&.name || "Terrain inconnu" %></p>
-                <p class="text-xs text-white/25 mt-0.5"><%= l(meet.date, format: "%-d %b %Y") %> · <%= meet.duration %> min</p>
-              </div>
-
-            <% else %>
-              <%# Rond programme %>
+              <%# Rond icône pour les programmes d'entraînement %>
               <div class="w-11 h-11 rounded-full flex items-center justify-center border border-white/10 flex-shrink-0" style="background:rgba(168,85,247,0.2);">
                 <i class="fa-solid fa-dumbbell text-white/60 text-base"></i>
               </div>
 
-              <%# Infos %>
+              <%# Infos texte du programme %>
               <div class="flex-1 min-w-0">
                 <p class="text-sm font-bold text-white truncate"><%= meet.meetable.title %></p>
                 <p class="text-xs text-white/40 truncate mt-0.5"><%= meet.court&.name || "Terrain inconnu" %></p>
@@ -172,6 +150,7 @@
             <% end %>
 
           </div>
+          <% end %>
         <% end %>
       </div>
 

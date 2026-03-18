@@ -19,7 +19,7 @@ gem "tailwindcss-rails"
 # Build JSON APIs with ease [https://github.com/rails/jbuilder]
 gem "jbuilder"
 
-gem "ruby_llm", "~> 1.2.0"
+gem "ruby_llm", "~> 1.14.0"
 
 gem "dotenv"
 gem "cloudinary"
