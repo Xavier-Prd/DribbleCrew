@@ -41,7 +41,7 @@
           <i class="fa-solid fa-location-dot"></i>
         </div>
         <div>
-          <span class="block text-xs text-white/30 uppercase">Lieu du rendez-vous</span>
+          <span class="block text-xs text-white/60 uppercase">Lieu du rendez-vous</span>
           <span class="font-semibold"><%= @meet.court.name %></span>
         </div>
         <%# Lien qui ouvre Google Maps avec l'itinéraire vers le terrain %>
@@ -58,7 +58,7 @@
           <i class="fa-solid fa-calendar-day"></i>
         </div>
         <div>
-          <span class="block text-xs text-white/30 uppercase">Date et Heure</span>
+          <span class="block text-xs text-white/60 uppercase">Date et Heure</span>
           <span class="font-semibold"><%= @meet.date.strftime("%d %B %Y à %H:%M") %></span>
         </div>
       </div>
@@ -93,103 +93,24 @@
       <span class="badge badge-secondary badge-outline text-xs font-black uppercase tracking-widest">Match compétitif</span>
       <h1 class="mt-2"><%= @match.blue_team.number_player %> vs <%= @match.red_team.number_player %></h1>
     </div>
-    <%# Infos communes (Lieu et Date) %>
-    <div class="py-6 border-y border-white/5 flex flex-col gap-3">
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 bg-white/5 rounded-xl flex items-center justify-center text-white/40 shrink-0">
-          <i class="fa-solid fa-location-dot"></i>
-        </div>
-        <div>
-          <span class="block text-xs text-white/30 uppercase">Lieu du rendez-vous</span>
-          <span class="font-semibold"><%= @meet.court.name %></span>
-        </div>
-        <%# Lien qui ouvre Google Maps avec l'itinéraire vers le terrain %>
-        <%= link_to "https://www.google.com/maps/dir/?api=1&destination=#{@meet.court.lat},#{@meet.court.long}",
-                    target: "_blank",
-                    rel: "noopener",
-                    class: "btn btn-circle btn-md bg-white/15 border-0 text-white backdrop-blur-sm ml-auto shrink-0" do %>
-          <i class="fa-solid fa-location-arrow text-primary"></i>
-        <% end %>
-      </div>
-
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 bg-white/5 rounded-xl flex items-center justify-center text-white/40 shrink-0">
-          <i class="fa-solid fa-calendar-day"></i>
-        </div>
-        <div>
-          <span class="block text-xs text-white/30 uppercase">Date et Heure</span>
-          <span class="font-semibold"><%= @meet.date.strftime("%d %B %Y à %H:%M") %></span>
-        </div>
-      </div>
-    </div>
 
     <%# ================================================================ %>
-    <%# GRID DES ÉQUIPES — toujours affichée %>
+    <%# BLOC MATCH ANNULÉ %>
     <%# ================================================================ %>
-    <div class="grid grid-cols-2 gap-4">
-
-      <%# Colonne équipe bleue %>
-      <div class="meet-show__team meet-show__team--blue">
-        <div>
-          <div class="flex justify-between items-center mb-4">
-            <h3 class="text-info m-0">TEAM BLEUE</h3>
-            <span class="badge badge-info badge-sm"><%= @match.blue_team.users.count %>/<%= @match.blue_team.number_player %></span>
-          </div>
-          <ul class="list-none p-0 mb-5 space-y-2">
-            <% @match.blue_team.users.each do |user| %>
-              <li class="text-sm flex items-center gap-2">
-                <% if user.profile_picture.attached? %>
-                  <%= image_tag user.profile_picture, class: "w-6 h-6 rounded-full object-cover shrink-0" %>
-                <% else %>
-                  <i class="fa-solid fa-circle-user text-white/30"></i>
-                <% end %>
-                <%= user.username %>
-                <% if user == @match.user %><span class="text-[10px] opacity-50">(Org.)</span><% end %>
-              </li>
-            <% end %>
-            <% (@match.blue_team.number_player - @match.blue_team.users.count).times do %>
-              <li class="text-sm text-white/15"><i>Libre...</i></li>
-            <% end %>
-          </ul>
+    <% if @match.cancelled? %>
+      <div class="flex flex-col items-center gap-3 py-6 px-4 rounded-2xl border border-error/30 bg-error/5">
+        <i class="fa-solid fa-ban text-3xl text-error/60"></i>
+        <div class="text-center">
+          <p class="text-error font-black uppercase tracking-widest text-sm">Match annulé</p>
+          <p class="text-white/40 text-sm mt-1">Ce match a été annulé par l'organisateur.</p>
         </div>
-        <% if !@match.blue_team.users.include?(current_user) && !@match.red_team.users.include?(current_user) && @match.blue_team.users.count < @match.blue_team.number_player && @meet.date > Time.current %>
-          <%= button_to "Rejoindre", join_meet_path(@meet, team_id: @match.blue_team_id), method: :post, class: "btn btn-info w-full" %>
-        <% end %>
       </div>
-
-      <%# Colonne équipe rouge %>
-      <div class="meet-show__team meet-show__team--red">
-        <div>
-          <div class="flex justify-between items-center mb-4">
-            <h3 class="text-error m-0">TEAM ROUGE</h3>
-            <span class="badge badge-error badge-sm"><%= @match.red_team.users.count %>/<%= @match.red_team.number_player %></span>
-          </div>
-          <ul class="list-none p-0 mb-5 space-y-2">
-            <% @match.red_team.users.each do |user| %>
-              <li class="text-sm flex items-center gap-2">
-                <% if user.profile_picture.attached? %>
-                  <%= image_tag user.profile_picture, class: "w-6 h-6 rounded-full object-cover shrink-0" %>
-                <% else %>
-                  <i class="fa-solid fa-circle-user text-white/30"></i>
-                <% end %>
-                <%= user.username %>
-              </li>
-            <% end %>
-            <% (@match.red_team.number_player - @match.red_team.users.count).times do %>
-              <li class="text-sm text-white/15"><i>Libre...</i></li>
-            <% end %>
-          </ul>
-        </div>
-        <% if !@match.red_team.users.include?(current_user) && !@match.blue_team.users.include?(current_user) && @match.red_team.users.count < @match.red_team.number_player && @meet.date > Time.current %>
-          <%= button_to "Rejoindre", join_meet_path(@meet, team_id: @match.red_team_id), method: :post, class: "btn btn-error w-full" %>
-        <% end %>
-      </div>
-    </div>
+    <% end %>
 
     <%# ================================================================ %>
-    <%# BLOC QR CODE — EN ATTENTE DE CONFIRMATION PAR L'ÉQUIPE ADVERSE %>
+    <%# BLOC QR CODE — affiché EN PREMIER quand en attente de validation %>
     <%# ================================================================ %>
-    <% if @match.pending_confirmation? %>
+    <% if @match.pending_confirmation? && !@match.cancelled? %>
 
       <div class="meet-show__qr-block">
 
@@ -254,6 +175,99 @@
 
     <% end %>
 
+    <%# Infos communes (Lieu et Date) %>
+    <div class="py-6 border-y border-white/5 flex flex-col gap-3">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-white/5 rounded-xl flex items-center justify-center text-white/40 shrink-0">
+          <i class="fa-solid fa-location-dot"></i>
+        </div>
+        <div>
+          <span class="block text-xs text-white/60 uppercase">Lieu du rendez-vous</span>
+          <span class="font-semibold"><%= @meet.court.name %></span>
+        </div>
+        <%# Lien qui ouvre Google Maps avec l'itinéraire vers le terrain %>
+        <%= link_to "https://www.google.com/maps/dir/?api=1&destination=#{@meet.court.lat},#{@meet.court.long}",
+                    target: "_blank",
+                    rel: "noopener",
+                    class: "btn btn-circle btn-md bg-white/15 border-0 text-white backdrop-blur-sm ml-auto shrink-0" do %>
+          <i class="fa-solid fa-location-arrow text-primary"></i>
+        <% end %>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-white/5 rounded-xl flex items-center justify-center text-white/40 shrink-0">
+          <i class="fa-solid fa-calendar-day"></i>
+        </div>
+        <div>
+          <span class="block text-xs text-white/60 uppercase">Date et Heure</span>
+          <span class="font-semibold"><%= @meet.date.strftime("%d %B %Y à %H:%M") %></span>
+        </div>
+      </div>
+    </div>
+
+    <%# ================================================================ %>
+    <%# GRID DES ÉQUIPES — toujours affichée %>
+    <%# ================================================================ %>
+    <div class="grid grid-cols-2 gap-4">
+
+      <%# Colonne équipe bleue %>
+      <div class="meet-show__team meet-show__team--blue">
+        <div>
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-info m-0">TEAM BLEUE</h3>
+            <span class="badge badge-info badge-sm"><%= @match.blue_team.users.count %>/<%= @match.blue_team.number_player %></span>
+          </div>
+          <ul class="list-none p-0 mb-5 space-y-2">
+            <% @match.blue_team.users.each do |user| %>
+              <li class="text-sm flex items-center gap-2">
+                <% if user.profile_picture.attached? %>
+                  <%= image_tag user.profile_picture, class: "w-6 h-6 rounded-full object-cover shrink-0" %>
+                <% else %>
+                  <i class="fa-solid fa-circle-user text-white/60"></i>
+                <% end %>
+                <%= user.username %>
+                <% if user == @match.user %><span class="text-[10px] opacity-50">(Org.)</span><% end %>
+              </li>
+            <% end %>
+            <% (@match.blue_team.number_player - @match.blue_team.users.count).times do %>
+              <li class="text-sm text-white/15"><i>Libre...</i></li>
+            <% end %>
+          </ul>
+        </div>
+        <% if !@match.cancelled? && !@match.blue_team.users.include?(current_user) && !@match.red_team.users.include?(current_user) && @match.blue_team.users.count < @match.blue_team.number_player && @meet.date > Time.current %>
+          <%= button_to "Rejoindre", join_meet_path(@meet, team_id: @match.blue_team_id), method: :post, class: "btn btn-info w-full" %>
+        <% end %>
+      </div>
+
+      <%# Colonne équipe rouge %>
+      <div class="meet-show__team meet-show__team--red">
+        <div>
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-error m-0">TEAM ROUGE</h3>
+            <span class="badge badge-error badge-sm"><%= @match.red_team.users.count %>/<%= @match.red_team.number_player %></span>
+          </div>
+          <ul class="list-none p-0 mb-5 space-y-2">
+            <% @match.red_team.users.each do |user| %>
+              <li class="text-sm flex items-center gap-2">
+                <% if user.profile_picture.attached? %>
+                  <%= image_tag user.profile_picture, class: "w-6 h-6 rounded-full object-cover shrink-0" %>
+                <% else %>
+                  <i class="fa-solid fa-circle-user text-white/60"></i>
+                <% end %>
+                <%= user.username %>
+              </li>
+            <% end %>
+            <% (@match.red_team.number_player - @match.red_team.users.count).times do %>
+              <li class="text-sm text-white/15"><i>Libre...</i></li>
+            <% end %>
+          </ul>
+        </div>
+        <% if !@match.cancelled? && !@match.red_team.users.include?(current_user) && !@match.blue_team.users.include?(current_user) && @match.red_team.users.count < @match.red_team.number_player && @meet.date > Time.current %>
+          <%= button_to "Rejoindre", join_meet_path(@meet, team_id: @match.red_team_id), method: :post, class: "btn btn-error w-full" %>
+        <% end %>
+      </div>
+    </div>
+
     <%# ================================================================ %>
     <%# BLOC RÉSULTAT FINAL — affiché EN DESSOUS des équipes %>
     <%# ================================================================ %>
@@ -285,7 +299,7 @@
     <%# ================================================================ %>
     <%# BOUTON "TERMINER LE MATCH" + MODAL DE SAISIE DES SCORES %>
     <%# ================================================================ %>
-    <% elsif @match.user == current_user && @match.finished? %>
+    <% elsif (@match.blue_team.users.include?(current_user) || @match.red_team.users.include?(current_user)) && @match.finished? && !@match.pending_confirmation? %>
 
       <%# Ce bouton ouvre la pop-up (balise <dialog>) via son identifiant HTML %>
       <button onclick="document.getElementById('finish-match-modal').showModal()" class="btn btn-success w-full">
@@ -344,9 +358,14 @@
 
     <% end %>
 
-    <%# Bouton quitter match %>
-    <% if (@match.blue_team.users.include?(current_user) || @match.red_team.users.include?(current_user)) && @match.user != current_user && @meet.date > Time.current %>
+    <%# Bouton quitter match (participants non-organisateur, avant le match OU si annulé) %>
+    <% if (@match.blue_team.users.include?(current_user) || @match.red_team.users.include?(current_user)) && @match.user != current_user && (@meet.date > Time.current || @match.cancelled?) %>
       <%= button_to "Quitter le match", leave_meet_path(@meet), method: :post, class: "btn btn-ghost w-full text-error border border-error/30" %>
+    <% end %>
+
+    <%# Bouton annuler le match (organisateur uniquement, avant que le match soit terminé/annulé) %>
+    <% if @match.user == current_user && !@match.cancelled? && !@match.confirmed? && !@match.finished? %>
+      <%= button_to "Annuler le match", cancel_match_path(@match), method: :post, class: "btn btn-ghost w-full text-error border border-error/30", data: { turbo_confirm: "Annuler ce match ? Les participants seront notifiés." } %>
     <% end %>
 
   <% end %>

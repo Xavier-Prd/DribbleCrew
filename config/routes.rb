@@ -1,6 +1,7 @@
 Rails.application.routes.draw do
   devise_for :users
-  root to: "maps#index"
+  root to: "pages#home"
+  get "maps", to: "maps#index", as: :maps
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
@@ -20,8 +21,8 @@ Rails.application.routes.draw do
   end
   resources :matches, only: [ :new, :create, :update ] do
     member do
-      # URL scannée par le joueur adverse pour confirmer le résultat du match
       get :confirm
+      post :cancel
     end
   end
   resources :meets, only: [ :show, :index, :destroy ] do

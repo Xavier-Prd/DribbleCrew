@@ -7,12 +7,13 @@
     data-map-markers-value="<%= (@markers || []).to_json %>"
     data-map-icon-path-value="<%= asset_path('marker.png') %>"
     data-map-shadow-path-value="<%= asset_path('iconshadow.png') %>"
-    data-map-mapbox-token-value="<%= ENV['MAPBOX_TOKEN'] %>">
+    data-map-mapbox-token-value="<%= ENV['MAPBOX_TOKEN'] %>"
+  >
     <%# Sélecteur de périmètre — positionné en overlay sur la carte %>
     <div class="absolute top-4 right-4 z-1000">
       <select class="select select-ghost bg-base-200/90 focus:outline-none" data-action="change->map#setRadius" data-map-target="radiusSelect" autocomplete="off">
         <option value="500">500 m</option>
-        <option value="1000" selected>1 km</option>
+        <option value="1000">1 km</option>
         <option value="2000">2 km</option>
         <option value="5000">5 km</option>
         <option value="10000">10 km</option>
@@ -25,17 +26,16 @@
       <i class="fa-solid fa-location-crosshairs text-primary"></i>
     </button>
   </div>
-
   <%# Dropdown flottant — hors du conteneur Leaflet pour que les liens ne soient pas bloqués par Leaflet %>
   <div class="fixed right-4 z-1000" style="bottom: calc(6rem + env(safe-area-inset-bottom));">
-    <div class="dropdown dropdown-top dropdown-end">
+    <div class="dropdown dropdown-top dropdown-end group">
       <button tabindex="0" class="flex items-center justify-center w-14 h-14 rounded-full shadow-lg"
               style="background-color: var(--color-primary); box-shadow: 0 0 20px color-mix(in srgb, var(--color-primary) 50%, transparent);">
-        <i class="fa-solid fa-plus text-white text-xl"></i>
+        <i class="fa-solid fa-plus text-white text-xl transition-transform duration-200 group-focus-within:rotate-45"></i>
       </button>
       <ul tabindex="0" class="dropdown-content menu bg-base-200 rounded-2xl shadow-xl p-2 mb-3 w-52 border border-white/10">
         <%= link_to new_match_path, class: "flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 transition-colors" do %>
-          <i class="fa-solid fa-shield-halved text-primary w-4 text-center"></i>
+          <i class="fa-solid fa-basketball text-primary w-4 text-center"></i>
           <span class="text-base font-medium">Créer un match</span>
         <% end %>
         <%= link_to new_program_path, class: "flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 transition-colors" do %>

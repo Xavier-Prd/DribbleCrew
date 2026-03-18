@@ -4,9 +4,15 @@ class Match < ApplicationRecord
   belongs_to :user
   belongs_to :blue_team, class_name: "Team"
   belongs_to :red_team, class_name: "Team"
-  has_one :meet, as: :meetable
+  validates :blue_team_score, presence: true
+  validates :red_team_score, presence: true
+  has_one :meet, as: :meetable, dependent: :destroy
   # Permet de créer le Meet en même temps que le Match
   accepts_nested_attributes_for :meet
+
+  def cancelled?
+    cancelled
+  end
 
   # Savoir si le match est fini (la date est passée)
   def finished?
@@ -14,18 +20,18 @@ class Match < ApplicationRecord
   end
 
   # Savoir si le résultat a été confirmé par l'équipe adverse via QR code
-  # Logique : scores réels présents ET qr_code effacé (nil) = confirmation faite
+  # Logique : qr_code == "confirmed" après scan réussi
   def confirmed?
-    blue_team_score.present? && red_team_score.present? && qr_code.nil?
+    qr_code == "confirmed"
   end
 
   # Savoir si le match est en attente de confirmation (QR code généré, pas encore scanné)
-  # Les scores ne sont pas encore dans blue_team_score/red_team_score à ce stade
+  # Le payload contient "token|blue|red" (distingué de "confirmed")
   def pending_confirmation?
-    qr_code.present?
+    qr_code.present? && qr_code != "confirmed"
   end
 
-  # Extrait le token de sécurité depuis le payload "token|blue|red"
+  # Extrait le token de sécurité depuis le payload "token|blue|red|generator_team"
   def qr_token
     qr_code&.split("|")&.first
   end
@@ -38,6 +44,11 @@ class Match < ApplicationRecord
   # Extrait le score en attente de l'équipe rouge depuis le payload
   def pending_red_score
     qr_code&.split("|")&.third&.to_i
+  end
+
+  # Extrait l'équipe du joueur qui a généré le QR code ("blue" ou "red")
+  def pending_generator_team
+    qr_code&.split("|")&.[](3)
   end
   # Déterminer l'équipe gagnante
   def winner

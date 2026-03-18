@@ -1,22 +1,18 @@
 <% if user_signed_in? %>
   <nav class="fixed bottom-0 left-0 right-0 z-50 border-t border-white/10" style="background-color: var(--color-base-300); padding-bottom: env(safe-area-inset-bottom);">
     <div class="flex items-center justify-around h-16 relative">
-
       <% meets_active = request.path.start_with?('/meets') %>
       <%= link_to meets_path, class: "flex items-center justify-center w-12 h-12", style: meets_active ? "color: var(--color-primary);" : "color: rgba(255,255,255,0.5);" do %>
         <i class="fa-solid fa-chart-bar text-xl"></i>
       <% end %>
-
-      <% map_active = request.path == '/' %>
-      <%= link_to root_path, class: "flex items-center justify-center w-14 h-14 rounded-full -translate-y-4 shadow-lg", style: "background-color: var(--color-primary); box-shadow: 0 0 20px color-mix(in srgb, var(--color-primary) 60%, transparent);" do %>
-        <i class="fa-solid fa-location-dot text-2xl text-white"></i>
+      <% map_active = request.path.start_with?('/maps') %>
+      <%= link_to maps_path, class: "flex items-center justify-center w-14 h-14 rounded-full -translate-y-4 shadow-lg", style: "background-color: var(--color-primary); box-shadow: 0 0 20px color-mix(in srgb, var(--color-primary) 60%, transparent);" do %>
+        <i class="fa-regular fa-map text-2xl text-white"></i>
       <% end %>
-
       <% profile_active = request.path.start_with?('/profiles') %>
       <%= link_to profile_path(current_user), class: "flex items-center justify-center w-12 h-12", style: profile_active ? "color: var(--color-primary);" : "color: rgba(255,255,255,0.5);" do %>
         <i class="fa-solid fa-user text-xl"></i>
       <% end %>
-
     </div>
   </nav>
 <% end %>
