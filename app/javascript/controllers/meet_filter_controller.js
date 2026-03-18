@@ -27,7 +27,7 @@ export default class extends Controller {
   showDistance(userLat, userLng) {
     const meters = this.haversine(userLat, userLng, this.latValue, this.lngValue);
     const label = `${(meters / 1000).toFixed(1)} km`;
-    this.distanceTarget.querySelector("i").insertAdjacentText("afterend", ` ${label}`);
+    this.distanceTarget.querySelector("span").textContent = ` ${label}`;
     this.distanceTarget.classList.remove("hidden");
     this.distanceTarget.classList.add("flex");
   }
