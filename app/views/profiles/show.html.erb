@@ -132,7 +132,8 @@
       </div>
     <% end %>
     <% if @past_meets.any? %>
-      <div class="flex gap-4 overflow-x-auto px-6 pb-2 scrollbar-hide">
+      <% solo = @past_meets.first(10).count == 1 %>
+      <div class="<%= solo ? 'px-6' : 'flex gap-4 overflow-x-auto px-6 pb-2 scrollbar-hide' %>">
         <% @past_meets.first(10).each do |meet| %>
           <% if meet.meetable_type == "Match" %>
             <% match = meet.meetable %>
