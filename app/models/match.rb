@@ -1,4 +1,6 @@
 class Match < ApplicationRecord
+  attr_accessor :match_type
+  validates :match_type, presence: true, inclusion: { in: [ 1, 2, 3, 4, 5 ] } # Attribut virtuel pour le type de match (1v1, 3v3, 5v5)
   belongs_to :user
   belongs_to :blue_team, class_name: "Team"
   belongs_to :red_team, class_name: "Team"

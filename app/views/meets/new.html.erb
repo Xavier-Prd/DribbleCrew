@@ -1,79 +1,24 @@
-<div class="min-h-screen pb-24 px-6">
-
-  <%# Header %>
-  <div class="flex items-center gap-4 pt-10 mb-8">
-    <%= link_to program_path(@program), class: "flex items-center justify-center w-10 h-10 rounded-full border border-white/10" do %>
-      <i class="fa-solid fa-chevron-left text-base"></i>
-    <% end %>
-    <div>
-      <p class="text-base text-white/40 uppercase tracking-widest">Programme</p>
-      <h1 class="font-bold leading-tight"><%= @program.title %></h1>
-    </div>
-  </div>
-
-  <%# Title %>
-  <div class="mb-10">
-    <h2 class="font-bold">Planifier une rencontre</h2>
-    <p class="text-white/40 text-base mt-2">Choisissez une date, une durée et un terrain.</p>
-  </div>
-
-  <%= simple_form_for [@program, @meet], html: { class: "space-y-6" } do |f| %>
-
-    <%# Date %>
-    <div>
-      <label class="text-base font-semibold uppercase tracking-widest text-white/40 mb-2 block">Date & heure</label>
-      <%= f.input :date,
-          as: :string,
-          label: false,
-          wrapper: false,
-          input_html: {
-            type: "datetime-local",
-            class: "input input-bordered w-full bg-white/5 border-white/10 text-white [color-scheme:dark] focus:border-primary focus:outline-none"
-          } %>
-      <%= f.error :date, class: "text-error text-base mt-1" %>
-    </div>
-
-    <%# Duration %>
-    <div>
-      <label class="text-base font-semibold uppercase tracking-widest text-white/40 mb-2 block">Durée</label>
-      <div class="grid grid-cols-3 gap-2">
-        <% Meet::DURATIONS.each do |duration| %>
-          <label class="relative cursor-pointer">
-            <%= f.radio_button :duration, duration, class: "peer sr-only" %>
-            <div class="flex flex-col items-center justify-center py-3 rounded-xl border border-white/10 bg-white/5 text-white/50 text-base font-medium
-                        peer-checked:border-primary peer-checked:bg-primary/10 peer-checked:text-primary transition-all">
-              <span class="text-base font-bold"><%= duration %></span>
-              <span class="text-base">min</span>
-            </div>
-          </label>
-        <% end %>
-      </div>
-      <%= f.error :duration, class: "text-error text-base mt-1" %>
-    </div>
-
-    <%# Court %>
-    <div>
-      <label class="text-base font-semibold uppercase tracking-widest text-white/40 mb-2 block">Terrain</label>
-      <%= f.input :court_id,
-          as: :select,
-          label: false,
-          wrapper: false,
-          collection: Court.all,
-          label_method: :name,
-          value_method: :id,
-          prompt: "Sélectionner un terrain",
-          input_html: {
-            class: "select select-bordered w-full bg-white/5 border-white/10 text-white focus:border-primary focus:outline-none"
-          } %>
-      <%= f.error :court_id, class: "text-error text-base mt-1" %>
-    </div>
-
-    <%# Submit %>
-    <div class="pt-4">
-      <%= f.submit "Planifier la rencontre",
-          class: "btn btn-primary btn-md w-full rounded-box" %>
-    </div>
-
+<h1 class="flex items-center justify-center gap-3 font-bold mt-12 mx-6">
+  Planifier une rencontre
+  <i class="fa-solid fa-calendar-days text-6xl"></i>
+</h1>
+<p class="text-center text-gray-500 mb-12 mx-6 mt-6">
+  Choisissez une date, une durée et un terrain pour <%= @program.title %>.
+</p>
+<div class="mx-6">
+  <%= simple_form_for [@program, @meet] do |f| %>
+    <%= f.input :date, as: :string, required: false, label: "Date & heure",
+        input_html: { type: "datetime-local" } %>
+    <%= f.input :duration, required: false,
+        collection: [["15 mins", 15], ["30 mins", 30], ["45 mins", 45], ["60 mins", 60], ["90 mins", 90], ["120 mins", 120]],
+        prompt: "Choisir la durée",
+        label: "Durée du match" %>
+    <%= f.association :court,
+        collection: Court.all,
+        label_method: :name,
+        value_method: :id,
+        prompt: "Sélectionner un terrain",
+        label: "Terrain" %>
+    <%= f.button :submit, "Planifier la rencontre" %>
   <% end %>
-
 </div>
