@@ -21,8 +21,8 @@ Rails.application.routes.draw do
   end
   resources :matches, only: [ :new, :create, :update ] do
     member do
-      # URL scannée par le joueur adverse pour confirmer le résultat du match
       get :confirm
+      post :cancel
     end
   end
   resources :meets, only: [ :show, :index, :destroy ] do

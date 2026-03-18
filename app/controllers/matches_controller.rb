@@ -79,6 +79,25 @@ class MatchesController < ApplicationController
     redirect_to meet_path(@match.meet), notice: "Match validé ! Le résultat est officiel."
   end
 
+  def cancel
+    @match = Match.find(params[:id])
+
+    unless @match.user == current_user
+      return redirect_to meet_path(@match.meet), alert: "Seul l'organisateur peut annuler ce match."
+    end
+
+    participants = (@match.blue_team.users.to_a + @match.red_team.users.to_a).uniq.reject { |u| u == current_user }
+
+    if participants.any?
+      @match.update!(cancelled: true)
+      redirect_to meet_path(@match.meet), notice: "Match annulé. Les participants peuvent toujours le quitter."
+    else
+      meet = @match.meet
+      meet.destroy
+      redirect_to meets_path, notice: "Match supprimé."
+    end
+  end
+
   def create
     player_limit = params[:match_type].to_i
 

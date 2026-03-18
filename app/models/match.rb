@@ -4,9 +4,13 @@ class Match < ApplicationRecord
   belongs_to :red_team, class_name: "Team"
   validates :blue_team_score, presence: true
   validates :red_team_score, presence: true
-  has_one :meet, as: :meetable
+  has_one :meet, as: :meetable, dependent: :destroy
   # Permet de créer le Meet en même temps que le Match
   accepts_nested_attributes_for :meet
+
+  def cancelled?
+    cancelled
+  end
 
   # Savoir si le match est fini (la date est passée)
   def finished?

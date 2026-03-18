@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_18_084326) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_18_121452) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -54,6 +54,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_18_084326) do
   create_table "matches", force: :cascade do |t|
     t.bigint "blue_team_id", null: false
     t.integer "blue_team_score", default: 0, null: false
+    t.boolean "cancelled", default: false, null: false
     t.datetime "created_at", null: false
     t.string "qr_code"
     t.bigint "red_team_id", null: false

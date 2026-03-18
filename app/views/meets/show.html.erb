@@ -41,7 +41,7 @@
           <i class="fa-solid fa-location-dot"></i>
         </div>
         <div>
-          <span class="block text-xs text-white/30 uppercase">Lieu du rendez-vous</span>
+          <span class="block text-xs text-white/60 uppercase">Lieu du rendez-vous</span>
           <span class="font-semibold"><%= @meet.court.name %></span>
         </div>
         <%# Lien qui ouvre Google Maps avec l'itinéraire vers le terrain %>
@@ -58,7 +58,7 @@
           <i class="fa-solid fa-calendar-day"></i>
         </div>
         <div>
-          <span class="block text-xs text-white/30 uppercase">Date et Heure</span>
+          <span class="block text-xs text-white/60 uppercase">Date et Heure</span>
           <span class="font-semibold"><%= @meet.date.strftime("%d %B %Y à %H:%M") %></span>
         </div>
       </div>
@@ -95,9 +95,22 @@
     </div>
 
     <%# ================================================================ %>
+    <%# BLOC MATCH ANNULÉ %>
+    <%# ================================================================ %>
+    <% if @match.cancelled? %>
+      <div class="flex flex-col items-center gap-3 py-6 px-4 rounded-2xl border border-error/30 bg-error/5">
+        <i class="fa-solid fa-ban text-3xl text-error/60"></i>
+        <div class="text-center">
+          <p class="text-error font-black uppercase tracking-widest text-sm">Match annulé</p>
+          <p class="text-white/40 text-sm mt-1">Ce match a été annulé par l'organisateur.</p>
+        </div>
+      </div>
+    <% end %>
+
+    <%# ================================================================ %>
     <%# BLOC QR CODE — affiché EN PREMIER quand en attente de validation %>
     <%# ================================================================ %>
-    <% if @match.pending_confirmation? %>
+    <% if @match.pending_confirmation? && !@match.cancelled? %>
 
       <div class="meet-show__qr-block">
 
@@ -169,7 +182,7 @@
           <i class="fa-solid fa-location-dot"></i>
         </div>
         <div>
-          <span class="block text-xs text-white/30 uppercase">Lieu du rendez-vous</span>
+          <span class="block text-xs text-white/60 uppercase">Lieu du rendez-vous</span>
           <span class="font-semibold"><%= @meet.court.name %></span>
         </div>
         <%# Lien qui ouvre Google Maps avec l'itinéraire vers le terrain %>
@@ -186,7 +199,7 @@
           <i class="fa-solid fa-calendar-day"></i>
         </div>
         <div>
-          <span class="block text-xs text-white/30 uppercase">Date et Heure</span>
+          <span class="block text-xs text-white/60 uppercase">Date et Heure</span>
           <span class="font-semibold"><%= @meet.date.strftime("%d %B %Y à %H:%M") %></span>
         </div>
       </div>
@@ -210,7 +223,7 @@
                 <% if user.profile_picture.attached? %>
                   <%= image_tag user.profile_picture, class: "w-6 h-6 rounded-full object-cover shrink-0" %>
                 <% else %>
-                  <i class="fa-solid fa-circle-user text-white/30"></i>
+                  <i class="fa-solid fa-circle-user text-white/60"></i>
                 <% end %>
                 <%= user.username %>
                 <% if user == @match.user %><span class="text-[10px] opacity-50">(Org.)</span><% end %>
@@ -221,7 +234,7 @@
             <% end %>
           </ul>
         </div>
-        <% if !@match.blue_team.users.include?(current_user) && !@match.red_team.users.include?(current_user) && @match.blue_team.users.count < @match.blue_team.number_player && @meet.date > Time.current %>
+        <% if !@match.cancelled? && !@match.blue_team.users.include?(current_user) && !@match.red_team.users.include?(current_user) && @match.blue_team.users.count < @match.blue_team.number_player && @meet.date > Time.current %>
           <%= button_to "Rejoindre", join_meet_path(@meet, team_id: @match.blue_team_id), method: :post, class: "btn btn-info w-full" %>
         <% end %>
       </div>
@@ -239,7 +252,7 @@
                 <% if user.profile_picture.attached? %>
                   <%= image_tag user.profile_picture, class: "w-6 h-6 rounded-full object-cover shrink-0" %>
                 <% else %>
-                  <i class="fa-solid fa-circle-user text-white/30"></i>
+                  <i class="fa-solid fa-circle-user text-white/60"></i>
                 <% end %>
                 <%= user.username %>
               </li>
@@ -249,7 +262,7 @@
             <% end %>
           </ul>
         </div>
-        <% if !@match.red_team.users.include?(current_user) && !@match.blue_team.users.include?(current_user) && @match.red_team.users.count < @match.red_team.number_player && @meet.date > Time.current %>
+        <% if !@match.cancelled? && !@match.red_team.users.include?(current_user) && !@match.blue_team.users.include?(current_user) && @match.red_team.users.count < @match.red_team.number_player && @meet.date > Time.current %>
           <%= button_to "Rejoindre", join_meet_path(@meet, team_id: @match.red_team_id), method: :post, class: "btn btn-error w-full" %>
         <% end %>
       </div>
@@ -345,9 +358,14 @@
 
     <% end %>
 
-    <%# Bouton quitter match %>
-    <% if (@match.blue_team.users.include?(current_user) || @match.red_team.users.include?(current_user)) && @match.user != current_user && @meet.date > Time.current %>
+    <%# Bouton quitter match (participants non-organisateur, avant le match OU si annulé) %>
+    <% if (@match.blue_team.users.include?(current_user) || @match.red_team.users.include?(current_user)) && @match.user != current_user && (@meet.date > Time.current || @match.cancelled?) %>
       <%= button_to "Quitter le match", leave_meet_path(@meet), method: :post, class: "btn btn-ghost w-full text-error border border-error/30" %>
+    <% end %>
+
+    <%# Bouton annuler le match (organisateur uniquement, avant que le match soit terminé/annulé) %>
+    <% if @match.user == current_user && !@match.cancelled? && !@match.confirmed? && !@match.finished? %>
+      <%= button_to "Annuler le match", cancel_match_path(@match), method: :post, class: "btn btn-ghost w-full text-error border border-error/30", data: { turbo_confirm: "Annuler ce match ? Les participants seront notifiés." } %>
     <% end %>
 
   <% end %>
