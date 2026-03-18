@@ -39,11 +39,11 @@ class CourtsController < ApplicationController
     court_matches = Match.joins(:meet).where(meets: { court: @court }).includes(blue_team: :users, red_team: :users)
     court_matches.each do |match|
       basket_score = match.blue_team_score
-      blue_ids = match.blue_team.users.pluck(:id)
+      blue_ids = match.blue_team.users.map(&:id)
       blue_ids.each { |uid| points[uid] = (points[uid] || 0) + basket_score }
 
       basket_score = match.red_team_score
-      red_ids = match.red_team.users.pluck(:id)
+      red_ids = match.red_team.users.map(&:id)
       red_ids.each { |uid| points[uid] = (points[uid] || 0) + basket_score }
     end
 

@@ -93,6 +93,75 @@
       <span class="badge badge-secondary badge-outline text-xs font-black uppercase tracking-widest">Match compétitif</span>
       <h1 class="mt-2"><%= @match.blue_team.number_player %> vs <%= @match.red_team.number_player %></h1>
     </div>
+
+    <%# ================================================================ %>
+    <%# BLOC QR CODE — affiché EN PREMIER quand en attente de validation %>
+    <%# ================================================================ %>
+    <% if @match.pending_confirmation? %>
+
+      <div class="meet-show__qr-block">
+
+        <%# Badge statut %>
+        <div class="badge badge-warning gap-2 py-3 px-4 mb-4">
+          <span class="meet-show__status-dot"></span>
+          <span class="text-xs font-black uppercase tracking-widest">En attente de validation</span>
+        </div>
+
+        <%# Score en attente %>
+        <div class="flex items-center justify-center gap-5 mb-5">
+          <div class="text-center">
+            <div class="text-xs text-info font-bold uppercase tracking-widest mb-1">Bleus</div>
+            <%# Les scores affichés ici sont les scores en attente, pas encore confirmés %>
+            <div class="text-5xl font-black leading-none text-info"><%= @match.pending_blue_score %></div>
+          </div>
+          <div class="text-2xl text-white/15 font-light">—</div>
+          <div class="text-center">
+            <div class="text-xs text-error font-bold uppercase tracking-widest mb-1">Rouges</div>
+            <div class="text-5xl font-black leading-none text-error"><%= @match.pending_red_score %></div>
+          </div>
+        </div>
+
+        <%# Instruction %>
+        <p class="text-white/45 text-sm leading-relaxed mb-6">
+          Un joueur de l'équipe adverse doit scanner<br>ce QR code pour confirmer le résultat.
+        </p>
+
+        <%# On génère l'URL de confirmation encodée dans le QR code.
+            qr_token extrait uniquement le token depuis le payload "token|blue|red". %>
+        <% confirmation_url = confirm_match_url(@match, token: @match.qr_token) %>
+
+        <%# On génère le QR code en SVG avec le gem rqrcode %>
+        <% qr_svg = RQRCode::QRCode.new(confirmation_url).as_svg(
+              module_size: 4,
+              standalone: true,
+              use_path: true,
+              color: "000",
+              background_color: "fff"
+            ) %>
+
+        <%# Le SVG généré a des dimensions fixes liées au module_size, sans viewBox.
+            Sans viewBox, changer width/height agrandit la fenêtre mais pas le contenu.
+            On extrait les dimensions originales pour les placer dans le viewBox,
+            puis on force width/height à 220px pour que le contenu se redimensionne. %>
+        <% original_width  = qr_svg.match(/width="(\d+)"/)[1]
+           original_height = qr_svg.match(/height="(\d+)"/)[1]
+           qr_svg_sized = qr_svg
+              .gsub(/width="\d+"/,  'width="220"')
+              .gsub(/height="\d+"/, 'height="220"')
+              .gsub(/<svg /, %(<svg viewBox="0 0 #{original_width} #{original_height}" )) %>
+
+        <%# Cadre du QR code avec bordure orange et coins arrondis %>
+        <div class="meet-show__qr-frame">
+          <%# On utilise raw (et non sanitize) car sanitize passe les attributs SVG en minuscules
+              via Nokogiri, ce qui casse viewBox → viewbox non reconnu par le navigateur.
+              Le SVG est généré entièrement côté serveur par le gem rqrcode, il n'y a pas de risque XSS. %>
+          <%= raw qr_svg_sized %>
+        </div>
+
+      </div>
+
+    <% end %>
+
     <%# Infos communes (Lieu et Date) %>
     <div class="py-6 border-y border-white/5 flex flex-col gap-3">
       <div class="flex items-center gap-3">
@@ -187,74 +256,6 @@
     </div>
 
     <%# ================================================================ %>
-    <%# BLOC QR CODE — EN ATTENTE DE CONFIRMATION PAR L'ÉQUIPE ADVERSE %>
-    <%# ================================================================ %>
-    <% if @match.pending_confirmation? %>
-
-      <div class="meet-show__qr-block">
-
-        <%# Badge statut %>
-        <div class="badge badge-warning gap-2 py-3 px-4 mb-4">
-          <span class="meet-show__status-dot"></span>
-          <span class="text-xs font-black uppercase tracking-widest">En attente de validation</span>
-        </div>
-
-        <%# Score en attente %>
-        <div class="flex items-center justify-center gap-5 mb-5">
-          <div class="text-center">
-            <div class="text-xs text-info font-bold uppercase tracking-widest mb-1">Bleus</div>
-            <%# Les scores affichés ici sont les scores en attente, pas encore confirmés %>
-            <div class="text-5xl font-black leading-none text-info"><%= @match.pending_blue_score %></div>
-          </div>
-          <div class="text-2xl text-white/15 font-light">—</div>
-          <div class="text-center">
-            <div class="text-xs text-error font-bold uppercase tracking-widest mb-1">Rouges</div>
-            <div class="text-5xl font-black leading-none text-error"><%= @match.pending_red_score %></div>
-          </div>
-        </div>
-
-        <%# Instruction %>
-        <p class="text-white/45 text-sm leading-relaxed mb-6">
-          Un joueur de l'équipe adverse doit scanner<br>ce QR code pour confirmer le résultat.
-        </p>
-
-        <%# On génère l'URL de confirmation encodée dans le QR code.
-            qr_token extrait uniquement le token depuis le payload "token|blue|red". %>
-        <% confirmation_url = confirm_match_url(@match, token: @match.qr_token) %>
-
-        <%# On génère le QR code en SVG avec le gem rqrcode %>
-        <% qr_svg = RQRCode::QRCode.new(confirmation_url).as_svg(
-              module_size: 4,
-              standalone: true,
-              use_path: true,
-              color: "000",
-              background_color: "fff"
-            ) %>
-
-        <%# Le SVG généré a des dimensions fixes liées au module_size, sans viewBox.
-            Sans viewBox, changer width/height agrandit la fenêtre mais pas le contenu.
-            On extrait les dimensions originales pour les placer dans le viewBox,
-            puis on force width/height à 220px pour que le contenu se redimensionne. %>
-        <% original_width  = qr_svg.match(/width="(\d+)"/)[1]
-           original_height = qr_svg.match(/height="(\d+)"/)[1]
-           qr_svg_sized = qr_svg
-              .gsub(/width="\d+"/,  'width="220"')
-              .gsub(/height="\d+"/, 'height="220"')
-              .gsub(/<svg /, %(<svg viewBox="0 0 #{original_width} #{original_height}" )) %>
-
-        <%# Cadre du QR code avec bordure orange et coins arrondis %>
-        <div class="meet-show__qr-frame">
-          <%# On utilise raw (et non sanitize) car sanitize passe les attributs SVG en minuscules
-              via Nokogiri, ce qui casse viewBox → viewbox non reconnu par le navigateur.
-              Le SVG est généré entièrement côté serveur par le gem rqrcode, il n'y a pas de risque XSS. %>
-          <%= raw qr_svg_sized %>
-        </div>
-
-      </div>
-
-    <% end %>
-
-    <%# ================================================================ %>
     <%# BLOC RÉSULTAT FINAL — affiché EN DESSOUS des équipes %>
     <%# ================================================================ %>
     <% if @match.confirmed? %>
@@ -285,7 +286,7 @@
     <%# ================================================================ %>
     <%# BOUTON "TERMINER LE MATCH" + MODAL DE SAISIE DES SCORES %>
     <%# ================================================================ %>
-    <% elsif @match.user == current_user && @match.finished? %>
+    <% elsif @match.user == current_user && @match.finished? && !@match.pending_confirmation? %>
 
       <%# Ce bouton ouvre la pop-up (balise <dialog>) via son identifiant HTML %>
       <button onclick="document.getElementById('finish-match-modal').showModal()" class="btn btn-success w-full">
