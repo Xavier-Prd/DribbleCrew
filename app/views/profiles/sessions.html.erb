@@ -1,5 +1,4 @@
 <div class="min-h-screen pb-24">
-
   <%# Header %>
   <div class="px-6 pt-10 pb-6">
     <%= link_to profile_path(@user), class: "flex items-center gap-2 text-white/40 text-base mb-4" do %>
@@ -8,35 +7,29 @@
     <h1 class="font-extrabold tracking-tight">Rencontres</h1>
     <p class="text-white/40 text-base mt-2">Toutes les sessions passées de <span class="text-white font-semibold"><%= @user.username %></span>.</p>
   </div>
-
   <% past_meets = @meets.select { |meet|
       (meet.meetable_type == "Program" && (meet.meetable.user == @user || meet.meetable.team.users.include?(@user))) ||
       (meet.meetable_type == "Match"   && (meet.meetable.red_team.users.include?(@user) || meet.meetable.blue_team.users.include?(@user)))
     } %>
   <% past_match_count   = past_meets.count { |m| m.meetable_type == "Match" } %>
   <% past_program_count = past_meets.count { |m| m.meetable_type == "Program" } %>
-
   <% if past_meets.any? %>
-
     <div data-controller="session-filter">
-
       <% if past_match_count > 0 && past_program_count > 0 %>
         <div class="flex gap-2 px-6 mb-4">
           <button data-session-filter-target="btn" data-filter-type="all"
                   data-action="click->session-filter#filter"
-                  class="text-xs font-bold px-3 py-1 rounded-full text-white bg-white/10 transition">Tous (<%= past_meets.count %>)</button>
+            class="text-xs font-bold px-3 py-1 rounded-full text-white bg-white/10 transition">Tous (<%= past_meets.count %>)</button>
           <button data-session-filter-target="btn" data-filter-type="Match"
                   data-action="click->session-filter#filter"
-                  class="text-xs font-bold px-3 py-1 rounded-full text-white/40 bg-transparent transition">Match (<%= past_match_count %>)</button>
+            class="text-xs font-bold px-3 py-1 rounded-full text-white/40 bg-transparent transition">Match (<%= past_match_count %>)</button>
           <button data-session-filter-target="btn" data-filter-type="Program"
                   data-action="click->session-filter#filter"
-                  class="text-xs font-bold px-3 py-1 rounded-full text-white/40 bg-transparent transition">Programme (<%= past_program_count %>)</button>
+            class="text-xs font-bold px-3 py-1 rounded-full text-white/40 bg-transparent transition">Entraînement (<%= past_program_count %>)</button>
         </div>
       <% end %>
-
       <div class="flex flex-col gap-3 px-6">
         <% past_meets.each do |meet| %>
-
           <% if meet.meetable_type == "Match" %>
             <% match = meet.meetable %>
             <% blue_s = match.blue_team_score.to_i; red_s = match.red_team_score.to_i %>
@@ -106,11 +99,10 @@
                     <i class="fa-solid fa-location-dot flex-shrink-0 text-[12px]"></i>
                     <span class="truncate"><%= meet.court&.name || "Terrain inconnu" %></span>
                   </div>
-                  <span class="text-[14px] font-bold flex-shrink-0 ml-2" style="color:rgba(251,146,60,0.85);"><%= l(meet.date, format: "%-d %b · %H:%M") %></span>
+                  <span class="text-[14px] font-normal text-white flex-shrink-0 ml-2"><%= l(meet.date, format: "%-d %b · %H:%M") %></span>
                 </div>
               </div>
             <% end %>
-
           <% else %>
             <%= link_to meet_path(meet),
                   class: "w-full rounded-2xl border overflow-hidden flex flex-col",
@@ -131,21 +123,17 @@
                     <i class="fa-solid fa-location-dot flex-shrink-0 text-[12px]"></i>
                     <span class="truncate"><%= meet.court&.name || "Terrain inconnu" %></span>
                   </div>
-                  <span class="text-[14px] font-bold flex-shrink-0 ml-2" style="color:rgba(216,180,254,0.8);"><%= l(meet.date, format: "%-d %b · %H:%M") %></span>
+                  <span class="text-[14px] font-normal text-white flex-shrink-0 ml-2"><%= l(meet.date, format: "%-d %b · %H:%M") %></span>
                 </div>
               </div>
             <% end %>
           <% end %>
-
         <% end %>
       </div>
-
     </div>
-
   <% else %>
     <div class="mx-6 h-40 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center">
       <p class="text-white/60 text-base">Aucune rencontre passée.</p>
     </div>
   <% end %>
-
 </div>
