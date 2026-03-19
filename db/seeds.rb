@@ -6,6 +6,31 @@ require 'uri'
 puts "Cleaning database..."
 [ Meet, Match, Program, UserTeam, Victory, Team, User ].each(&:destroy_all)
 
+# Pour les programs : besoin d'une seed faite à la main
+
+BASKETBALL_EXERCISES = [
+  "Tirs en suspension (3 séries x 15)",
+  "Dribbles entre les jambes",
+  "Passes en claquement (2 contre 1)",
+  "Défense en translation latérale",
+  "Lay-up main gauche",
+  "Tirs à 3 points (coin gauche)",
+  "Pick and roll offensif",
+  "Rebond offensif + put-back",
+  "Sprint défensif retour",
+  "Finitions au cercle (eurostep)",
+  "Montée de balle pression haute",
+  "Échauffement dribble statique"
+]
+
+SPORT_PROGRAM_DESCRIPTIONS = [
+  "Programme axé sur l'amélioration de la lecture de jeu et la prise de décision rapide.",
+  "Séance intensive de perfectionnement technique orientée attaque.",
+  "Travail défensif collectif et communication sur le terrain.",
+  "Développement de l'explosivité et de la détente verticale.",
+  "Entraînement cardio-basket : rythme élevé, transitions rapides."
+]
+
 # ==========================================
 # 1. USERS (Total: 24)
 # ==========================================
@@ -132,7 +157,10 @@ end
     goal: "Technique",
     level: Program::LEVELS.sample,
     active: true,
-    content: { "description" => Faker::Lorem.sentence, "exercises" => [ Faker::Verb.base, Faker::Verb.base, Faker::Verb.base ] }
+    content: {
+    "description" => SPORT_PROGRAM_DESCRIPTIONS.sample,
+    "exercises"   => BASKETBALL_EXERCISES.sample(Faker::Number.between(from: 3, to: 6))
+}
   )
   Meet.create!(court: Court.all.sample, date: Faker::Time.between(from: Time.current, to: 15.days.from_now), duration: 60, meetable: p)
 end
@@ -143,7 +171,10 @@ end
     goal: "Technique",
     level: Program::LEVELS.sample,
     active: true,
-    content: { "description" => Faker::Lorem.sentence, "exercises" => [ Faker::Verb.base, Faker::Verb.base, Faker::Verb.base ] }
+    content: {
+    "description" => SPORT_PROGRAM_DESCRIPTIONS.sample,
+    "exercises"   => BASKETBALL_EXERCISES.sample(Faker::Number.between(from: 3, to: 6))
+}
   )
   Meet.create!(court: Court.all.sample, date: Faker::Time.between(from: Time.current, to: 15.days.from_now), duration: 60, meetable: p)
 end
@@ -155,7 +186,10 @@ end
     goal: "Technique",
     level: Program::LEVELS.sample,
     active: true,
-    content: { "description" => Faker::Lorem.sentence, "exercises" => [ Faker::Verb.base, Faker::Verb.base, Faker::Verb.base ] }
+    content: {
+    "description" => SPORT_PROGRAM_DESCRIPTIONS.sample,
+    "exercises"   => BASKETBALL_EXERCISES.sample(Faker::Number.between(from: 3, to: 6))
+}
   )
   meet = Meet.new(court: Court.all.sample, date: Faker::Time.between(from: 2.days.ago, to: 1.days.ago), duration: 60, meetable: p)
   meet.save!(validate: false)
@@ -167,7 +201,10 @@ end
     goal: "Technique",
     level: Program::LEVELS.sample,
     active: true,
-    content: { "description" => Faker::Lorem.sentence, "exercises" => [ Faker::Verb.base, Faker::Verb.base, Faker::Verb.base ] }
+    content: {
+    "description" => SPORT_PROGRAM_DESCRIPTIONS.sample,
+    "exercises"   => BASKETBALL_EXERCISES.sample(Faker::Number.between(from: 3, to: 6))
+}
   )
   meet = Meet.new(court: Court.all.sample, date: Faker::Time.between(from: 2.days.ago, to: 1.days.ago), duration: 60, meetable: p)
   meet.save!(validate: false)
@@ -209,7 +246,10 @@ end
     goal: "Technique",
     level: Program::LEVELS.sample,
     active: true,
-    content: { "description" => Faker::Lorem.sentence, "exercises" => [ Faker::Verb.base, Faker::Verb.base, Faker::Verb.base ] }
+    content: {
+    "description" => SPORT_PROGRAM_DESCRIPTIONS.sample,
+    "exercises"   => BASKETBALL_EXERCISES.sample(Faker::Number.between(from: 3, to: 6))
+}
   )
   Meet.create!(court: Court.all.sample, date: Faker::Time.between(from: Time.current, to: 15.days.from_now), duration: 60, meetable: p)
 end
