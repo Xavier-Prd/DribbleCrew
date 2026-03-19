@@ -1,4 +1,4 @@
-<div class="min-h-screen pb-12">
+<div class="min-h-screen pb-12 flex flex-col">
   <%# ===================== HERO ===================== %>
   <div class="relative h-56 overflow-hidden roundered-b-3xl">
     <% if @court.image.attached? %>
@@ -36,10 +36,10 @@
     </div>
     <%# Avatar du joueur connecté + ses points sur ce terrain %>
     <%= link_to profile_path(current_user), class: "absolute top-4 right-4 flex flex-col items-center gap-1" do %>
-      <div class="relative w-11 h-11">
+      <div class="relative w-11 h-11 -mb-2">
         <div class="w-full h-full rounded-full overflow-hidden">
           <% if current_user.profile_picture.attached? %>
-            <%= image_tag current_user.profile_picture, class: "w-full h-full object-cover" %>
+            <%= image_tag current_user.profile_picture.variant(resize_to_fill: [88, 88]), class: "w-full h-full object-cover", loading: "eager" %>
           <% else %>
             <div class="w-full h-full bg-base-200 flex items-center justify-center">
               <i class="fa-solid fa-user text-gray-400 text-xl"></i>
@@ -48,12 +48,22 @@
         </div>
         <%= image_tag "avatar_border_default.png", class: "absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[100px] h-[100px] max-w-none pointer-events-none", alt: "" %>
       </div>
-      <span class="badge badge-primary text-base font-bold px-2">
+      <span class="badge badge-warning font-bold text-base">
         <%= @user_points.round %> pts
       </span>
     <% end %>
   </div>
   <%# ===================== PODIUM ===================== %>
+  <style>
+    @keyframes podiumGrow {
+      from { transform: scaleY(0); opacity: 0; }
+      to   { transform: scaleY(1); opacity: 1; }
+    }
+    .podium-bar {
+      transform-origin: bottom;
+      animation: podiumGrow 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    }
+  </style>
   <div class="px-6 mt-5">
     <div class="flex items-center justify-between mb-4">
       <h2 class="font-bold text-white">Classement</h2>
@@ -63,13 +73,13 @@
     <% if top3.any? %>
       <div class="flex items-end justify-center gap-2 h-52">
         <%# 2ème place — gauche %>
-        <div class="flex flex-col items-center flex-1 <%= top3[1] ? '' : 'invisible' %>">
+        <div class="podium-bar flex flex-col items-center flex-1 <%= top3[1] ? '' : 'invisible' %>" style="animation-delay: 0.15s;">
           <% u2 = top3[1] %>
           <% if u2 %>
-            <%= link_to profile_path(u2), class: "relative w-11 h-11 -mb-2 block" do %>
+            <%= link_to profile_path(u2), class: "relative w-11 h-11 -mb-2 block bg-gradient-to-br from-gray-400 via-gray-200 to-gray-400 rounded-full" do %>
               <div class="w-full h-full rounded-full overflow-hidden shadow">
                 <% if u2.profile_picture.attached? %>
-                  <%= image_tag u2.profile_picture, class: "w-full h-full object-cover" %>
+                  <%= image_tag u2.profile_picture.variant(resize_to_fill: [88, 88]), class: "w-full h-full object-cover", loading: "eager" %>
                 <% else %>
                   <div class="w-full h-full bg-base-100 flex items-center justify-center">
                     <i class="fa-solid fa-user text-gray-400 text-base"></i>
@@ -78,20 +88,19 @@
               </div>
               <%= image_tag "avatar_border_second.png", class: "absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[100px] h-[100px] max-w-none pointer-events-none", alt: "" %>
             <% end %>
-            <div class="w-full rounded-t-xl flex flex-col items-center justify-end pb-3 h-24"
-                 style="background: linear-gradient(to bottom, #f59e0b, #b45309);">
-              <span class="text-white font-bold text-base"><%= @victory_counts[u2.id] || 0 %> pts</span>
+            <div class="w-full rounded-t-xl flex flex-col items-center justify-end pb-3 h-24 bg-gradient-to-br from-gray-400 via-gray-200 to-gray-400">
+              <span class="bg-black/20 text-white text-xs font-bold px-2.5 py-1 rounded-full"><%= @victory_counts[u2.id] || 0 %> pts</span>
             </div>
           <% end %>
         </div>
         <%# 1ère place — centre %>
-        <div class="flex flex-col items-center flex-1 <%= top3[0] ? '' : 'invisible' %>">
+        <div class="podium-bar flex flex-col items-center flex-1 <%= top3[0] ? '' : 'invisible' %>" style="animation-delay: 0.3s;">
           <% u1 = top3[0] %>
           <% if u1 %>
-            <%= link_to profile_path(u1), class: "relative w-11 h-11 -mb-2 block" do %>
+            <%= link_to profile_path(u1), class: "relative w-11 h-11 -mb-2 block bg-gradient-to-br from-yellow-600 via-yellow-400 to-yellow-600 rounded-full" do %>
               <div class="w-full h-full rounded-full overflow-hidden shadow-lg">
                 <% if u1.profile_picture.attached? %>
-                  <%= image_tag u1.profile_picture, class: "w-full h-full object-cover" %>
+                  <%= image_tag u1.profile_picture.variant(resize_to_fill: [88, 88]), class: "w-full h-full object-cover", loading: "eager" %>
                 <% else %>
                   <div class="w-full h-full bg-base-100 flex items-center justify-center">
                     <i class="fa-solid fa-user text-gray-400 text-xl"></i>
@@ -100,20 +109,19 @@
               </div>
               <%= image_tag "avatar_border_king.png", class: "absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[100px] h-[100px] max-w-none pointer-events-none", alt: "" %>
             <% end %>
-            <div class="w-full rounded-t-xl flex flex-col items-center justify-end pb-3 h-36"
-                 style="background: linear-gradient(to bottom, #fbbf24, #d97706);">
-              <span class="text-white font-bold text-base"><%= @victory_counts[u1.id] || 0 %> pts</span>
+            <div class="w-full rounded-t-xl flex flex-col items-center justify-end pb-3 h-36 bg-gradient-to-br from-yellow-600 via-yellow-400 to-yellow-600">
+              <span class="bg-black/20 text-white text-xs font-bold px-2.5 py-1 rounded-full"><%= @victory_counts[u1.id] || 0 %> pts</span>
             </div>
           <% end %>
         </div>
         <%# 3ème place — droite %>
-        <div class="flex flex-col items-center flex-1 <%= top3[2] ? '' : 'invisible' %>">
+        <div class="podium-bar flex flex-col items-center flex-1 <%= top3[2] ? '' : 'invisible' %>" style="animation-delay: 0s;">
           <% u3 = top3[2] %>
           <% if u3 %>
-            <%= link_to profile_path(u3), class: "relative w-11 h-11 -mb-2 block" do %>
+            <%= link_to profile_path(u3), class: "relative w-11 h-11 -mb-2 block bg-gradient-to-br from-orange-600 via-orange-400 to-orange-600 rounded-full" do %>
               <div class="w-full h-full rounded-full overflow-hidden shadow">
                 <% if u3.profile_picture.attached? %>
-                  <%= image_tag u3.profile_picture, class: "w-full h-full object-cover" %>
+                  <%= image_tag u3.profile_picture.variant(resize_to_fill: [88, 88]), class: "w-full h-full object-cover", loading: "eager" %>
                 <% else %>
                   <div class="w-full h-full bg-base-100 flex items-center justify-center">
                     <i class="fa-solid fa-user text-gray-400 text-base"></i>
@@ -122,9 +130,8 @@
               </div>
               <%= image_tag "avatar_border_third.png", class: "absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[100px] h-[100px] max-w-none pointer-events-none", alt: "" %>
             <% end %>
-            <div class="w-full rounded-t-xl flex flex-col items-center justify-end pb-3 h-20"
-                 style="background: linear-gradient(to bottom, #f97316, #c2410c);">
-              <span class="text-white font-bold text-base"><%= @victory_counts[u3.id] || 0 %> pts</span>
+            <div class="w-full rounded-t-xl flex flex-col items-center justify-end pb-3 h-20 bg-gradient-to-br from-orange-600 via-orange-400 to-orange-600">
+              <span class="bg-black/20 text-white text-xs font-bold px-2.5 py-1 rounded-full"><%= @victory_counts[u3.id] || 0 %> pts</span>
             </div>
           <% end %>
         </div>
@@ -134,7 +141,7 @@
     <% end %>
   </div>
   <%# ===================== RENCONTRES À VENIR ===================== %>
-  <div class="bg-base-200 px-6 pt-6 pb-12 rounded-t-3xl">
+  <div class="bg-base-200 px-6 pt-6 pb-12 rounded-t-3xl flex-1">
     <div class="flex items-center justify-between mb-5">
       <h2 class="font-bold text-white">Rencontres à venir</h2>
       <%= link_to new_match_path(court_id: @court.id), class: "btn btn-primary btn-sm rounded-xl" do %>

@@ -9,9 +9,13 @@
     data-map-shadow-path-value="<%= asset_path('iconshadow.png') %>"
     data-map-mapbox-token-value="<%= ENV['MAPBOX_TOKEN'] %>"
   >
+    <%# Logo — positionné en overlay sur la carte  %>
+    <div class="flex absolute top-4 left-4 z-1000">
+      <h2>DribbleCrew</h2>
+    </div>
     <%# Sélecteur de périmètre — positionné en overlay sur la carte %>
     <div class="absolute top-4 right-4 z-1000">
-      <select class="select select-ghost bg-base-200/90 focus:outline-none" data-action="change->map#setRadius" data-map-target="radiusSelect" autocomplete="off">
+      <select class="select select-ghost bg-base-300/90 focus:outline-none" data-action="change->map#setRadius" data-map-target="radiusSelect" autocomplete="off">
         <option value="500">500 m</option>
         <option value="1000">1 km</option>
         <option value="2000">2 km</option>
@@ -20,7 +24,7 @@
       </select>
     </div>
     <%# Bouton recentrer — doit rester dans le conteneur map pour accéder au contrôleur Stimulus %>
-    <button class="fixed right-4 z-1000 flex items-center justify-center w-14 h-14 rounded-full bg-base-200/90"
+    <button class="fixed right-4 z-1000 flex items-center justify-center w-14 h-14 rounded-full bg-base-300/90"
             style="bottom: calc(6rem + 0.75rem + 3.5rem + env(safe-area-inset-bottom));"
             data-action="click->map#recenter">
       <i class="fa-solid fa-location-crosshairs text-primary"></i>
@@ -33,7 +37,7 @@
               style="background-color: var(--color-primary); box-shadow: 0 0 20px color-mix(in srgb, var(--color-primary) 50%, transparent);">
         <i class="fa-solid fa-plus text-white text-xl transition-transform duration-200 group-focus-within:rotate-45"></i>
       </button>
-      <ul tabindex="0" class="dropdown-content menu bg-base-200 rounded-2xl shadow-xl p-2 mb-3 w-52 border border-white/10">
+      <ul tabindex="0" class="dropdown-content menu bg-base-300 rounded-2xl shadow-xl p-2 mb-3 w-52 border border-white/10">
         <%= link_to new_match_path, class: "flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 transition-colors" do %>
           <i class="fa-solid fa-basketball text-primary w-4 text-center"></i>
           <span class="text-base font-medium">Créer un match</span>
@@ -44,8 +48,5 @@
         <% end %>
       </ul>
     </div>
-  </div>
-  <div class="flex absolute top-10 left-20 transform -translate-x-1/2 -translate-y-1/2 z-1000">
-    <h2>DribbleCrew</h2>
   </div>
 </div>
