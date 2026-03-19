@@ -14,10 +14,8 @@
     <%# Logo à gauche, searchbar qui prend le reste de la largeur à droite %>
     <%# ================================================================ %>
     <div class="absolute top-4 left-4 right-4 z-1000 flex items-center gap-6">
-
       <%# Logo %>
       <h2 class="shrink-0">DribbleCrew</h2>
-
       <%# Barre de recherche — s'étend pour occuper tout l'espace restant à droite du titre.
           data-map-target="search" → le controller JS lit la valeur saisie
           data-action="input->map#searchCourt" → déclenche la recherche à chaque frappe %>
@@ -31,60 +29,57 @@
             data-map-target="search"
             data-action="input->map#searchCourt"
             autocomplete="off"
-          >
-          <%# Bouton × — caché par défaut, affiché par JS dès qu'il y a du texte %>
-          <button class="hidden text-white/30 hover:text-white/60 shrink-0" data-map-target="clearBtn" data-action="click->map#clearSearch">
-            <i class="fa-solid fa-xmark text-sm"></i>
-          </button>
-        </div>
-
-        <%# Dropdown résultats — caché par défaut, rempli et affiché par JS %>
-        <ul class="hidden absolute top-full left-0 right-0 mt-2 bg-base-300/95 backdrop-blur-sm border border-white/10 rounded-2xl overflow-hidden shadow-xl max-h-64 overflow-y-auto"
+            >
+            <%# Bouton × — caché par défaut, affiché par JS dès qu'il y a du texte %>
+            <button class="hidden text-white/30 hover:text-white/60 shrink-0" data-map-target="clearBtn" data-action="click->map#clearSearch">
+              <i class="fa-solid fa-xmark text-sm"></i>
+            </button>
+          </div>
+          <%# Dropdown résultats — caché par défaut, rempli et affiché par JS %>
+          <ul class="hidden absolute top-full left-0 right-0 mt-2 bg-base-300/95 backdrop-blur-sm border border-white/10 rounded-2xl overflow-hidden shadow-xl max-h-64 overflow-y-auto"
             data-map-target="results">
+          </ul>
+        </div>
+      </div>
+      <%# Sélecteur de périmètre — bas gauche, dropdown-top pour s'ouvrir vers le haut %>
+      <div class="fixed right-4 z-1000 dropdown dropdown-top" style="bottom: calc(6rem + env(safe-area-inset-bottom));">
+        <button tabindex="0" class="select select-ghost select-md bg-base-300/90">
+          <span data-map-target="radiusDisplay">1 km</span>
+        </button>
+        <ul tabindex="0" class="dropdown-content mb-1 menu bg-base-300 border border-white/10 rounded-2xl shadow-xl p-1 w-28">
+          <% [[500, "500 m"], [1000, "1 km"], [2000, "2 km"], [5000, "5 km"], [10000, "10 km"]].each do |value, label| %>
+            <li>
+              <button class="text-sm" data-action="click->map#setRadius" data-value="<%= value %>">
+                <%= label %>
+              </button>
+            </li>
+          <% end %>
         </ul>
       </div>
-
-    </div>
-
-    <%# Sélecteur de périmètre — bas gauche, dropdown-top pour s'ouvrir vers le haut %>
-    <div class="absolute left-4 z-1000 dropdown dropdown-top" style="bottom: calc(var(--navbar-h) + 1.5rem)">
-      <button tabindex="0" class="select select-ghost select-md bg-base-300/90">
-        <span data-map-target="radiusDisplay">1 km</span>
-      </button>
-      <ul tabindex="0" class="dropdown-content mb-1 menu bg-base-300 border border-white/10 rounded-2xl shadow-xl p-1 w-28">
-        <% [[500, "500 m"], [1000, "1 km"], [2000, "2 km"], [5000, "5 km"], [10000, "10 km"]].each do |value, label| %>
-          <li>
-            <button class="text-sm" data-action="click->map#setRadius" data-value="<%= value %>">
-              <%= label %>
-            </button>
-          </li>
-        <% end %>
-      </ul>
-    </div>
-    <%# Bouton recentrer — doit rester dans le conteneur map pour accéder au contrôleur Stimulus %>
-    <button class="fixed right-4 z-1000 flex items-center justify-center w-14 h-14 rounded-full bg-base-300/90"
+      <%# Bouton recentrer — doit rester dans le conteneur map pour accéder au contrôleur Stimulus %>
+      <button class="fixed right-4 z-1000 flex items-center justify-center w-14 h-14 rounded-full bg-base-300/90"
             style="bottom: calc(6rem + 0.75rem + 3.5rem + env(safe-area-inset-bottom));"
             data-action="click->map#recenter">
-      <i class="fa-solid fa-location-crosshairs text-primary"></i>
-    </button>
-  </div>
-  <%# Dropdown flottant — hors du conteneur Leaflet pour que les liens ne soient pas bloqués par Leaflet %>
-  <div class="fixed right-4 z-1000" style="bottom: calc(6rem + env(safe-area-inset-bottom));">
-    <div class="dropdown dropdown-top dropdown-end group">
-      <button tabindex="0" class="flex items-center justify-center w-14 h-14 rounded-full shadow-lg"
-              style="background-color: var(--color-primary); box-shadow: 0 0 20px color-mix(in srgb, var(--color-primary) 50%, transparent);">
-        <i class="fa-solid fa-plus text-white text-xl transition-transform duration-200 group-focus-within:rotate-45"></i>
+        <i class="fa-solid fa-location-crosshairs text-primary"></i>
       </button>
-      <ul tabindex="0" class="dropdown-content menu bg-base-300 rounded-2xl shadow-xl p-2 mb-3 w-52 border border-white/10">
-        <%= link_to new_match_path, class: "flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 transition-colors" do %>
-          <i class="fa-solid fa-basketball text-primary w-4 text-center"></i>
-          <span class="text-base font-medium">Créer un match</span>
-        <% end %>
-        <%= link_to new_program_path, class: "flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 transition-colors" do %>
-          <i class="fa-solid fa-dumbbell text-secondary w-4 text-center"></i>
-          <span class="text-base font-medium">Créer un programme</span>
-        <% end %>
-      </ul>
+    </div>
+    <%# Dropdown flottant — hors du conteneur Leaflet pour que les liens ne soient pas bloqués par Leaflet %>
+    <div class="fixed right-4 z-1000" style="bottom: calc(6rem + env(safe-area-inset-bottom));">
+      <div class="dropdown dropdown-top dropdown-end group">
+        <button tabindex="0" class="flex items-center justify-center w-14 h-14 rounded-full shadow-lg"
+              style="background-color: var(--color-primary); box-shadow: 0 0 20px color-mix(in srgb, var(--color-primary) 50%, transparent);">
+          <i class="fa-solid fa-plus text-white text-xl transition-transform duration-200 group-focus-within:rotate-45"></i>
+        </button>
+        <ul tabindex="0" class="dropdown-content menu bg-base-300 rounded-2xl shadow-xl p-2 mb-3 w-52 border border-white/10">
+          <%= link_to new_match_path, class: "flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 transition-colors" do %>
+            <i class="fa-solid fa-basketball text-primary w-4 text-center"></i>
+            <span class="text-base font-medium">Créer un match</span>
+          <% end %>
+          <%= link_to new_program_path, class: "flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 transition-colors" do %>
+            <i class="fa-solid fa-dumbbell text-secondary w-4 text-center"></i>
+            <span class="text-base font-medium">Créer un programme</span>
+          <% end %>
+        </ul>
+      </div>
     </div>
   </div>
-</div>
