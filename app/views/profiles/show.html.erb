@@ -16,6 +16,10 @@
             <i class="fa-solid fa-pen-to-square text-primary"></i> Modifier mon profil
           <% end %>
           <div class="border-t border-white/10"></div>
+          <%= link_to qrcode_path, class: "flex items-center gap-2 px-4 py-2.5 text-base font-medium hover:bg-base-300 transition-colors" do %>
+            <i class="fa-solid fa-share-nodes text-white/60"></i> Partager l'app
+          <% end %>
+          <div class="border-t border-white/10"></div>
           <%= button_to destroy_user_session_path, method: :delete, class: "flex items-center gap-2 px-4 py-2.5 text-base font-medium text-error hover:bg-base-300 transition-colors w-full text-left" do %>
             <i class="fa-solid fa-right-from-bracket"></i> Se déconnecter
           <% end %>
