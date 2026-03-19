@@ -38,7 +38,7 @@ export default class extends Controller {
     const saved = localStorage.getItem("map_radius");
     if (saved) {
       this.radiusValue = parseInt(saved);
-      if (this.hasRadiusSelectTarget) this.radiusSelectTarget.value = saved;
+      if (this.hasRadiusDisplayTarget) this.radiusDisplayTarget.textContent = this.radiusLabel;
     }
     this.initMap();
     this.initGeolocation();
@@ -149,7 +149,7 @@ export default class extends Controller {
     if (!query) { this.hideResults(); return; }
 
     // Filtre les markers dont le nom contient la query (insensible à la casse), limité à 8 résultats
-    const matches = this.markersValue.filter(m => m.name.toLowerCase().includes(query)).slice(0, 8);
+    const matches = this.markersValue.filter(m => m.name.toLowerCase().includes(query)).slice(0, 4);
 
     if (!matches.length) { this.hideResults(); return; }
 
@@ -222,7 +222,7 @@ export default class extends Controller {
 
   // Met à jour le rayon de filtrage en fonction de la valeur du slider, met à jour le cercle de rayon et filtre les marqueurs
   setRadius(event) {
-    this.radiusValue = parseInt(event.target.value);
+    this.radiusValue = parseInt(event.target.dataset.value ?? event.target.value);
     localStorage.setItem("map_radius", this.radiusValue);
     if (this.hasRadiusDisplayTarget) this.radiusDisplayTarget.textContent = this.radiusLabel;
     this.updateRadiusCircle();

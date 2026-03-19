@@ -9,26 +9,21 @@
     data-map-shadow-path-value="<%= asset_path('iconshadow.png') %>"
     data-map-mapbox-token-value="<%= ENV['MAPBOX_TOKEN'] %>"
   >
-    <%# Logo — positionné en overlay sur la carte  %>
-    <div class="flex absolute top-4 left-4 z-1000">
-      <h2>DribbleCrew</h2>
-    </div>
-
     <%# ================================================================ %>
-    <%# BARRE DE RECHERCHE %>
-    <%# Overlay centré sous le header, positionné en absolute sur la carte.
-        top-16 pour laisser la place au logo (top-4) sans se superposer.
-        max-w-sm + px-4 pour rester lisible sur mobile. %>
+    <%# HEADER : Logo + Searchbar inline %>
+    <%# Logo à gauche, searchbar qui prend le reste de la largeur à droite %>
     <%# ================================================================ %>
-    <div class="absolute top-16 left-1/2 -translate-x-1/2 z-1000 w-full max-w-sm px-4">
-      <div class="relative">
+    <div class="absolute top-4 left-4 right-4 z-1000 flex items-center gap-6">
 
-        <%# Champ de saisie %>
-        <div class="flex items-center gap-2 bg-base-300/95 backdrop-blur-sm border border-white/10 rounded-2xl px-4 py-2.5 shadow-xl">
+      <%# Logo %>
+      <h2 class="shrink-0">DribbleCrew</h2>
+
+      <%# Barre de recherche — s'étend pour occuper tout l'espace restant à droite du titre.
+          data-map-target="search" → le controller JS lit la valeur saisie
+          data-action="input->map#searchCourt" → déclenche la recherche à chaque frappe %>
+      <div class="relative flex-1 min-w-0">
+        <div class="flex items-center gap-2 bg-base-300/95 backdrop-blur-sm border border-white/10 rounded-xl px-3 py-2.5 shadow-xl">
           <i class="fa-solid fa-magnifying-glass text-white/40 text-sm shrink-0"></i>
-
-          <%# data-map-target="search" → le controller JS lit la valeur saisie
-              data-action="input->map#searchCourt" → déclenche la recherche à chaque frappe %>
           <input
             type="text"
             placeholder="Rechercher un terrain..."
@@ -37,32 +32,34 @@
             data-action="input->map#searchCourt"
             autocomplete="off"
           >
-
-          <%# Bouton × pour vider l'input — caché par défaut (class "hidden"),
-              affiché par JS dès qu'il y a du texte dans l'input %>
+          <%# Bouton × — caché par défaut, affiché par JS dès qu'il y a du texte %>
           <button class="hidden text-white/30 hover:text-white/60 shrink-0" data-map-target="clearBtn" data-action="click->map#clearSearch">
             <i class="fa-solid fa-xmark text-sm"></i>
           </button>
         </div>
 
-        <%# Liste des résultats — cachée par défaut (class "hidden"), remplie et affichée par JS.
-            Positionnée en absolute sous l'input, scrollable si + de 8 résultats. %>
+        <%# Dropdown résultats — caché par défaut, rempli et affiché par JS %>
         <ul class="hidden absolute top-full left-0 right-0 mt-2 bg-base-300/95 backdrop-blur-sm border border-white/10 rounded-2xl overflow-hidden shadow-xl max-h-64 overflow-y-auto"
             data-map-target="results">
         </ul>
-
       </div>
+
     </div>
 
-    <%# Sélecteur de périmètre — positionné en overlay sur la carte %>
-    <div class="absolute top-4 right-4 z-1000">
-      <select class="select select-ghost bg-base-300/90 focus:outline-none" data-action="change->map#setRadius" data-map-target="radiusSelect" autocomplete="off">
-        <option value="500">500 m</option>
-        <option value="1000">1 km</option>
-        <option value="2000">2 km</option>
-        <option value="5000">5 km</option>
-        <option value="10000">10 km</option>
-      </select>
+    <%# Sélecteur de périmètre — bas gauche, dropdown-top pour s'ouvrir vers le haut %>
+    <div class="absolute left-4 z-1000 dropdown dropdown-top" style="bottom: calc(var(--navbar-h) + 1.5rem)">
+      <button tabindex="0" class="select select-ghost select-md bg-base-300/90">
+        <span data-map-target="radiusDisplay">1 km</span>
+      </button>
+      <ul tabindex="0" class="dropdown-content mb-1 menu bg-base-300 border border-white/10 rounded-2xl shadow-xl p-1 w-28">
+        <% [[500, "500 m"], [1000, "1 km"], [2000, "2 km"], [5000, "5 km"], [10000, "10 km"]].each do |value, label| %>
+          <li>
+            <button class="text-sm" data-action="click->map#setRadius" data-value="<%= value %>">
+              <%= label %>
+            </button>
+          </li>
+        <% end %>
+      </ul>
     </div>
     <%# Bouton recentrer — doit rester dans le conteneur map pour accéder au contrôleur Stimulus %>
     <button class="fixed right-4 z-1000 flex items-center justify-center w-14 h-14 rounded-full bg-base-300/90"
