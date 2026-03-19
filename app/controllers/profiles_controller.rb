@@ -94,8 +94,8 @@ class ProfilesController < ApplicationController
            .where(meets: { court_id: court_ids })
            .where("matches.blue_team_id IN (?) OR matches.red_team_id IN (?)", user_team_ids, user_team_ids)
            .group("meets.court_id")
-           .sum("CASE WHEN matches.blue_team_id IN (#{team_ids_str}) THEN COALESCE(matches.blue_team_score, 0) ELSE COALESCE(matches.red_team_score, 0) END")
-      # Résultat : { court_id => total_score_panier, ... }
+           .sum("LEAST(CASE WHEN matches.blue_team_id IN (#{team_ids_str}) THEN COALESCE(matches.blue_team_score, 0) ELSE COALESCE(matches.red_team_score, 0) END * 0.25, 10.0)")
+      # Résultat : { court_id => total_points_panier (cap 10 pts/match), ... }
     else
       {}
     end
@@ -108,7 +108,7 @@ class ProfilesController < ApplicationController
       rank = all_victory_counts
                .count { |(court_id, _user_id), count| court_id == court.id && count > user_victories } + 1
 
-      basket_points = basket_points_by_court[court.id].to_f * 0.25
+      basket_points = basket_points_by_court[court.id].to_f
 
       { court: court, victories: user_victories, points: ((user_victories * 25) + basket_points).round, rank: rank }
     end.sort_by { |classement| classement[:rank] }
