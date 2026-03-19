@@ -23,6 +23,7 @@ export default class extends Controller {
     this.userLatLng = null;
     this.markerLayers = [];
     this.clusterGroup = L.markerClusterGroup({
+      showCoverageOnHover: false,
       iconCreateFunction(cluster) {
         const count = cluster.getChildCount();
         const size = count < 10 ? "small" : count < 100 ? "medium" : "large";
