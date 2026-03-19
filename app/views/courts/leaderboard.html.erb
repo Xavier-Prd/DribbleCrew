@@ -1,4 +1,4 @@
-<div class="min-h-screen bg-base-300" style="padding-bottom: calc(var(--navbar-h) + 6rem)" data-controller="sticky-rank">
+<div class="min-h-screen" style="padding-bottom: calc(var(--navbar-h) + 6rem)" data-controller="sticky-rank">
   <%# HEADER %>
   <div class="px-4 pt-6 pb-4 flex items-center justify-between">
     <%= link_to court_path(@court), class: "text-white text-base flex items-center gap-1" do %>
@@ -44,7 +44,6 @@
       <p class="text-gray-400 text-center py-6 text-base">Aucun joueur classé sur ce terrain</p>
     <% end %>
   </div>
-
   <%# Barre fixe en bas — classement du current_user (dans le controller pour que Stimulus trouve la target) %>
   <div data-sticky-rank-target="bar" class="fixed left-0 right-0 px-4 pt-3 pb-4 bg-gradient-to-t from-base-300 via-base-300/95 to-transparent pointer-events-none transition-opacity duration-300" style="bottom: var(--navbar-h)">
     <div class="pointer-events-auto p-[2px] rounded-2xl bg-gradient-to-r from-primary/60 via-primary/20 to-primary/60">
