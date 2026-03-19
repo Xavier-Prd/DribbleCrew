@@ -7,8 +7,16 @@
       Retour aux rencontres
     <% end %>
 
-    <span class="text-base text-orange-500 uppercase tracking-widest font-bold"><%= @program.level %></span>
-    <h2 class="font-extrabold tracking-tight mt-2"><%= @program.title %></h2>
+    <div class="flex items-start justify-between gap-4">
+      <div>
+        <span class="text-base text-orange-500 uppercase tracking-widest font-bold"><%= @program.level %></span>
+        <h2 class="font-extrabold tracking-tight mt-2"><%= @program.title %></h2>
+      </div>
+      <%= button_to deactivate_program_path(@program), method: :patch, class: "flex-shrink-0 p-2 rounded-xl text-red-400 bg-red-500/10 border border-red-500/20 transition-transform active:scale-95",
+          data: { turbo_confirm: "Supprimer ce programme ?" } do %>
+        <i class="fa-solid fa-trash"></i>
+      <% end %>
+    </div>
   </div>
 
   <%# Contenu du programme %>
@@ -23,7 +31,7 @@
 
     <%# Liste des exercices %>
     <h2 class="font-bold mb-4 px-1">Exercices du programme</h2>
-    <div class="space-y-4">
+    <div class="space-y-4 pb-16">
       <% content["exercises"].each_with_index do |exercise, index| %>
         <div class="bg-white/5 border border-white/10 p-5 rounded-2xl flex items-start gap-4">
           <span class="flex-shrink-0 w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-base font-bold text-orange-500">
@@ -44,14 +52,6 @@
       <% end %>
     </div>
 
-    <%# Bouton supprimer %>
-    <div class="mt-4 mb-16">
-      <%= button_to deactivate_program_path(@program), method: :patch, class: "flex items-center justify-center gap-3 w-full py-5 rounded-2xl font-bold text-red-400 bg-red-500/10 border border-red-500/20 transition-transform active:scale-95",
-          data: { turbo_confirm: "Supprimer ce programme ?" } do %>
-        <i class="fa-solid fa-trash"></i>
-        Supprimer le programme
-      <% end %>
-    </div>
   </div>
 
 </div>
