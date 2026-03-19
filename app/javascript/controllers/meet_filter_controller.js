@@ -8,9 +8,20 @@ export default class extends Controller {
   ];
 
   connect() {
-    this.radiusValue = 0;
+    const savedRadius = localStorage.getItem("map_radius");
+    const parsed = savedRadius ? parseInt(savedRadius) : 0;
+    const validRadii = [0, 500, 1000, 2000, 5000, 10000];
+    this.radiusValue = validRadii.includes(parsed) ? parsed : 0;
     this.sortValue = "date";
     this._userPosition = null;
+
+    if (this.hasRadiusBtnTarget) {
+      this.radiusBtnTargets.forEach((btn) => {
+        const isActive = parseInt(btn.dataset.radius) === this.radiusValue;
+        btn.classList.toggle("btn-primary", isActive);
+        btn.classList.toggle("btn-ghost", !isActive);
+      });
+    }
 
     if (!navigator.geolocation) return;
     navigator.geolocation.getCurrentPosition(
@@ -56,6 +67,7 @@ export default class extends Controller {
   selectRadius(event) {
     const radius = parseInt(event.currentTarget.dataset.radius);
     this.radiusValue = radius;
+    localStorage.setItem("map_radius", radius);
     this.radiusBtnTargets.forEach((btn) => {
       const isActive = parseInt(btn.dataset.radius) === radius;
       btn.classList.toggle("btn-primary", isActive);

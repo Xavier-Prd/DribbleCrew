@@ -403,7 +403,7 @@
       <div class="mb-8">
         <p class="text-xs text-white/40 uppercase tracking-widest font-bold mb-3">Distance max</p>
         <div class="flex gap-2 flex-wrap">
-          <% [0, 500, 1000, 5000, 10000].each do |r| %>
+          <% [0, 500, 1000, 2000, 5000, 10000].each do |r| %>
             <button data-action="click->meet-filter#selectRadius" data-meet-filter-target="radiusBtn" data-radius="<%= r %>" class="btn btn-sm rounded-full <%= r == 0 ? 'btn-primary' : 'btn-ghost' %>">
               <%= r == 0 ? 'Toutes' : (r < 1000 ? "#{r}m" : "#{r/1000}km") %>
             </button>
