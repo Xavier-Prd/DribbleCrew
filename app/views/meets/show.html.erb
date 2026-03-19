@@ -217,22 +217,24 @@
             <h3 class="text-info m-0">TEAM BLEUE</h3>
             <span class="badge badge-info badge-sm"><%= @match.blue_team.users.count %>/<%= @match.blue_team.number_player %></span>
           </div>
-          <ul class="list-none p-0 mb-5 space-y-2">
+          <div class="flex flex-col gap-2 mb-5">
             <% @match.blue_team.users.each do |user| %>
-              <li class="text-sm flex items-center gap-2">
+              <%= link_to profile_path(user), class: "user-pill text-sm w-full overflow-hidden" do %>
                 <% if user.profile_picture.attached? %>
                   <%= image_tag user.profile_picture, class: "w-6 h-6 rounded-full object-cover shrink-0" %>
                 <% else %>
-                  <i class="fa-solid fa-circle-user text-white/60"></i>
+                  <i class="fa-solid fa-circle-user text-primary/80 shrink-0"></i>
                 <% end %>
-                <%= user.username %>
-                <% if user == @match.user %><span class="text-[10px] opacity-50">(Org.)</span><% end %>
-              </li>
+                <span class="truncate min-w-0"><%= user.username %></span>
+                <% if user == @match.user %>
+                  <span class="badge badge-primary badge-xs shrink-0 ml-auto">Org.</span>
+                <% end %>
+              <% end %>
             <% end %>
             <% (@match.blue_team.number_player - @match.blue_team.users.count).times do %>
-              <li class="text-sm text-white/15"><i>Libre...</i></li>
+              <span class="text-sm text-white/15 px-3"><i>Libre...</i></span>
             <% end %>
-          </ul>
+          </div>
         </div>
         <% if !@match.cancelled? && !@match.blue_team.users.include?(current_user) && !@match.red_team.users.include?(current_user) && @match.blue_team.users.count < @match.blue_team.number_player && @meet.date > Time.current %>
           <%= button_to "Rejoindre", join_meet_path(@meet, team_id: @match.blue_team_id), method: :post, class: "btn btn-info w-full" %>
@@ -246,21 +248,21 @@
             <h3 class="text-error m-0">TEAM ROUGE</h3>
             <span class="badge badge-error badge-sm"><%= @match.red_team.users.count %>/<%= @match.red_team.number_player %></span>
           </div>
-          <ul class="list-none p-0 mb-5 space-y-2">
+          <div class="flex flex-col gap-2 mb-5">
             <% @match.red_team.users.each do |user| %>
-              <li class="text-sm flex items-center gap-2">
+              <%= link_to profile_path(user), class: "user-pill text-sm w-full overflow-hidden" do %>
                 <% if user.profile_picture.attached? %>
                   <%= image_tag user.profile_picture, class: "w-6 h-6 rounded-full object-cover shrink-0" %>
                 <% else %>
-                  <i class="fa-solid fa-circle-user text-white/60"></i>
+                  <i class="fa-solid fa-circle-user text-error/80 shrink-0"></i>
                 <% end %>
-                <%= user.username %>
-              </li>
+                <span class="truncate min-w-0"><%= user.username %></span>
+              <% end %>
             <% end %>
             <% (@match.red_team.number_player - @match.red_team.users.count).times do %>
-              <li class="text-sm text-white/15"><i>Libre...</i></li>
+              <span class="text-sm text-white/15 px-3"><i>Libre...</i></span>
             <% end %>
-          </ul>
+          </div>
         </div>
         <% if !@match.cancelled? && !@match.red_team.users.include?(current_user) && !@match.blue_team.users.include?(current_user) && @match.red_team.users.count < @match.red_team.number_player && @meet.date > Time.current %>
           <%= button_to "Rejoindre", join_meet_path(@meet, team_id: @match.red_team_id), method: :post, class: "btn btn-error w-full" %>
