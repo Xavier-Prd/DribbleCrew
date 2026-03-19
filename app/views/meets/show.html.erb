@@ -87,6 +87,34 @@
       </div>
     </div>
 
+    <%# Bouton supprimer (organisateur uniquement) %>
+    <% if @program.user == current_user %>
+      <button onclick="document.getElementById('delete-meet-modal').showModal()" class="btn btn-ghost w-full text-error border border-error/30">
+        <i class="fa-solid fa-trash"></i> Supprimer la session
+      </button>
+
+      <dialog id="delete-meet-modal" class="meet-show__modal">
+        <div class="flex items-center justify-between mb-6">
+          <div>
+            <p class="text-error text-xs font-bold uppercase tracking-widest m-0">Action irréversible</p>
+            <h2 class="m-0">Supprimer la session ?</h2>
+          </div>
+          <button type="button" onclick="document.getElementById('delete-meet-modal').close()" class="btn btn-ghost btn-sm btn-square">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+        <p class="text-white/50 text-sm mb-6">Les participants seront retirés et la session sera définitivement supprimée.</p>
+        <div class="flex flex-col gap-3">
+          <%= button_to meet_path(@meet), method: :delete, class: "btn btn-error w-full" do %>
+            <i class="fa-solid fa-trash"></i> Confirmer la suppression
+          <% end %>
+          <button type="button" onclick="document.getElementById('delete-meet-modal').close()" class="btn btn-ghost w-full">
+            Annuler
+          </button>
+        </div>
+      </dialog>
+    <% end %>
+
   <%# Cas 2 : C'est un Match %>
   <% else %>
     <div>

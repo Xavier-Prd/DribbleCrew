@@ -133,8 +133,13 @@ class MeetsController < ApplicationController
 
   def destroy
     @meet = Meet.find(params[:id])
+
+    if @meet.meetable_type == "Program" && @meet.meetable.user != current_user
+      return redirect_to meet_path(@meet), alert: "Seul l'organisateur peut supprimer cette session."
+    end
+
     @meet.destroy
-    redirect_to meets_path, notice: "Rencontre supprimée."
+    redirect_to meets_path, notice: "Session supprimée."
   end
 
   def new
