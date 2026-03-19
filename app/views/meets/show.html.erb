@@ -316,27 +316,21 @@
           <% end %>
         </dialog>
       <% end %>
-
-    <%# Bouton changer d'équipe (participants non-organisateur, avant le match, match non annulé) %>
-    <% if (@match.blue_team.users.include?(current_user) || @match.red_team.users.include?(current_user)) && @match.user != current_user && @meet.date > Time.current && !@match.cancelled? %>
-      <%= button_to "Changer d'équipe", switch_team_meet_path(@meet), method: :post, class: "btn btn-ghost w-full border border-white/20" %>
+      <%# Bouton changer d'équipe (participants non-organisateur, avant le match, match non annulé) %>
+      <% if (@match.blue_team.users.include?(current_user) || @match.red_team.users.include?(current_user)) && @match.user != current_user && @meet.date > Time.current && !@match.cancelled? %>
+        <%= button_to "Changer d'équipe", switch_team_meet_path(@meet), method: :post, class: "btn btn-ghost w-full border border-white/20" %>
+      <% end %>
+      <%# Bouton quitter match (participants non-organisateur, avant le match OU si annulé) %>
+      <% if (@match.blue_team.users.include?(current_user) || @match.red_team.users.include?(current_user)) && @match.user != current_user && (@meet.date > Time.current || @match.cancelled?) %>
+        <%= button_to "Quitter le match", leave_meet_path(@meet), method: :post, class: "btn btn-ghost w-full text-error border border-error/30" %>
+      <% end %>
+      <%# Bouton annuler le match (organisateur uniquement, avant que le match soit terminé/annulé) %>
+      <% if @match.user == current_user && !@match.cancelled? && !@match.confirmed? %>
+        <%= button_to "Annuler le match", cancel_match_path(@match), method: :post, class: "btn btn-ghost w-full text-error border border-error/30", data: { turbo_confirm: "On siffle la fin du match avant le coup d’envoi ?" } %>
+      <% end %>
     <% end %>
-
-    <%# Bouton quitter match (participants non-organisateur, avant le match OU si annulé) %>
-    <% if (@match.blue_team.users.include?(current_user) || @match.red_team.users.include?(current_user)) && @match.user != current_user && (@meet.date > Time.current || @match.cancelled?) %>
-      <%= button_to "Quitter le match", leave_meet_path(@meet), method: :post, class: "btn btn-ghost w-full text-error border border-error/30" %>
-    <% end %>
-
-    <%# Bouton annuler le match (organisateur uniquement, avant que le match soit terminé/annulé) %>
-    <% if @match.user == current_user && !@match.cancelled? && !@match.confirmed? %>
-      <%= button_to "Annuler le match", cancel_match_path(@match), method: :post, class: "btn btn-ghost w-full text-error border border-error/30", data: { turbo_confirm: "Annuler ce match ? Les participants seront notifiés." } %>
-    <% end %>
-
-  <% end %>
-
-
-  </div><%# fin flex flex-col gap-8 %>
-
+  </div>
+  <%# fin flex flex-col gap-8 %>
   <%# Boutons flottants en bas de page %>
   <% if @meet.meetable_type == "Program" && @meet.date > Time.current %>
     <% if @program.user != current_user && !@program.team.users.include?(current_user) %>
