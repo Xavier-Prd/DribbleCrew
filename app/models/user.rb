@@ -20,10 +20,10 @@ class User < ApplicationRecord
     # Calcul SQL : additionne uniquement le score de l'équipe de l'utilisateur
     # via CASE plutôt que de charger tous les matchs en mémoire Ruby
     team_ids_str = team_ids.map(&:to_i).join(",")
-    basket_raw = Match.where("blue_team_id IN (?) OR red_team_id IN (?)", team_ids, team_ids)
-                      .sum("CASE WHEN blue_team_id IN (#{team_ids_str}) THEN COALESCE(blue_team_score, 0) ELSE COALESCE(red_team_score, 0) END")
+    basket_points = Match.where("blue_team_id IN (?) OR red_team_id IN (?)", team_ids, team_ids)
+                         .sum("LEAST(CASE WHEN blue_team_id IN (#{team_ids_str}) THEN COALESCE(blue_team_score, 0) ELSE COALESCE(red_team_score, 0) END * 0.25, 10.0)")
 
-    (victory_points + basket_raw * 0.25).round
+    (victory_points + basket_points).round
   end
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
