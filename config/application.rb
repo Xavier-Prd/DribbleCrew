@@ -23,6 +23,7 @@ module DribbleCrew
     #
     # Fuseau horaire de l'app : toutes les heures saisies et affichées sont en heure de Paris
     # Les dates sont toujours stockées en UTC en base, mais Rails fait la conversion automatiquement
+    config.active_storage.variant_processor = :mini_magick
     config.time_zone = "Paris"
     config.active_record.default_timezone = :local
     # Langue par défaut de l'app — utilisée par le helper l() pour traduire les dates (noms de mois, etc.)
