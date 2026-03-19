@@ -1,4 +1,4 @@
-<div class="min-h-screen bg-base-300 pb-24">
+<div class="min-h-screen bg-base-300 pb-24" data-controller="sticky-rank">
   <%# HEADER %>
   <div class="px-4 pt-6 pb-4 flex items-center justify-between">
     <%= link_to court_path(@court), class: "text-white text-base flex items-center gap-1" do %>
@@ -18,7 +18,7 @@
                            index == 1 ? 'bg-gradient-to-r from-gray-500 via-gray-200 to-gray-500' :
                            index == 2 ? 'bg-gradient-to-r from-orange-700 via-orange-300 to-orange-700' :
                            'bg-transparent' %>
-        <div class="p-[2px] rounded-2xl <%= wrapper_class %>">
+        <div class="p-[2px] rounded-2xl <%= wrapper_class %>" <%= "data-sticky-rank-target='row'" if user == current_user %>>
           <div class="bg-base-200 rounded-[14px] p-3 flex items-center gap-3">
             <span class="text-base font-black w-7 text-center shrink-0
             <%= index == 0 ? 'text-yellow-400' : index == 1 ? 'text-gray-300' : index == 2 ? 'text-orange-400' : 'text-gray-500' %>">
@@ -34,7 +34,7 @@
               <% end %>
             <% end %>
             <span class="text-white font-semibold flex-1 truncate"><%= user.username %></span>
-            <span class="badge badge-warning font-bold text-base shrink-0">
+            <span class="text-warning font-bold text-base shrink-0">
               <%= @victory_counts[user.id] || 0 %> pts
             </span>
           </div>
@@ -43,5 +43,32 @@
     <% else %>
       <p class="text-gray-400 text-center py-6 text-base">Aucun joueur classé sur ce terrain</p>
     <% end %>
+  </div>
+
+  <%# Barre fixe en bas — classement du current_user (dans le controller pour que Stimulus trouve la target) %>
+  <div data-sticky-rank-target="bar" class="fixed left-0 right-0 px-4 pt-3 pb-4 bg-gradient-to-t from-base-300 via-base-300/95 to-transparent pointer-events-none transition-opacity duration-300" style="bottom: var(--navbar-h)">
+    <div class="pointer-events-auto p-[2px] rounded-2xl bg-gradient-to-r from-primary/60 via-primary/20 to-primary/60">
+      <div class="bg-base-200 rounded-[14px] p-3 flex items-center gap-3">
+        <span class="text-base font-black w-7 text-center shrink-0 text-primary">
+          <%= @current_user_rank || "—" %>
+        </span>
+        <%= link_to profile_path(current_user), class: "w-10 h-10 rounded-full overflow-hidden shrink-0" do %>
+          <% if current_user.profile_picture.attached? %>
+            <%= image_tag current_user.profile_picture, class: "w-full h-full object-cover" %>
+          <% else %>
+            <div class="w-full h-full bg-base-300 flex items-center justify-center">
+              <i class="fa-solid fa-user text-gray-500 text-base"></i>
+            </div>
+          <% end %>
+        <% end %>
+        <span class="text-white font-semibold flex-1 truncate">
+          <%= current_user.username %>
+          <span class="text-white/30 text-sm font-normal ml-1">Vous</span>
+        </span>
+        <span class="text-warning font-bold text-base shrink-0">
+          <%= @current_user_points %> pts
+        </span>
+      </div>
+    </div>
   </div>
 </div>

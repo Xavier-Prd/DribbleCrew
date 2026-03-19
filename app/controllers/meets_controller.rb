@@ -101,6 +101,41 @@ class MeetsController < ApplicationController
     end
   end
 
+  def switch_team
+    @meet = Meet.find(params[:id])
+    @match = @meet.meetable
+
+    if @meet.meetable_type != "Match"
+      return redirect_to meet_path(@meet), alert: "Action non disponible."
+    end
+
+    if @match.user == current_user
+      return redirect_to meet_path(@meet), alert: "En tant qu'organisateur, tu ne peux pas changer d'équipe."
+    end
+
+    if @meet.date <= Time.current
+      return redirect_to meet_path(@meet), alert: "Ce match a déjà commencé."
+    end
+
+    if @match.blue_team.users.include?(current_user)
+      current_team = @match.blue_team
+      target_team  = @match.red_team
+    elsif @match.red_team.users.include?(current_user)
+      current_team = @match.red_team
+      target_team  = @match.blue_team
+    else
+      return redirect_to meet_path(@meet), alert: "Tu n'es pas inscrit à ce match."
+    end
+
+    if target_team.users.count >= target_team.number_player
+      return redirect_to meet_path(@meet), alert: "L'équipe adverse est complète."
+    end
+
+    UserTeam.find_by!(user: current_user, team: current_team).destroy
+    UserTeam.create!(user: current_user, team: target_team)
+    redirect_to meet_path(@meet), notice: "Tu as changé d'équipe !"
+  end
+
   def leave
     @meet = Meet.find(params[:id])
     @meetable = @meet.meetable
@@ -133,8 +168,13 @@ class MeetsController < ApplicationController
 
   def destroy
     @meet = Meet.find(params[:id])
+
+    if @meet.meetable_type == "Program" && @meet.meetable.user != current_user
+      return redirect_to meet_path(@meet), alert: "Seul l'organisateur peut supprimer cette session."
+    end
+
     @meet.destroy
-    redirect_to meets_path, notice: "Rencontre supprimée."
+    redirect_to meets_path, notice: "Session supprimée."
   end
 
   def new

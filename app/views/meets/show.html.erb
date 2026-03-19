@@ -56,6 +56,51 @@
             <span class="block text-xs text-white/60 uppercase">Date et Heure</span>
             <span class="font-semibold"><%= @meet.date.strftime("%d %B %Y à %H:%M") %></span>
           </div>
+        <% end %>
+      </div>
+    </div>
+    <%# Bouton supprimer (organisateur uniquement) %>
+    <% if @program.user == current_user %>
+      <button onclick="document.getElementById('delete-meet-modal').showModal()" class="btn btn-ghost w-full text-error border border-error/30">
+        <i class="fa-solid fa-trash"></i> Supprimer la session
+      </button>
+      <dialog id="delete-meet-modal" class="meet-show__modal">
+        <div class="flex items-center justify-between mb-6">
+          <div>
+            <p class="text-error text-xs font-bold uppercase tracking-widest m-0">Action irréversible</p>
+            <h2 class="m-0">Supprimer la session ?</h2>
+          </div>
+          <button type="button" onclick="document.getElementById('delete-meet-modal').close()" class="btn btn-ghost btn-sm btn-square">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+        <p class="text-white/50 text-sm mb-6">Les participants seront retirés et la session sera définitivement supprimée.</p>
+        <div class="flex flex-col gap-3">
+          <%= button_to meet_path(@meet), method: :delete, class: "btn btn-error w-full" do %>
+            <i class="fa-solid fa-trash"></i> Confirmer la suppression
+          <% end %>
+          <button type="button" onclick="document.getElementById('delete-meet-modal').close()" class="btn btn-ghost w-full">
+            Annuler
+          </button>
+        </div>
+      </dialog>
+    <% end %>
+    <%# Cas 2 : C'est un Match %>
+  <% else %>
+    <div>
+      <span class="badge badge-secondary badge-outline text-xs font-black uppercase tracking-widest">Match compétitif</span>
+      <h1 class="mt-2"><%= @match.blue_team.number_player %> vs <%= @match.red_team.number_player %></h1>
+    </div>
+    <%# ================================================================ %>
+    <%# BLOC MATCH ANNULÉ %>
+    <%# ================================================================ %>
+    <% if @match.cancelled? %>
+      <div class="flex flex-col items-center gap-3 py-6 px-4 rounded-2xl border border-error/30 bg-error/5">
+        <i class="fa-solid fa-ban text-3xl text-error/60"></i>
+        <div class="text-center">
+          <p class="text-error font-black uppercase tracking-widest text-sm">Match annulé</p>
+          <p class="text-white/40 text-sm mt-1">Ce match a été annulé par l'organisateur.</p>
+          >>>>>>> ddb0480f29e27c55fee01356ec824d0f6a1ce2ac
         </div>
       </div>
       <% content = JSON.parse(@program.content.gsub("=>", ":")) %>
@@ -315,6 +360,10 @@
             <%= form_builder.submit "Générer le QR code de validation", class: "btn btn-success w-full" %>
           <% end %>
         </dialog>
+      <% end %>
+      <%# Bouton changer d'équipe (participants non-organisateur, avant le match, match non annulé) %>
+      <% if (@match.blue_team.users.include?(current_user) || @match.red_team.users.include?(current_user)) && @match.user != current_user && @meet.date > Time.current && !@match.cancelled? %>
+        <%= button_to "Changer d'équipe", switch_team_meet_path(@meet), method: :post, class: "btn btn-ghost w-full border border-white/20" %>
       <% end %>
       <%# Bouton quitter match (participants non-organisateur, avant le match OU si annulé) %>
       <% if (@match.blue_team.users.include?(current_user) || @match.red_team.users.include?(current_user)) && @match.user != current_user && (@meet.date > Time.current || @match.cancelled?) %>
