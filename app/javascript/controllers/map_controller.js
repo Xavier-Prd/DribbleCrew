@@ -9,7 +9,7 @@ export default class extends Controller {
     radius:      { type: Number, default: 1000 }, // rayon de filtrage en mètres (défaut: 1000m)
   };
 
-  static targets = ["radiusDisplay", "radiusSelect"];
+  static targets = ["radiusDisplay", "radiusSelect", "search", "results", "clearBtn"];
 
   // La carte est initialisée dans connect() pour éviter de faire du work inutile si le composant n'est pas visible (ex: onglet non actif)
   connect() {
@@ -135,6 +135,81 @@ export default class extends Controller {
   }
 
   // ── Actions Stimulus ────────────────────────────────────────────────────────
+
+  // Déclenché à chaque frappe dans l'input de recherche.
+  // Filtre les terrains côté client (pas de requête serveur — les markers sont déjà en mémoire)
+  // et injecte les résultats dans le dropdown.
+  searchCourt(event) {
+    const query = event.target.value.trim().toLowerCase();
+
+    // Affiche/cache le bouton × selon que l'input est vide ou non
+    if (this.hasClearBtnTarget) this.clearBtnTarget.classList.toggle("hidden", query.length === 0);
+
+    // Si l'input est vide, on ferme le dropdown sans rien afficher
+    if (!query) { this.hideResults(); return; }
+
+    // Filtre les markers dont le nom contient la query (insensible à la casse), limité à 8 résultats
+    const matches = this.markersValue.filter(m => m.name.toLowerCase().includes(query)).slice(0, 8);
+
+    if (!matches.length) { this.hideResults(); return; }
+
+    // Génère le HTML des résultats — lat/lng stockés en data-attributes pour le clic
+    this.resultsTarget.innerHTML = matches.map(m => `
+      <li class="flex items-center gap-3 px-4 py-3 hover:bg-white/5 cursor-pointer border-b border-white/5 last:border-0 transition-colors"
+          data-lat="${m.lat}" data-lng="${m.lng}" data-name="${m.name}">
+        <i class="fa-solid fa-location-dot text-primary text-sm shrink-0"></i>
+        <span class="text-sm text-white truncate">${m.name}</span>
+      </li>
+    `).join("");
+
+    // Attache un listener sur chaque résultat
+    this.resultsTarget.querySelectorAll("li").forEach(li => {
+      li.addEventListener("click", () => {
+        const lat = parseFloat(li.dataset.lat);
+        const lng = parseFloat(li.dataset.lng);
+
+        // Si un marker hors-rayon avait été forcé lors d'une recherche précédente,
+        // on le retire du clusterGroup avant d'en afficher un nouveau
+        if (this.forcedMarker) {
+          const wasInRange = !this.userLatLng ||
+            this.userLatLng.distanceTo(L.latLng(this.forcedMarker.lat, this.forcedMarker.lng)) <= this.radiusValue;
+          if (!wasInRange) this.clusterGroup.removeLayer(this.forcedMarker.layer);
+          this.forcedMarker = null;
+        }
+
+        // Force l'affichage du marker même s'il est hors du rayon sélectionné :
+        // on retrouve son layer dans markerLayers par lat/lng et on le force dans clusterGroup
+        const found = this.markerLayers.find(m => m.lat === lat && m.lng === lng);
+        if (found) {
+          this.clusterGroup.addLayer(found.layer);
+          // On mémorise ce marker forcé pour pouvoir le retirer lors de la prochaine sélection
+          this.forcedMarker = found;
+        }
+
+        // Anime la carte vers le terrain sélectionné (zoom 16)
+        this.map.flyTo([lat, lng], 16, { animate: true, duration: 0.8 });
+
+        // Met à jour l'input avec le nom du terrain sélectionné et ferme le dropdown
+        this.searchTarget.value = li.dataset.name;
+        this.hideResults();
+        if (this.hasClearBtnTarget) this.clearBtnTarget.classList.remove("hidden");
+      });
+    });
+
+    this.resultsTarget.classList.remove("hidden");
+  }
+
+  // Vide l'input et ferme le dropdown
+  clearSearch() {
+    if (this.hasSearchTarget) this.searchTarget.value = "";
+    if (this.hasClearBtnTarget) this.clearBtnTarget.classList.add("hidden");
+    this.hideResults();
+  }
+
+  // Cache le dropdown des résultats
+  hideResults() {
+    if (this.hasResultsTarget) this.resultsTarget.classList.add("hidden");
+  }
 
   // Recentre la carte sur la position de l'utilisateur ou tente de la localiser si elle n'est pas encore connue
   recenter() {

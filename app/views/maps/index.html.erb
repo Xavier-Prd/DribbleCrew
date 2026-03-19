@@ -13,6 +13,47 @@
     <div class="flex absolute top-4 left-4 z-1000">
       <h2>DribbleCrew</h2>
     </div>
+
+    <%# ================================================================ %>
+    <%# BARRE DE RECHERCHE %>
+    <%# Overlay centré sous le header, positionné en absolute sur la carte.
+        top-16 pour laisser la place au logo (top-4) sans se superposer.
+        max-w-sm + px-4 pour rester lisible sur mobile. %>
+    <%# ================================================================ %>
+    <div class="absolute top-16 left-1/2 -translate-x-1/2 z-1000 w-full max-w-sm px-4">
+      <div class="relative">
+
+        <%# Champ de saisie %>
+        <div class="flex items-center gap-2 bg-base-300/95 backdrop-blur-sm border border-white/10 rounded-2xl px-4 py-2.5 shadow-xl">
+          <i class="fa-solid fa-magnifying-glass text-white/40 text-sm shrink-0"></i>
+
+          <%# data-map-target="search" → le controller JS lit la valeur saisie
+              data-action="input->map#searchCourt" → déclenche la recherche à chaque frappe %>
+          <input
+            type="text"
+            placeholder="Rechercher un terrain..."
+            class="bg-transparent outline-none text-white text-sm placeholder-white/30 flex-1 min-w-0"
+            data-map-target="search"
+            data-action="input->map#searchCourt"
+            autocomplete="off"
+          >
+
+          <%# Bouton × pour vider l'input — caché par défaut (class "hidden"),
+              affiché par JS dès qu'il y a du texte dans l'input %>
+          <button class="hidden text-white/30 hover:text-white/60 shrink-0" data-map-target="clearBtn" data-action="click->map#clearSearch">
+            <i class="fa-solid fa-xmark text-sm"></i>
+          </button>
+        </div>
+
+        <%# Liste des résultats — cachée par défaut (class "hidden"), remplie et affichée par JS.
+            Positionnée en absolute sous l'input, scrollable si + de 8 résultats. %>
+        <ul class="hidden absolute top-full left-0 right-0 mt-2 bg-base-300/95 backdrop-blur-sm border border-white/10 rounded-2xl overflow-hidden shadow-xl max-h-64 overflow-y-auto"
+            data-map-target="results">
+        </ul>
+
+      </div>
+    </div>
+
     <%# Sélecteur de périmètre — positionné en overlay sur la carte %>
     <div class="absolute top-4 right-4 z-1000">
       <select class="select select-ghost bg-base-300/90 focus:outline-none" data-action="change->map#setRadius" data-map-target="radiusSelect" autocomplete="off">
