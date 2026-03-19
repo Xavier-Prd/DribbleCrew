@@ -23,6 +23,12 @@
           value_method: :id,
           prompt: "Choisir un terrain",
           label: "Terrain" %>
+      <div class="tooltip tooltip-bottom w-fit -mt-2 mb-3 before:max-w-[220px] before:whitespace-normal before:text-center" data-tip="La sélection d'un terrain ne constitue pas une réservation. Il s'agit uniquement d'un point de rendez-vous.">
+        <span class="flex items-center gap-1.5 text-xs text-white/30 cursor-help hover:text-white/50 transition-colors">
+          <i class="fa-solid fa-circle-info"></i>
+          Le terrain n'est pas réservé
+        </span>
+      </div>
     <% end %>
     <%= f.button :submit, "Créer un match" %>
   <% end %>
