@@ -12,6 +12,8 @@ class CourtsController < ApplicationController
   def leaderboard
     @ranked_users = ranked_users
     @victory_counts = court_points_per_user
+    @current_user_rank = @ranked_users.index(current_user)&.+(1)
+    @current_user_points = @victory_counts[current_user.id] || 0
   end
 
   private
