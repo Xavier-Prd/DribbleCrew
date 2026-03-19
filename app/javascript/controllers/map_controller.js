@@ -75,6 +75,12 @@ export default class extends Controller {
     this.clusterGroup.addTo(this.map);
     this.addMarkers();
 
+    // Empêche Leaflet d'intercepter les clics sur les éléments UI absolus (radius picker, search bar)
+    this.element.querySelectorAll(".absolute, .fixed").forEach(el => {
+      L.DomEvent.disableClickPropagation(el);
+      L.DomEvent.disableScrollPropagation(el);
+    });
+
     // Overlay CSS — indépendant de Leaflet, toujours couvrant
     this.overlayEl = Object.assign(document.createElement("div"), {
       className: "map-overlay",
