@@ -6,7 +6,28 @@
     <% end %>
   </div>
 
+  <style>
+    @keyframes qr-bounce {
+      0%   { transform: translateY(0) scaleX(1) scaleY(1); animation-timing-function: ease-in; }
+      45%  { transform: translateY(48px) scaleX(1) scaleY(1); animation-timing-function: linear; }
+      50%  { transform: translateY(48px) scaleX(1.25) scaleY(0.7); animation-timing-function: ease-out; }
+      55%  { transform: translateY(48px) scaleX(1) scaleY(1); animation-timing-function: ease-out; }
+      100% { transform: translateY(0) scaleX(1) scaleY(1); animation-timing-function: ease-in; }
+    }
+    @keyframes qr-shadow {
+      0%   { transform: scaleX(0.4); opacity: 0.2; animation-timing-function: ease-in; }
+      50%  { transform: scaleX(1.2); opacity: 0.7; animation-timing-function: ease-out; }
+      100% { transform: scaleX(0.4); opacity: 0.2; animation-timing-function: ease-in; }
+    }
+    .qr-ball { font-size: 3.5rem; line-height: 1; filter: drop-shadow(0 4px 16px rgba(250,108,0,0.4)); animation: qr-bounce 1.1s ease-in infinite; transform-origin: center bottom; }
+    .qr-ball-shadow { width: 36px; height: 7px; background: rgba(250,108,0,0.3); border-radius: 50%; filter: blur(4px); animation: qr-shadow 1.1s ease-in infinite; margin-top: -6px; }
+  </style>
+
   <div class="flex-1 flex flex-col items-center justify-center gap-8 px-6">
+    <div class="flex flex-col items-center gap-1">
+      <div class="qr-ball">🏀</div>
+      <div class="qr-ball-shadow"></div>
+    </div>
     <div class="text-center">
       <h1 class="mb-1">Rejoins DribbleCrew</h1>
       <p class="text-white/40 text-sm">Scanne ce QR code pour accéder à l'app</p>
@@ -17,6 +38,6 @@
       <%= raw @qr_svg %>
     </div>
 
-    <p class="text-white/20 text-xs tracking-widest uppercase">dribblecrew.site</p>
+    <p class="text-white/20 text-xs tracking-widest uppercase">www.dribblecrew.site</p>
   </div>
 </div>
