@@ -29,6 +29,7 @@ Rails.application.routes.draw do
     member do
       post "join"
       post "leave"
+      post "switch_team"
     end
   end
   resources :profiles, only: [ :show, :edit, :update ] do
