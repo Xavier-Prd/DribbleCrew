@@ -33,7 +33,7 @@ class ProfilesController < ApplicationController
   def update
     @user = current_user
     if @user.update(user_params)
-      redirect_to profile_path, notice: "Profil mis à jour avec succès"
+      redirect_to profile_path(@user), notice: "Profil mis à jour avec succès"
     else
       render :show
     end

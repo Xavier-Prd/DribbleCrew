@@ -3,6 +3,7 @@ class User < ApplicationRecord
   has_one_attached :profile_picture
   has_many :victories
   has_many :programs
+  has_many :matches
   has_many :program_meets, through: :programs, source: :meets
   has_many :match_meets,   through: :matches,  source: :meets
   has_many :user_teams
